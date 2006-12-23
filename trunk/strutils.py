@@ -23,7 +23,7 @@ def articleise(string):
     return 'a ' + string
 
 def capitalise(s):
-    s.capitalize()
+    return s.capitalize()
 
 #it takes prefixes of symbols to be the 'head word'.
 _hwspattern = (Word(punctuation) + Optional(Word(alnumspace))) | \

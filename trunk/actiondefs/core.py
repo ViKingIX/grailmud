@@ -1,3 +1,5 @@
+# pylint: disable-msg=W0611
+#we import the whole of pyparsing for convenience's sake.
 from string import ascii_letters, digits
 from multimethod import Multimethod
 from pyparsing import *
@@ -23,7 +25,7 @@ class UnfoundMethod(Multimethod):
 
 class BaseEvent(object):
 
-    def collapseToText(self, state):
+    def collapseToText(self, state, obj):
         raise NotImplementedError("Base class.")
 
 class UnfoundActionEvent(BaseEvent):
