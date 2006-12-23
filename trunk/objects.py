@@ -25,14 +25,12 @@ class MUDObject(object):
             self.removeListener(listener)
             obj.addListener(listener)
 
+class TargettableObject(MUDObject):
+    #Additional instance variables: sdesc, name, adjs.
+    
     def match(self, attrs):
         return (len(attrs) == 1 and self.name in attrs) or \
                self.adjs.issuperset(attrs)
-
-
-class TargettableObject(MUDObject):
-    #Additional instance variables: sdesc, name, adjs.
-    pass
 
 class Player(TargettableObject):
 

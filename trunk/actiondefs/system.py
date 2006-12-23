@@ -1,6 +1,5 @@
-from grail2.actiondefs.core import BaseEvent, UnfoundMethod, distributeEvent
+from grail2.actiondefs.core import BaseEvent, distributeEvent
 from grail2.strutils import capitalise
-from grail2.objects import Player
 
 class LogoffFirstEvent(BaseEvent):
 

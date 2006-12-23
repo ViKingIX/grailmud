@@ -27,6 +27,7 @@ class SpeakNormalFirstEvent(BaseEvent):
 class SpeakNormalThirdEvent(BaseEvent):
 
     def __init__(self, actor, text):
+        self.actor = actor
         self.text = text
 
     def collapseToText(self, state, obj):
@@ -47,7 +48,7 @@ class SpeakToFirstEvent(BaseEvent):
         self.text = text
 
     def collapseToText(self, state, obj):
-        d = articleise(self.actor.sdesc)
+        d = articleise(self.target.sdesc)
         state.forcePrompt()
         state.setColourName('speech')
         if self.text:

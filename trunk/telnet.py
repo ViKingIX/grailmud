@@ -3,9 +3,11 @@ from functional import compose
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
 from grail2.objects import Player
-from grail2.actions import cmdict, logoffFinal, login
+from grail2.actions import cdict
+from grail2.actiondefs.system import logoffFinal, login
 from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
+from grail2.rooms import Room
 
 class StatefulTelnet(Telnet, LineOnlyReceiver):
 
@@ -59,6 +61,15 @@ class LoggerIn(StatefulTelnet):
 
     linestate = 'get_name'
     avatar = None
+    startroom = Room("A very plain room",
+                     "This is a plain room. The sky is an overcast grey, but "
+                     "without an interesting pattern of clouds in it. The "
+                     "ground is an anonymous grey dirt, compacted by the "
+                     "stomping of a million different feet into a featureless "
+                     "plain, stretching as far as you can see, the greyness of "
+                     "the ground and the greyness of the sky melding at the "
+                     "horizon, denying itself even the interestingness of a "
+                     "sharp contrast between ground and sky.")
 
     def connectionMade(self):
         StatefulTelnet.connectionMade(self)
@@ -86,7 +97,7 @@ class LoggerIn(StatefulTelnet):
         self.adjs = set(line.split())
         self.connection_state = ConnectionState(self)
         self.avatar = Player(self.connection_state, self.name, self.sdesc,
-                             self.adjs, cmdict, self.startroom)
+                             self.adjs, cdict, self.startroom)
         self.connection_state.avatar = self.avatar
         self.startroom.add(self.avatar)
         login(self.avatar, '')
@@ -98,7 +109,7 @@ class LoggerIn(StatefulTelnet):
         saneline = sanitise(line)
         logging.debug('%r received, handling in avatar.' % saneline)
         self.avatar.receivedLine(saneline,
-                                 LineInfo(instigator = self.actor))
+                                 LineInfo(instigator = self.avatar))
         self.avatar.eventFlush()
 
     def connectionLost(self, reason):
@@ -130,6 +141,9 @@ class ConnectionState(object):
         if not self.listening:
             self.telnet.close()
 
+    def sendIACGA(self):
+        self.telnet.write('\xFF\xFA')
+
     def sendPrompt(self):
         logging.debug("Sending a prompt.")
         self.forceNewline()
@@ -160,7 +174,7 @@ class ConnectionState(object):
 
     def forceNewline(self):
         if not self.on_newline:
-            self.write('\r\n')
+            self.telnet.write('\r\n')
             self.on_newline = True
 
     def forcePromptNL(self):
