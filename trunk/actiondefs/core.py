@@ -1,4 +1,5 @@
 from string import ascii_letters, digits
+from multimethod import Multimethod
 from pyparsing import *
 from grail2.rooms import UnfoundError
 
