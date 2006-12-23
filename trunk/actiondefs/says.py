@@ -1,5 +1,6 @@
 from pyparsing import *
-from grail2.actiondefs.core import BaseEvent, object_pattern, distributeEvent
+from grail2.actiondefs.core import BaseEvent, object_pattern, distributeEvent,\
+                                   UnfoundMethod
 from grail2.strutils import capitalise, articleise, printables
 from grail2.objects import MUDObject, TargettableObject
 
@@ -56,7 +57,9 @@ def speak(actor, text):
     actor.receiveEvent(SpeakNormalFirstEvent(text))
     distributeEvent(actor.room, [actor], SpeakNormalThirdEvent(actor, text))
 
-@UnfoundMethod().register(MUDObject, TargettableObject, basestring)
+speakTo = UnfoundMethod()
+
+@speakTo.register(MUDObject, TargettableObject, basestring)
 def speakTo(actor, target, text):
     if target not in actor.room:
         unfoundObject(actor)

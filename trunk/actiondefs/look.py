@@ -48,14 +48,16 @@ def look(actor, text, info):
     except UnfoundError:
         unfoundObject(actor)
 
-@UnfoundMethod().register(MUDObject, TargettableObject)
+lookAt = UnfoundMethod()
+
+@lookAt.register(MUDObject, TargettableObject)
 def lookAt(actor, target):
     if target not in actor.room and target not in actor.inventory:
         raise UnfoundError
     else:
         actor.receiveEvent(LookAtEvent(target))
 
-@lookAt.register(MUDObject, ExitObject):
+@lookAt.register(MUDObject, ExitObject)
 def lookAt(actor, target):
     if target not in actor.room: #stricter deliberately.
         raise UnfoundError

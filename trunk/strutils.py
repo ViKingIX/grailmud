@@ -1,4 +1,4 @@
-from string import printable, whitespace, ascii_letters, digits
+from string import printable, whitespace, ascii_letters, digits, punctuation
 from pyparsing import *
 
 nwprintable = ''.join(s for s in printable if s not in whitespace)

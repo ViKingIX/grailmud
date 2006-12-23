@@ -80,13 +80,10 @@ def quitGame(actor, text, info):
     else:
         logoffFinal(actor)
 
-#XXX: do we really need UnfoundMethod here?
-@UnfoundMethod().register(Player)
 def login(actor):
     actor.receiveEvent(LoginFirstEvent())
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
 
-@UnfoundMethod().register(Player)
 def logoffFinal(actor):
     actor.receiveEvent(LogoffFirstEvent())
     distributeEvent(actor.room, [actor], LogoffThirdEvent(actor))

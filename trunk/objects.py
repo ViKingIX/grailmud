@@ -1,5 +1,4 @@
 import logging
-from grail2.actions import unfoundAction
 from grail2.strutils import head_word_split
 
 class MUDObject(object):
@@ -35,7 +34,7 @@ class TargettableObject(MUDObject):
     #Additional instance variables: sdesc, name, adjs.
     pass
 
-class Player(LookableObject):
+class Player(TargettableObject):
 
     def __init__(self, conn, name, sdesc, adjs, cmdict, room):
         self.listeners = set()
@@ -50,12 +49,8 @@ class Player(LookableObject):
     def receivedLine(self, line, info):
         cmd, rest = head_word_split(line)
         logging.debug("cmd is %r." % cmd)
-        try:
-            func = self.cmdict[cmd.lower()] #XXX: hardcoded
-            logging.debug("Command found in cmdict, function is %r" % func)
-        except KeyError:
-            func = unfoundAction #XXX: hardcoded.
-            logging.debug("Command not found in cmdict.")
+        func = self.cmdict[cmd.lower()] #XXX: hardcoded
+        logging.debug("Command found in cmdict, function is %r" % func)
         func(self, rest, info)
 
 class ExitObject(MUDObject):
