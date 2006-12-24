@@ -41,7 +41,7 @@ def unknownOption(actor, command):
 
 def setLDesc(actor, desc):
     actor.ldesc = desc
-    actor.receiveEvent(LDescSetEvent(levent))
+    actor.receiveEvent(LDescSetEvent(desc))
 
 def register(cdict):
-    cdict['set'] = setDistributor
+    cdict['set'] = setDistribute
