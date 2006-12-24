@@ -1,3 +1,6 @@
+"""This module is intended to be the main entry point for the server, run from
+the shell.
+"""
 from grail2.server import ConnectionFactory
 from twisted.internet import reactor
 import sys

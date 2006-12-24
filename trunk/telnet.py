@@ -1,3 +1,8 @@
+# pylint: disable-msg=C0103
+#it complains about practically all of the names in this module...
+"""A couple of handy classes for the nitty-gritties of the telnet connection,
+and keeping track of that sort of stuff.
+"""
 import logging
 from functional import compose
 from sha import sha
@@ -12,6 +17,9 @@ from grail2.rooms import Room
 
 
 class StatefulTelnet(Telnet, LineOnlyReceiver):
+    """A class that calls a specific method, depending on what the last method
+    called returned.
+    """
 
     delimiter = '\n'
 
@@ -20,6 +28,9 @@ class StatefulTelnet(Telnet, LineOnlyReceiver):
     applicationDataReceived = LineOnlyReceiver.dataReceived
 
     def lineReceived(self, line):
+        """Receive a line of text and delegate it to the method asked for
+        previously.
+        """
         #State monad anyone?
         meth = getattr(self, 'line_%s' % self.linestate)
         logging.debug("Line %r received, calling %r." % (line, meth))
@@ -28,39 +39,46 @@ class StatefulTelnet(Telnet, LineOnlyReceiver):
             self.linestate = rval
 
     def line_ignore(self, line):
+        """A no-op, the default."""
         pass
 
     def connectionLost(self, reason):
+        """The connection's been lost; notify the superclasses."""
         Telnet.connectionLost(self, reason)
         LineOnlyReceiver.connectionLost(self, reason)
 
     def connectionMade(self):
+        """The connection's been made; notify the superclasses."""
         Telnet.connectionMade(self)
         LineOnlyReceiver.connectionMade(self)
 
     def close(self):
+        """Convenience."""
         self.transport.loseConnection()
 
     def write(self, data):
+        """Convenience."""
         logging.debug("Writing %r to the transport." % data)
         self.transport.write(data)
 
-    def sendIACGA(self):
-        self.transport.write('\xff\xfa')
-
 class NotAllowed(Exception):
+    """The input was not acceptable, with an optional explanation."""
 
     def __init__(self, msg = "That input is invalid."):
         self.msg = msg
 
 def toint(s):
+    """Convert s to an int, or throw a NotAllowed."""
     try:
         return int(s)
-    except TypeError:
+    except ValueError:
         return NotAllowed("That couldn't be parsed as a number.")
 
 def strconstrained(blankallowed = False, corrector = sanitise,
                    msg = 'Try actually writing something usable?'):
+    """Decorator to ensure that the function is only called with acceptable
+    input.
+    """
     def constrained(fn):
         def checker(self, line):
             try:
@@ -84,6 +102,7 @@ class LoggerIn(StatefulTelnet):
     avatar = None
 
     def connectionMade(self):
+        """The connection's been made, and send out the initial options."""
         StatefulTelnet.connectionMade(self)
         self.write("Welcome to GrailMUD.\r\n")
         self.write("Please choose:\r\n")
@@ -94,6 +113,9 @@ class LoggerIn(StatefulTelnet):
     #we want this here for normalisation purposes.
     @strconstrained(corrector = toint)
     def line_choice_made(self, opt):
+        """The user's made their choice, so we pick the appropriate route: we
+        either create a new character, or log in as an old one.
+        """
         if opt == NEW_CHARACTER:
             self.write("Enter your name.")
             return 'get_name_new'
@@ -103,6 +125,9 @@ class LoggerIn(StatefulTelnet):
 
     @strconstrained(corrector = alphatise)
     def line_get_name_existing(self, line):
+        """Logging in as an existing character, we've been given the name. We
+        ask for the password next.
+        """
         if line in self.playercatalogue.byname:
             self.name = line
             self.write("Please enter your password.\xff\xfa")
@@ -111,6 +136,9 @@ class LoggerIn(StatefulTelnet):
             self.write("That name is not recognised. Please try again.")
 
     def line_get_password_existing(self, line):
+        """We've been given the password. Check that it's correct, and then
+        insert the appropriate avatar into the MUD.
+        """
         line = safetise(line)
         if len(line) <= 3:
             self.write("That password is not long enough.")
@@ -126,11 +154,16 @@ class LoggerIn(StatefulTelnet):
 
     @strconstrained(corrector = alphatise)
     def line_get_name_new(self, line):
+        """The user's creating a new character. We've been given the name,
+        so we ask for the password.
+        """
         self.name = line
         self.write("Please enter a password for this character.")
         return 'get_password_new'
 
-    def get_password_new(self, line):
+    def line_get_password_new(self, line):
+        """We've been given the password. Salt and hash it, then store the hash.
+        """
         line = safetise(line)
         if len(line) <= 3:
             self.write("That password is not long enough.")
@@ -141,6 +174,7 @@ class LoggerIn(StatefulTelnet):
 
     @strconstrained(corrector = compose(sanitise, wsnormalise))
     def line_get_sdesc(self, line):
+        """Got the sdesc; ask for the adjectives."""
         self.sdesc = articleise(line)
         self.write("Enter a comma-separated list of words that can be used to "
                    "refer to you (eg, 'hairy tall troll') or a blank line to "
@@ -150,6 +184,9 @@ class LoggerIn(StatefulTelnet):
     @strconstrained(blankallowed = True,
                     corrector = compose(alphatise, wsnormalise))
     def line_get_adjs(self, line):
+        """Got the adjectives; create the avatar, add it to the catalogue, and
+        insert the avatar into the game.
+        """
         if not line:
             line = self.sdesc
         self.adjs = set(line.split())
@@ -160,6 +197,7 @@ class LoggerIn(StatefulTelnet):
         return 'avatar'
 
     def initialise_avatar(self, avatar):
+        """Get the avatar (and us!) into a working state."""
         self.avatar = avatar
         self.connection_state = ConnectionState(self)
         self.avatar.addListener(self.connection_state)
@@ -170,6 +208,7 @@ class LoggerIn(StatefulTelnet):
 
     @strconstrained(blankallowed = True, corrector = safetise)
     def line_avatar(self, line):
+        """Toss the line received to the avatar."""
         saneline = sanitise(line)
         logging.debug('%r received, handling in avatar.' % saneline)
         try:
@@ -182,17 +221,23 @@ class LoggerIn(StatefulTelnet):
             raise
 
     def connectionLost(self, reason):
+        """Clean up and let the superclass handle it."""
         if self.avatar:
             logoffFinal(self.avatar)
         StatefulTelnet.connectionLost(self, reason)
 
 class LineInfo(object):
+    """A catch-all class for other useful information that needs to be handed
+    to avatars with lines of commands.
+    """
 
     def __init__(self, instigator = None): #XXX: probably other stuff to go
                                            #here too.
         self.instigator = instigator
 
 class ConnectionState(object):
+    """Represents the state of the connection to the events as they collapse to
+    text."""
 
     def __init__(self, telnet):
         self.telnet = telnet
@@ -203,17 +248,21 @@ class ConnectionState(object):
         self.avatar = None
 
     def register(self, source):
+        """Register ourselves as a listener."""
         self.listening.add(source)
 
     def unregister(self, source):
+        """Unregister ourselves as a listener."""
         self.listening.remove(source)
         if not self.listening:
             self.telnet.close()
 
     def sendIACGA(self):
+        """Write an IAC GA (go-ahead) code to the telnet connection."""
         self.telnet.write('\xFF\xFA')
 
     def sendPrompt(self):
+        """Send a prompt, plus an IAC GA (-without- a trailing newline)."""
         logging.debug("Sending a prompt.")
         self.forceNewline()
         self.telnet.write('-->')
@@ -223,38 +272,49 @@ class ConnectionState(object):
         self.on_newline = False
 
     def forcePrompt(self):
+        """Ensure we are on a prompt. May be a noop."""
         if not self.on_prompt:
             self.sendPrompt()
 
     def sendEventLine(self, line):
+        """Send a line, with \\r\\n appended."""
         self.sendEventData(line + '\r\n')
 
     def sendEventData(self, data):
+        """Write a blob of data to the telnet connection. Sets self.on_prompt to
+        False, and on_newline to the appropriate value.
+        """
         self.telnet.write(data)
         logging.debug("%r written." % data)
         self.on_prompt = False
         self.on_newline = data[-2:] == '\r\n'
 
     def dontWantPrompt(self):
+        """We don't want a prompt next flush."""
         self.want_prompt = False
 
     def setColourName(self, colour):
+        """Set our colour output to a predefined one."""
         pass #XXX
 
     def forceNewline(self):
+        """Ensure we're on a newline."""
         if not self.on_newline:
             self.telnet.write('\r\n')
             self.on_newline = True
 
     def forcePromptNL(self):
+        """Ensure we're on a prompt-newline."""
         self.forcePrompt()
         self.forceNewline()
 
     def listenToEvent(self, obj, event):
+        """Collapse an event to text."""
         logging.debug("Handling event %r." % event)
         event.collapseToText(self, self.avatar)
 
     def eventListenFlush(self, obj):
+        """Send off a final prompt to finish off the events."""
         logging.debug("Flushing the events, and stuff.")
         if self.want_prompt:
             self.sendPrompt()
