@@ -1,3 +1,4 @@
+import logging
 from grail2.actiondefs.core import BaseEvent, distributeEvent
 from grail2.strutils import capitalise
 
@@ -18,7 +19,7 @@ class LogoffThirdEvent(BaseEvent):
         state.forcePrompt()
         state.setColourName('normal')
         state.sendEventLine("%s has left the game." %
-                            capitalise(self.actor.name))
+                            capitalise(self.actor.sdesc))
 
 class LoginThirdEvent(BaseEvent):
 
@@ -29,7 +30,7 @@ class LoginThirdEvent(BaseEvent):
         state.forcePrompt()
         state.setColourName("normal")
         state.sendEventLine("%s's form appears, and they crackle into life." %
-                            capitalise(self.actor.name))
+                            capitalise(self.actor.dsesc))
 
 class LoginFirstEvent(BaseEvent):
 
@@ -84,6 +85,10 @@ def login(actor):
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
 
 def logoffFinal(actor):
+    if getattr(actor, 'logged_off', False):
+        logging.info("Foiled a double logoff attempt with %r." % actor)
+        return
+    actor.logged_off = True
     actor.receiveEvent(LogoffFirstEvent())
     distributeEvent(actor.room, [actor], LogoffThirdEvent(actor))
     for listener in actor.listeners.copy(): #copy because we mutate it

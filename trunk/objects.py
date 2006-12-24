@@ -38,7 +38,7 @@ class Player(TargettableObject):
         self.listeners = set()
         self.name = name
         self.sdesc = sdesc
-        self.adjs = adjs + set([name])
+        self.adjs = adjs | set([name])
         self.addListener(conn)
         self.cmdict = cmdict
         self.room = room

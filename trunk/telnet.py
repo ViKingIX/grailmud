@@ -61,15 +61,6 @@ class LoggerIn(StatefulTelnet):
 
     linestate = 'get_name'
     avatar = None
-    startroom = Room("A very plain room",
-                     "This is a plain room. The sky is an overcast grey, but "
-                     "without an interesting pattern of clouds in it. The "
-                     "ground is an anonymous grey dirt, compacted by the "
-                     "stomping of a million different feet into a featureless "
-                     "plain, stretching as far as you can see, the greyness of "
-                     "the ground and the greyness of the sky melding at the "
-                     "horizon, denying itself even the interestingness of a "
-                     "sharp contrast between ground and sky.")
 
     def connectionMade(self):
         StatefulTelnet.connectionMade(self)
@@ -100,7 +91,7 @@ class LoggerIn(StatefulTelnet):
                              self.adjs, cdict, self.startroom)
         self.connection_state.avatar = self.avatar
         self.startroom.add(self.avatar)
-        login(self.avatar, '')
+        login(self.avatar)
         self.connection_state.eventListenFlush(self.avatar)
         return 'avatar'
 
@@ -108,9 +99,14 @@ class LoggerIn(StatefulTelnet):
     def line_avatar(self, line):
         saneline = sanitise(line)
         logging.debug('%r received, handling in avatar.' % saneline)
-        self.avatar.receivedLine(saneline,
-                                 LineInfo(instigator = self.avatar))
-        self.avatar.eventFlush()
+        try:
+            self.avatar.receivedLine(saneline,
+                                     LineInfo(instigator = self.avatar))
+            self.avatar.eventFlush()
+        except:
+            logging.error('Unhandled error %e, closing session.')
+            logoffFinal(self.avatar)
+            raise
 
     def connectionLost(self, reason):
         if self.avatar:

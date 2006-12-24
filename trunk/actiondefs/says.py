@@ -5,7 +5,7 @@ from grail2.actiondefs.core import BaseEvent, object_pattern, distributeEvent,\
                                    UnfoundMethod, adjs_num_parse
 from grail2.actiondefs.system import unfoundObject, badSyntax
 from grail2.rooms import UnfoundError
-from grail2.strutils import capitalise, articleise, printables
+from grail2.strutils import capitalise, printables
 from grail2.objects import MUDObject, TargettableObject
 
 class SpeakNormalFirstEvent(BaseEvent):
@@ -31,7 +31,7 @@ class SpeakNormalThirdEvent(BaseEvent):
         self.text = text
 
     def collapseToText(self, state, obj):
-        d = capitalise(articleise(self.actor.sdesc))
+        d = capitalise(self.actor.sdesc)
         state.forcePrompt()
         state.setColourName("speech")
         if not self.text:
@@ -48,7 +48,7 @@ class SpeakToFirstEvent(BaseEvent):
         self.text = text
 
     def collapseToText(self, state, obj):
-        d = articleise(self.target.sdesc)
+        d = self.target.sdesc
         state.forcePrompt()
         state.setColourName('speech')
         if self.text:
@@ -67,7 +67,7 @@ class SpeakToSecondEvent(BaseEvent):
         self.text = text
 
     def collapseToText(self, state, obj):
-        d = capitalise(articleise(self.actor.sdesc))
+        d = capitalise(self.actor.sdesc)
         state.forcePrompt()
         state.setColourName("speech")
         if self.text:
@@ -86,8 +86,8 @@ class SpeakToThirdEvent(BaseEvent):
         self.text = text
 
     def collapseToText(self, state, obj):
-        da = capitalise(articleise(self.actor.sdesc))
-        dt = capitalise(articleise(self.actor.sdesc))
+        da = capitalise(self.actor.sdesc)
+        dt = capitalise(self.actor.sdesc)
         state.forcePrompt()
         state.setColourName("speech")
         if self.text:

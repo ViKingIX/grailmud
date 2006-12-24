@@ -6,7 +6,7 @@ from grail2.actiondefs.core import BaseEvent, object_pattern, adjs_num_parse,\
 from grail2.actiondefs.system import unfoundObject
 from grail2.rooms import UnfoundError
 from grail2.objects import Player, TargettableObject, ExitObject, MUDObject
-from grail2.strutils import capitalise, articleise
+from grail2.strutils import capitalise
 
 class LookAtEvent(BaseEvent):
 
@@ -30,7 +30,7 @@ class LookRoomEvent(BaseEvent):
         state.setColourName("room desc")
         state.sendEventLine(self.room.desc)
         state.setColourName("people list")
-        peopleList = ["%s is here." % capitalise(articleise(obj.sdesc))
+        peopleList = ["%s is here." % capitalise(obj.sdesc)
                       for obj in self.room.contents]
         state.sendEventLine(" ".join(peopleList))
 
