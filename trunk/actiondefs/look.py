@@ -16,7 +16,10 @@ class LookAtEvent(BaseEvent):
     def collapseToText(self, state, obj):
         state.forcePrompt()
         state.setColourName('normal')
-        state.sendEventLine("ldescs aren't implemented yet, I'm afraid.")
+        desc = getattr(self.target, 'ldesc',
+                       "They're %s. Nothing more, nothing less."
+                       % self.target.sdesc)
+        state.sendEventLine(capitalise(desc))
 
 class LookRoomEvent(BaseEvent):
 
