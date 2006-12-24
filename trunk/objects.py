@@ -34,15 +34,14 @@ class TargettableObject(MUDObject):
 
 class Player(TargettableObject):
 
-    def __init__(self, conn, name, sdesc, adjs, cmdict, room):
+    def __init__(self, name, sdesc, adjs, cmdict, room):
         self.listeners = set()
         self.name = name
         self.sdesc = sdesc
         self.adjs = adjs | set([name])
-        self.addListener(conn)
         self.cmdict = cmdict
         self.room = room
-        self.primaryconn = conn
+        self.connstate = 'online'
 
     def receivedLine(self, line, info):
         cmd, rest = head_word_split(line)
@@ -59,3 +58,13 @@ class ExitObject(MUDObject):
         self.room = room
         self.target_room = target_room
         self.exit_desc = direction if exit_desc is None else exit_desc
+
+class PlayerCatalogue(object):
+
+    def __init__(self):
+        self.byname = {}
+        self.passhashes = {}
+
+    def add(self, avatar, passhash):
+        self.byname[avatar.name] = avatar
+        self.passhash[avatar.name] = passhash

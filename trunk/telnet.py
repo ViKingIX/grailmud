@@ -1,5 +1,6 @@
 import logging
 from functional import compose
+from sha import sha
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
 from grail2.objects import Player
@@ -8,6 +9,7 @@ from grail2.actiondefs.system import logoffFinal, login
 from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
 from grail2.rooms import Room
+
 
 class StatefulTelnet(Telnet, LineOnlyReceiver):
 
@@ -46,29 +48,94 @@ class StatefulTelnet(Telnet, LineOnlyReceiver):
     def sendIACGA(self):
         self.transport.write('\xff\xfa')
 
-def strconstrained(blankallowed = False, corrector = sanitise):
+class NotAllowed(Exception):
+
+    def __init__(self, msg = "That input is invalid."):
+        self.msg = msg
+
+def toint(s):
+    try:
+        return int(s)
+    except TypeError:
+        return NotAllowed("That couldn't be parsed as a number.")
+
+def strconstrained(blankallowed = False, corrector = sanitise,
+                   msg = 'Try actually writing something usable?'):
     def constrained(fn):
         def checker(self, line):
-            line = corrector(line.lower())
-            if not blankallowed and not line:
-                self.write('Try actually writing something usable?')
-                return
-            return fn(self, line)
+            try:
+                line = corrector(line.lower())
+            except NotAllowed, e:
+                self.write(e.msg)
+            else:
+                if not blankallowed and not line:
+                    self.write(msg)
+                    return
+                return fn(self, line)
         return checker
     return constrained
 
+NEW_CHARACTER = 1
+LOGIN = 2
+
 class LoggerIn(StatefulTelnet):
 
-    linestate = 'get_name'
+    linestate = 'choice_made'
     avatar = None
 
     def connectionMade(self):
         StatefulTelnet.connectionMade(self)
-        self.transport.write("Enter your name.")
+        self.write("Welcome to GrailMUD.\r\n")
+        self.write("Please choose:\r\n")
+        self.write("1) Enter the game with a new character.\r\n")
+        self.write("2) Log in as an existing character.\r\n")
+        self.write("Please enter the number of your choice.\xff\xfa")
+
+    #we want this here for normalisation purposes.
+    @strconstrained(corrector = toint)
+    def line_choice_made(self, opt):
+        if opt == NEW_CHARACTER:
+            self.write("Enter your name.")
+            return 'get_name_new'
+        elif opt == LOGIN:
+            self.write("What is your name?")
+            return 'get_name_existing'
 
     @strconstrained(corrector = alphatise)
-    def line_get_name(self, line):
+    def line_get_name_existing(self, line):
+        if line in self.playercatalogue.byname:
+            self.name = line
+            self.write("Please enter your password.\xff\xfa")
+            return 'get_password_existing'
+        else:
+            self.write("That name is not recognised. Please try again.")
+
+    def line_get_password_existing(self, line):
+        line = safetise(line)
+        if len(line) <= 3:
+            self.write("That password is not long enough.")
+            return
+        passhash = sha(line + self.name).digest()
+        if passhash != self.playercatalogue.passhashes[self.name]:
+            self.write("That password is invalid. Goodbye!")
+            self.connectionLost('bad password')
+            return
+        avatar = self.playercatalogue.byname[self.name]
+        self.initialise_avatar(avatar)
+        return 'avatar'
+
+    @strconstrained(corrector = alphatise)
+    def line_get_name_new(self, line):
         self.name = line
+        self.write("Please enter a password for this character.")
+        return 'get_password_new'
+
+    def get_password_new(self, line):
+        line = safetise(line)
+        if len(line) <= 3:
+            self.write("That password is not long enough.")
+            return
+        self.passhash = sha(line + self.name).digest()
         self.write("Enter your description (eg, 'short fat elf').")
         return 'get_sdesc'
 
@@ -86,14 +153,20 @@ class LoggerIn(StatefulTelnet):
         if not line:
             line = self.sdesc
         self.adjs = set(line.split())
+        avatar = Player(self.name, self.sdesc, self.adjs, cdict,
+                        self.startroom)
+        self.playercatalogue.add(avatar, passhash)
+        self.initialise_avatar(avatar)
+        return 'avatar'
+
+    def initialise_avatar(self, avatar):
+        self.avatar = avatar
         self.connection_state = ConnectionState(self)
-        self.avatar = Player(self.connection_state, self.name, self.sdesc,
-                             self.adjs, cdict, self.startroom)
+        self.avatar.addListener(self.connection_state)
         self.connection_state.avatar = self.avatar
         self.startroom.add(self.avatar)
         login(self.avatar)
         self.connection_state.eventListenFlush(self.avatar)
-        return 'avatar'
 
     @strconstrained(blankallowed = True, corrector = safetise)
     def line_avatar(self, line):

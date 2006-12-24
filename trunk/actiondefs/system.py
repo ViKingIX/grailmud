@@ -81,14 +81,15 @@ def quitGame(actor, text, info):
         logoffFinal(actor)
 
 def login(actor):
+    actor.connstate = 'online'
     actor.receiveEvent(LoginFirstEvent())
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
 
 def logoffFinal(actor):
-    if getattr(actor, 'logged_off', False):
+    if actor.connstate != 'online':
         logging.info("Foiled a double logoff attempt with %r." % actor)
         return
-    actor.logged_off = True
+    actor.connstate = 'offline'
     actor.receiveEvent(LogoffFirstEvent())
     distributeEvent(actor.room, [actor], LogoffThirdEvent(actor))
     for listener in actor.listeners.copy(): #copy because we mutate it
