@@ -155,7 +155,7 @@ class LoggerIn(StatefulTelnet):
         self.adjs = set(line.split())
         avatar = Player(self.name, self.sdesc, self.adjs, cdict,
                         self.startroom)
-        self.playercatalogue.add(avatar, passhash)
+        self.playercatalogue.add(avatar, self.passhash)
         self.initialise_avatar(avatar)
         return 'avatar'
 
