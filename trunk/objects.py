@@ -1,5 +1,8 @@
+# pylint: disable-msg=C0103
+#pylint and its finickity names...
 import logging
 from grail2.strutils import head_word_split
+from grail2.rooms import Room
 
 class MUDObject(object):
     """An object in the MUD."""
@@ -51,6 +54,8 @@ class Player(TargettableObject):
         self.cmdict = cmdict
         self.room = room
         self.connstate = 'online'
+        self.inventory = Room("%s's inventory" % name,
+                              "You should not be here.")
 
     def receivedLine(self, line, info):
         """Receive a single line of input to process and act upon."""
