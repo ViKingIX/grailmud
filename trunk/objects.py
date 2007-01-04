@@ -8,7 +8,9 @@ from grail2.events import BaseEvent
 
 class MUDObject(object):
     """An object in the MUD."""
-    #Instance variables: listeners, room.
+    def __init__(self, room):
+        self.listeners = set()
+        self.room = room
 
     receiveEvent = Multimethod()
 
@@ -45,6 +47,11 @@ def receiveEvent(self, event):
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
     #Additional instance variables: sdesc, name, adjs.
+    def __init__(self, sdesc, name, adjs, room):
+        self.sdesc = sdesc
+        self.name = name
+        self.adjs = adjs | set([name])
+        MUDObject.__init__(self, room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object."""
@@ -55,15 +62,11 @@ class Player(TargettableObject):
     """A player avatar."""
 
     def __init__(self, name, sdesc, adjs, cmdict, room):
-        self.listeners = set()
-        self.name = name
-        self.sdesc = sdesc
-        self.adjs = adjs | set([name])
-        self.cmdict = cmdict
-        self.room = room
         self.connstate = 'online'
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
+        self.cmdict = cmdict
+        TargettableObject.__init__(self, sdesc, name, adjs, room)
 
     def receivedLine(self, line, info):
         """Receive a single line of input to process and act upon."""
@@ -77,11 +80,10 @@ class ExitObject(MUDObject):
     """An exit."""
 
     def __init__(self, direction, room, target_room, exit_desc = None):
-        self.listeners = set()
         self.direction = direction
-        self.room = room
         self.target_room = target_room
         self.exit_desc = direction if exit_desc is None else exit_desc
+        MUDObject.__init__(self, room)
 
 class PlayerCatalogue(object):
     """A bare-bones database of players."""

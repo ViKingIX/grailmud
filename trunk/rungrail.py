@@ -1,3 +1,5 @@
+# pylint: disable-msg=E1101
+#twisted does some hackery with the reactor that pylint doesn't know about.
 """This module is intended to be the main entry point for the server, run from
 the shell.
 """

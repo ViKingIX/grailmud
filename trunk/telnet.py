@@ -13,8 +13,6 @@ from grail2.actions import cdict
 from grail2.actiondefs.system import logoffFinal, login
 from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
-from grail2.rooms import Room
-
 
 class StatefulTelnet(Telnet, LineOnlyReceiver):
     """A class that calls a specific method, depending on what the last method

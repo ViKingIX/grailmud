@@ -5,24 +5,29 @@ from functional import partial
 from grail2.orderedset import OrderedSet
 
 class Not(object):
+    '''A type's complement.'''
 
     def __init__(self, typ):
         self.typ = typ
 
 class Union(object):
+    '''The union of several types.'''
 
     def __init__(self, *types):
         self.types = types
 
 class Intersection(object):
+    '''The intersection of several types.'''
 
     def __init__(self, *types):
         self.types = types
 
 def complement(a, b):
+    '''The difference of two types.'''
     return Intersection(a, Not(b))
 
 def _cooler_issubclass(child, parent):
+    '''An issubclass that's aware of the above classes.'''
     #typically, where multimethods would be a boon, we can't use them because
     #we have to bootstrap.
     if isinstance(parent, Not):
