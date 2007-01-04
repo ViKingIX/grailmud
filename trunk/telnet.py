@@ -246,6 +246,7 @@ class ConnectionState(object):
         self.on_prompt = False
         self.want_prompt = True
         self.avatar = None
+        self.event = object()
 
     def register(self, source):
         """Register ourselves as a listener."""
@@ -319,3 +320,4 @@ class ConnectionState(object):
         if self.want_prompt:
             self.sendPrompt()
         self.want_prompt = True
+        self.event = object()

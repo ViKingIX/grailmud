@@ -1,8 +1,9 @@
 import logging
-from grail2.actiondefs.core import BaseEvent, distributeEvent
+from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
+from grail2.events import SystemEvent
 
-class LogoffFirstEvent(BaseEvent):
+class LogoffFirstEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.forcePrompt()
@@ -10,7 +11,7 @@ class LogoffFirstEvent(BaseEvent):
         state.sendEventLine("Goodbye!")
         state.dontWantPrompt()
 
-class LogoffThirdEvent(BaseEvent):
+class LogoffThirdEvent(SystemEvent):
 
     def __init__(self, actor):
         self.actor = actor
@@ -21,7 +22,7 @@ class LogoffThirdEvent(BaseEvent):
         state.sendEventLine("%s has left the game." %
                             capitalise(self.actor.sdesc))
 
-class LoginThirdEvent(BaseEvent):
+class LoginThirdEvent(SystemEvent):
 
     def __init__(self, actor):
         self.actor = actor
@@ -32,33 +33,33 @@ class LoginThirdEvent(BaseEvent):
         state.sendEventLine("%s's form appears, and they crackle into life." %
                             capitalise(self.actor.dsesc))
 
-class LoginFirstEvent(BaseEvent):
+class LoginFirstEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.setColourName('normal')
         state.sendEventLine("Welcome to the game.")
 
-class UnfoundObjectEvent(BaseEvent):
+class UnfoundObjectEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.forcePrompt()
         state.setColourName("normal")
         state.sendEventLine("That object is not present.")
 
-class BlankLineEvent(BaseEvent):
+class BlankLineEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.forcePrompt()
         state.sendEventLine('')
 
-class PermissionDeniedEvent(BaseEvent):
+class PermissionDeniedEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.forcePrompt()
         state.setColourName('normal')
         state.sendEventLine("Hey, you can't do that!")
 
-class BadSyntaxEvent(BaseEvent):
+class BadSyntaxEvent(SystemEvent):
 
     def __init__(self, expl):
         self.expl = expl

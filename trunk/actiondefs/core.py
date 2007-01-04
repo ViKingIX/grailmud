@@ -1,9 +1,10 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from string import ascii_letters, digits
-from multimethod import Multimethod
+from grail2.multimethod import Multimethod
 from pyparsing import *
 from grail2.rooms import UnfoundError
+from grail2.events import SystemEvent
 
 #Some utilities.
 object_pattern = Group(OneOrMore(Word(ascii_letters))) + Optional(Word(digits))
@@ -23,12 +24,7 @@ class UnfoundMethod(Multimethod):
     def _fail(self):
         raise UnfoundError("Wrong object class.")
 
-class BaseEvent(object):
-
-    def collapseToText(self, state, obj):
-        raise NotImplementedError("Base class.")
-
-class UnfoundActionEvent(BaseEvent):
+class UnfoundActionEvent(SystemEvent):
 
     def collapseToText(self, state, obj):
         state.forcePrompt()

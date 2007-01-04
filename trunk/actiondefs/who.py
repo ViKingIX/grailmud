@@ -1,7 +1,7 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import BaseEvent
+from grail2.events import BaseEvent
 
 class WhoHereEvent(BaseEvent):
 

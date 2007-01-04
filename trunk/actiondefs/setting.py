@@ -1,8 +1,9 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import BaseEvent, object_pattern, adjs_num_parse,\
+from grail2.actiondefs.core import object_pattern, adjs_num_parse,\
                                    distributeEvent
+from grail2.events import BaseEvent
 
 class UnknownOptionEvent(BaseEvent):
 

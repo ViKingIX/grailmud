@@ -3,15 +3,14 @@
 import logging
 from grail2.strutils import head_word_split
 from grail2.rooms import Room
+from grail2.multimethod import Multimethod
+from grail2.events import BaseEvent
 
 class MUDObject(object):
     """An object in the MUD."""
     #Instance variables: listeners, room.
 
-    def receiveEvent(self, event):
-        """Receive an even in the MUD."""
-        for listener in self.listeners:
-            listener.listenToEvent(self, event)
+    receiveEvent = Multimethod()
 
     def eventFlush(self):
         """Tell the listeners that the current lot of events are done."""
@@ -33,6 +32,15 @@ class MUDObject(object):
         for listener in self.listeners:
             self.removeListener(listener)
             obj.addListener(listener)
+
+@MUDObject.receiveEvent.register(MUDObject, BaseEvent)
+def receiveEvent(self, event):
+    """Receive an event in the MUD.
+
+    This is the very basic handler. It is the default case.
+    """
+    for listener in self.listeners:
+        listener.listenToEvent(self, event)
 
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""

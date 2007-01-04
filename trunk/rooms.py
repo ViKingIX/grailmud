@@ -1,7 +1,7 @@
 # pylint: disable-msg=C0103
 #bloody pylint and its name pickiness.
 """Contains some classes for dealing with containers."""
-from orderedset import OrderedSet
+from grail2.orderedset import OrderedSet
 
 class UnfoundError(Exception):
     """The object wasn't found."""

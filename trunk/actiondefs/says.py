@@ -1,14 +1,15 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import BaseEvent, object_pattern, distributeEvent,\
+from grail2.actiondefs.core import object_pattern, distributeEvent, \
                                    UnfoundMethod, adjs_num_parse
+from grail2.events import AudibleEvent
 from grail2.actiondefs.system import unfoundObject, badSyntax
 from grail2.rooms import UnfoundError
 from grail2.strutils import capitalise, printables
 from grail2.objects import MUDObject, TargettableObject
 
-class SpeakNormalFirstEvent(BaseEvent):
+class SpeakNormalFirstEvent(AudibleEvent):
 
     def __init__(self, text):
         self.text = text
@@ -24,7 +25,7 @@ class SpeakNormalFirstEvent(BaseEvent):
         else:
             state.sendEventLine('You say, "%s"' % self.text)
 
-class SpeakNormalThirdEvent(BaseEvent):
+class SpeakNormalThirdEvent(AudibleEvent):
 
     def __init__(self, actor, text):
         self.actor = actor
@@ -41,7 +42,7 @@ class SpeakNormalThirdEvent(BaseEvent):
         else:
             state.sendEventLine('%s says, "%s"' % (d, self.text))
 
-class SpeakToFirstEvent(BaseEvent):
+class SpeakToFirstEvent(AudibleEvent):
 
     def __init__(self, target, text):
         self.target = target
@@ -60,7 +61,7 @@ class SpeakToFirstEvent(BaseEvent):
         else:
             state.sendEventLine('You say to %s, "%s"' % (d, self.text))
 
-class SpeakToSecondEvent(BaseEvent):
+class SpeakToSecondEvent(AudibleEvent):
 
     def __init__(self, actor, text):
         self.actor = actor
@@ -78,7 +79,7 @@ class SpeakToSecondEvent(BaseEvent):
         else:
             state.sendEventLine('%s says to you, "%s"' % (d, self.text))
                                 
-class SpeakToThirdEvent(BaseEvent):
+class SpeakToThirdEvent(AudibleEvent):
 
     def __init__(self, actor, target, text):
         self.actor = actor

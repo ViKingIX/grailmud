@@ -1,14 +1,15 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import BaseEvent, object_pattern, adjs_num_parse,\
+from grail2.actiondefs.core import object_pattern, adjs_num_parse, \
                                    UnfoundMethod, distributeEvent
+from grail2.events import VisibleEvent
 from grail2.actiondefs.system import unfoundObject
 from grail2.rooms import UnfoundError
 from grail2.objects import Player, TargettableObject, ExitObject, MUDObject
 from grail2.strutils import capitalise
 
-class LookAtEvent(BaseEvent):
+class LookAtEvent(VisibleEvent):
 
     def __init__(self, target):
         self.target = target
@@ -21,7 +22,7 @@ class LookAtEvent(BaseEvent):
                        % self.target.sdesc)
         state.sendEventLine(capitalise(desc))
 
-class LookRoomEvent(BaseEvent):
+class LookRoomEvent(VisibleEvent):
 
     def __init__(self, room):
         self.room = room
