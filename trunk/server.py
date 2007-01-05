@@ -2,7 +2,8 @@ import logging
 from twisted.internet.protocol import Factory
 from grail2.telnet import LoggerIn
 from grail2.rooms import Room
-from grail2.objects import PlayerCatalogue
+from grail2.objects import PlayerCatalogue, TargettableObject
+from grail2.npcs.chatty import ChattyNPC
 
 class ConnectionFactory(Factory):
 
@@ -15,6 +16,10 @@ class ConnectionFactory(Factory):
                      'can be said about it. Even the air seems to be steeped in'
                      ' mediocrity - a lukewarm temperature, with no discernable'
                      ' exciting scents.')
+    eliza = TargettableObject('a bespectacled old lady', 'Eliza',
+                              set(['old', 'lady', 'woman']), startroom)
+    eliza.addListener(ChattyNPC(eliza))
+    startroom.add(eliza)
     playercatalogue = PlayerCatalogue()
 
     def buildProtocol(self, address):
