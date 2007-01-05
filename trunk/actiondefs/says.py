@@ -1,5 +1,7 @@
-# pylint: disable-msg=W0611
+# pylint: disable-msg=W0611,E0102
 #we import the whole of pyparsing for convenience's sake.
+#we also redefine multimethods using the same name for emphasis and a lack of
+#namespace pollution.
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, distributeEvent, \
                                    UnfoundMethod, get_from_rooms
@@ -120,7 +122,7 @@ speakTo = UnfoundMethod()
 
 @speakTo.register(MUDObject, TargettableObject, basestring)
 def speakTo(actor, target, text):
-    if target not in actor.room:
+    if target not in actor.room and target not in actor.inventory:
         unfoundObject(actor)
     else:
         actor.receiveEvent(SpeakToFirstEvent(target, text))

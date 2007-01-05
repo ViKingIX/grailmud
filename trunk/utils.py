@@ -22,3 +22,9 @@ def promptcolour(colourname = 'normal'):
 class smartdict(dict):
     def __getitem__(self, item):
         return eval(item, globals(), self)
+
+def in_rooms(obj, rooms):
+    for room in rooms:
+        if obj in rooms:
+            return True
+    return False

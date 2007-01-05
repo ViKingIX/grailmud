@@ -243,18 +243,11 @@ class LineInfo(object):
                                            #here too.
         self.instigator = instigator
 
-class ConnectionState(object):
-    """Represents the state of the connection to the events as they collapse to
-    text."""
+class Listener(object):
+    '''Base class for listeners.'''
 
-    def __init__(self, telnet):
-        self.telnet = telnet
+    def __init__(self):
         self.listening = set()
-        self.on_newline = False
-        self.on_prompt = False
-        self.want_prompt = True
-        self.avatar = None
-        self.event = object()
 
     def register(self, source):
         """Register ourselves as a listener."""
@@ -265,6 +258,19 @@ class ConnectionState(object):
         self.listening.remove(source)
         if not self.listening:
             self.telnet.close()
+
+class ConnectionState(Listener):
+    """Represents the state of the connection to the events as they collapse to
+    text."""
+
+    def __init__(self, telnet):
+        self.telnet = telnet
+        self.on_newline = False
+        self.on_prompt = False
+        self.want_prompt = True
+        self.avatar = None
+        self.event = object()
+        Listener.__init__(self)
 
     def sendIACGA(self):
         """Write an IAC GA (go-ahead) code to the telnet connection."""

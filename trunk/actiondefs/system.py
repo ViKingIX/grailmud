@@ -3,6 +3,7 @@ from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
 from grail2.events import SystemEvent
 from grail2.utils import promptcolour
+from grail2.objects import Player
 
 class LogoffFirstEvent(SystemEvent):
 

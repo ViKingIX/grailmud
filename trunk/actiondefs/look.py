@@ -1,5 +1,7 @@
-# pylint: disable-msg=W0611
+# pylint: disable-msg=W0611,E0102
 #we import the whole of pyparsing for convenience's sake.
+#we also redefine multimethods using the same name for emphasis and a lack of
+#namespace pollution.
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, get_from_rooms, \
                                    UnfoundMethod, distributeEvent
@@ -48,23 +50,24 @@ def look(actor, text, info):
         return
     try:
         target = get_from_rooms(blob, [actor.inventory, actor.room], info)
-        lookAt(actor, target)
     except UnfoundError:
         unfoundObject(actor)
+    else:
+        lookAt(actor, target)
 
 lookAt = UnfoundMethod()
 
 @lookAt.register(MUDObject, TargettableObject)
 def lookAt(actor, target):
     if target not in actor.room and target not in actor.inventory:
-        raise UnfoundError
+        unfoundObject(actor)
     else:
         actor.receiveEvent(LookAtEvent(target))
 
 @lookAt.register(MUDObject, ExitObject)
 def lookAt(actor, target):
     if target not in actor.room: #stricter deliberately.
-        raise UnfoundError
+        unfoundObject(actor)
     else:
         actor.receiveEvent(LookRoomEvent(target.target_room))
 

@@ -46,7 +46,6 @@ def receiveEvent(self, event):
 
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
-    #Additional instance variables: sdesc, name, adjs.
     def __init__(self, sdesc, name, adjs, room):
         self.sdesc = sdesc
         self.name = name
@@ -54,7 +53,8 @@ class TargettableObject(MUDObject):
         MUDObject.__init__(self, room)
     
     def match(self, attrs):
-        """Check to see if a set of attributes is applicable for this object."""
+        """Check to see if a set of attributes is applicable for this object.
+        """
         return (len(attrs) == 1 and self.name in attrs) or \
                self.adjs.issuperset(attrs)
 
@@ -83,7 +83,7 @@ class ExitObject(MUDObject):
     def __init__(self, direction, room, target_room, exit_desc = None):
         self.direction = direction
         self.target_room = target_room
-        self.exit_desc = direction if exit_desc is None else exit_desc
+        self.exit_desc = direction if exit_desc is not None else exit_desc
         MUDObject.__init__(self, room)
 
 class PlayerCatalogue(object):

@@ -17,7 +17,7 @@ def distributeEvent(room, nodis, event):
         if obj not in nodis:
             obj.receiveEvent(event)
 
-def adjs_num_parse(data, info):
+def adjs_num_parse((adjs, number), info):
     adjs = frozenset(x.lower() for x in adjs)
     number = int(number) if number else 0
     return adjs, number
