@@ -160,13 +160,23 @@ class LoggerIn(StatefulTelnet):
         return 'get_password_new'
 
     def line_get_password_new(self, line):
-        """We've been given the password. Salt and hash it, then store the hash.
+        """We've been given the password. Salt and hash it, then store the
+        hash.
         """
         line = safetise(line)
         if len(line) <= 3:
             self.write("That password is not long enough.")
             return
         self.passhash = sha(line + self.name).digest()
+        self.write("Please repeat your password.")
+        return 'repeat_password'
+
+    def line_repeat_password(self, line):
+        """Make sure the user can remember the password they've entered."""
+        line = safetise(line)
+        if sha(line + self.name).digest() != self.passhash:
+            self.write("Those passwords don't match. Please enter a new one.")
+            return 'get_password_new'
         self.write("Enter your description (eg, 'short fat elf').")
         return 'get_sdesc'
 

@@ -4,32 +4,33 @@ from pyparsing import *
 from grail2.events import AudibleEvent, GameEvent
 from grail2.objects import MUDObject
 from grail2.actiondefs.system import badSyntax
+from grail2.utils import monkeypatch, promptcolour
 
 class DeafnessOnEvent(GameEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
         state.sendEventLine("You forcibly shut out all sound, making the world"
                             "silent. Aah. Silence is golden.")
 
 class DeafnessOnAlreadyEvent(GameEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
         state.sendEventLine("You're already deaf, silly!")
 
 class DeafnessOffEvent(GameEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
         state.sendEventLine("You once again begin to hear sounds from the "
                             "world around you.")
             
 
 class DeafnessOffAlreadyEvent(GameEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
         state.sendEventLine("You're not deaf, silly!")
 
 on_pattern = Literal('on')
@@ -54,23 +55,27 @@ def deafDistributor(actor, rest, lineinfo):
                      "deafness off.")
 
 def deafOn(actor):
-    if getattr(actor, 'deaf', False):
+    if actor.deaf:
         actor.deaf = True
         actor.receiveEvent(DeafnessOnEvent())
     else:
         actor.receiveEvent(DeafnessOnAlreadyEvent())
 
 def deafOff(actor):
-    if getattr(actor, 'deaf', False):
+    if actor.deaf:
         actor.receiveEvent(DeafnessOffAlreadyEvent())
     else:
         actor.deaf = False
         actor.receiveEvent(DeafnessOffEvent())
 
+@monkeypatch(MUDObject)
+def __init__(self, *args, **kwargs):
+    self.deaf = False
+
 @MUDObject.receiveEvent.register(MUDObject, AudibleEvent)
 def receiveEvent(self, event):
     """Ignore sound events for deaf things."""
-    if not getattr(self, 'deaf', False):
+    if not self.deaf:
         MUDObject.receiveEvent.call_next_method()
 
 def register(cdict):

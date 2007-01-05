@@ -1,22 +1,22 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import object_pattern, adjs_num_parse, \
+from grail2.actiondefs.core import object_pattern, get_from_rooms, \
                                    UnfoundMethod, distributeEvent
 from grail2.events import VisibleEvent
 from grail2.actiondefs.system import unfoundObject
 from grail2.rooms import UnfoundError
 from grail2.objects import Player, TargettableObject, ExitObject, MUDObject
 from grail2.strutils import capitalise
+from grail2.utils import promptcolour
 
 class LookAtEvent(VisibleEvent):
 
     def __init__(self, target):
         self.target = target
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName('normal')
         desc = getattr(self.target, 'ldesc',
                        "They're %s. Nothing more, nothing less."
                        % self.target.sdesc)
@@ -27,9 +27,8 @@ class LookRoomEvent(VisibleEvent):
     def __init__(self, room):
         self.room = room
 
+    @promptcolour("room title")
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("room title")
         state.sendEventLine(self.room.title)
         state.setColourName("room desc")
         state.sendEventLine(self.room.desc)
@@ -43,13 +42,12 @@ lookAtPattern = Suppress(Optional(Keyword("at"))) + \
 
 def look(actor, text, info):
     try:
-        raw_an = lookAtPattern.parseString(text)
+        blob = lookAtPattern.parseString(text)
     except ParseException:
         lookRoom(actor)
         return
-    adjs, number = adjs_num_parse(raw_an)
     try:
-        target = actor.room.matchContent(adjs, number)
+        target = get_from_rooms(blob, [actor.inventory, actor.room], info)
         lookAt(actor, target)
     except UnfoundError:
         unfoundObject(actor)

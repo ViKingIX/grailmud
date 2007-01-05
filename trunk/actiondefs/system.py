@@ -2,12 +2,12 @@ import logging
 from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
 from grail2.events import SystemEvent
+from grail2.utils import promptcolour
 
 class LogoffFirstEvent(SystemEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName('normal')
         state.sendEventLine("Goodbye!")
         state.dontWantPrompt()
 
@@ -16,9 +16,8 @@ class LogoffThirdEvent(SystemEvent):
     def __init__(self, actor):
         self.actor = actor
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName('normal')
         state.sendEventLine("%s has left the game." %
                             capitalise(self.actor.sdesc))
 
@@ -27,9 +26,8 @@ class LoginThirdEvent(SystemEvent):
     def __init__(self, actor):
         self.actor = actor
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("normal")
         state.sendEventLine("%s's form appears, and they crackle into life." %
                             capitalise(self.actor.dsesc))
 
@@ -41,9 +39,8 @@ class LoginFirstEvent(SystemEvent):
 
 class UnfoundObjectEvent(SystemEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("normal")
         state.sendEventLine("That object is not present.")
 
 class BlankLineEvent(SystemEvent):
@@ -54,9 +51,8 @@ class BlankLineEvent(SystemEvent):
 
 class PermissionDeniedEvent(SystemEvent):
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName('normal')
         state.sendEventLine("Hey, you can't do that!")
 
 class BadSyntaxEvent(SystemEvent):
@@ -64,9 +60,8 @@ class BadSyntaxEvent(SystemEvent):
     def __init__(self, expl):
         self.expl = expl
 
+    @promptcolour()
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("normal")
         expl = "Couldn't parse that, I'm afraid."
         if self.expl is not None:
             expl = " ".join([expl, self.expl])
@@ -82,11 +77,15 @@ def quitGame(actor, text, info):
         logoffFinal(actor)
 
 def login(actor):
+    '''Perform some initialisation for the Player being logged in.'''
+    assert isinstance(actor, Player)
     actor.connstate = 'online'
+    actor.session = {}
     actor.receiveEvent(LoginFirstEvent())
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
 
 def logoffFinal(actor):
+    assert isinstance(actor, Player)
     if actor.connstate != 'online':
         logging.info("Foiled a double logoff attempt with %r." % actor)
         return
@@ -96,6 +95,9 @@ def logoffFinal(actor):
     for listener in actor.listeners.copy(): #copy because we mutate it
         actor.removeListener(listener)
     actor.room.remove(actor)
+
+def permissionDenied(actor):
+    actor.receiveEvent(PermissionDeniedEvent())
 
 def badSyntax(actor, expl = None):
     actor.receiveEvent(BadSyntaxEvent(expl))

@@ -2,21 +2,21 @@
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, distributeEvent, \
-                                   UnfoundMethod, adjs_num_parse
+                                   UnfoundMethod, get_from_rooms
 from grail2.events import AudibleEvent
 from grail2.actiondefs.system import unfoundObject, badSyntax
 from grail2.rooms import UnfoundError
 from grail2.strutils import capitalise, printables
 from grail2.objects import MUDObject, TargettableObject
+from grail2.utils import promptcolour
 
 class SpeakNormalFirstEvent(AudibleEvent):
 
     def __init__(self, text):
         self.text = text
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("speech")
         if not self.text:
             state.sendEventLine("You open your mouth, as if to say something, "
                                 "and stay like that looking silly for a few "
@@ -31,10 +31,9 @@ class SpeakNormalThirdEvent(AudibleEvent):
         self.actor = actor
         self.text = text
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
         d = capitalise(self.actor.sdesc)
-        state.forcePrompt()
-        state.setColourName("speech")
         if not self.text:
             state.sendEventLine("%s opens their mouth, as if to say something, "
                                 "but rescinds after a few seconds of silly "
@@ -48,10 +47,9 @@ class SpeakToFirstEvent(AudibleEvent):
         self.target = target
         self.text = text
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
         d = self.target.sdesc
-        state.forcePrompt()
-        state.setColourName('speech')
         if self.text:
             state.sendEventLine("You turn to %s and open your mouth, as if to "
                                 "say something, but instead you gawp for a few "
@@ -67,10 +65,9 @@ class SpeakToSecondEvent(AudibleEvent):
         self.actor = actor
         self.text = text
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
         d = capitalise(self.actor.sdesc)
-        state.forcePrompt()
-        state.setColourName("speech")
         if self.text:
             state.sendEventLine("%s turns to you and opens their mouth, but "
                                 "says nothing, as if to catch a fly. Realising "
@@ -86,11 +83,10 @@ class SpeakToThirdEvent(AudibleEvent):
         self.target = target
         self.text = text
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
         da = capitalise(self.actor.sdesc)
         dt = capitalise(self.actor.sdesc)
-        state.forcePrompt()
-        state.setColourName("speech")
         if self.text:
             state.sendEventLine("%s turns to %s and opens their mouth, but "
                                 "says nothing, as if to catch a fly. Realising "
@@ -105,14 +101,13 @@ speakToPattern = Group(object_pattern) + \
 
 def speakToWrapper(actor, text, info):
     try:
-        raw_an, saying = speakToPattern.parseString(text)
+        blob, saying = speakToPattern.parseString(text)
     except ParseException:
         badSyntax(actor, "Can't find the end of the target identifier. Use "
                          "',' at its end to specify it.")
         return
-    adjs, number = adjs_num_parse(raw_an)
     try:
-        target = actor.room.matchContent(adjs, number)
+        target = get_from_rooms(blob, [actor.inventory, actor.room], info)
         speakTo(actor, target, saying)
     except UnfoundError:
         unfoundObject(actor)

@@ -66,6 +66,7 @@ class Player(TargettableObject):
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
         self.cmdict = cmdict
+        self.session = {}
         TargettableObject.__init__(self, sdesc, name, adjs, room)
 
     def receivedLine(self, line, info):

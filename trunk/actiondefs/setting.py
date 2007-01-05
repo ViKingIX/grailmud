@@ -1,18 +1,16 @@
 # pylint: disable-msg=W0611
 #we import the whole of pyparsing for convenience's sake.
 from pyparsing import *
-from grail2.actiondefs.core import object_pattern, adjs_num_parse,\
-                                   distributeEvent
 from grail2.events import BaseEvent
+from grail2.utils import promptcolour
 
 class UnknownOptionEvent(BaseEvent):
 
     def __init__(self, command):
         self.command = command
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("normal")
         state.sendEventLine("That is an unknown option with the '%s' command."
                             % self.command)
 
@@ -21,9 +19,8 @@ class LDescSetEvent(BaseEvent):
     def __init__(self, desc):
         self.desc = desc
 
+    @promptcolour("speech")
     def collapseToText(self, state, obj):
-        state.forcePrompt()
-        state.setColourName("normal")
         state.sendEventLine("Your long descrption is now:")
         state.sendEventLine(self.desc)
 
