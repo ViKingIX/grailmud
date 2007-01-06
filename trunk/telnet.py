@@ -20,7 +20,10 @@ class StatefulTelnet(Telnet, LineOnlyReceiver):
 
     delimiter = '\n'
 
-    linestate = 'ignore'
+    def __init__(self):
+        Telnet.__init__(self)
+        LineOnlyReceiver.__init__(self)
+        self.linestate = 'ignore'
 
     applicationDataReceived = LineOnlyReceiver.dataReceived
 
@@ -96,8 +99,18 @@ LOGIN = 2
 class LoggerIn(StatefulTelnet):
 
     linestate = 'choice_made'
-    playercatalogue = None
-    startroom = None
+
+    def __init__(self, playercatalogue, startroom):
+        StatefulTelnet.__init__(self)
+        self.linestate = 'choice_made'
+        self.playercatalogue = playercatalogue
+        self.startroom = startroom
+        self.connection_state = None
+        self.name = None
+        self.sdesc = None
+        self.adjs = None
+        self.passhash = None
+        self.avatar = None
 
     def connectionMade(self):
         """The connection's been made, and send out the initial options."""
@@ -107,12 +120,6 @@ class LoggerIn(StatefulTelnet):
         self.write("1) Enter the game with a new character.\r\n")
         self.write("2) Log in as an existing character.\r\n")
         self.write("Please enter the number of your choice.\xff\xfa")
-        self.connection_state = None
-        self.name = None
-        self.sdesc = None
-        self.adjs = None
-        self.passhash = None
-        self.avatar = None
 
     #we want this here for normalisation purposes.
     @strconstrained(corrector = toint)

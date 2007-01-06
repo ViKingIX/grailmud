@@ -25,6 +25,6 @@ class smartdict(dict):
 
 def in_rooms(obj, rooms):
     for room in rooms:
-        if obj in rooms:
+        if obj in room:
             return True
     return False
