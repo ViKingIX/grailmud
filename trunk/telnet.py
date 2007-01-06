@@ -96,7 +96,8 @@ LOGIN = 2
 class LoggerIn(StatefulTelnet):
 
     linestate = 'choice_made'
-    avatar = None
+    playercatalogue = None
+    startroom = None
 
     def connectionMade(self):
         """The connection's been made, and send out the initial options."""
@@ -111,6 +112,7 @@ class LoggerIn(StatefulTelnet):
         self.sdesc = None
         self.adjs = None
         self.passhash = None
+        self.avatar = None
 
     #we want this here for normalisation purposes.
     @strconstrained(corrector = toint)
