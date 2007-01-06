@@ -1,8 +1,3 @@
-# pylint: disable-msg=E0102,W0613,C0103
-#we redefine listenToEvent several times to reinforce that it's a multimethod.
-#we also have a lot of mandatory parameters flying about that we don't care
-#about.
-#also, it complains about the names a lot.
 """This class contains my very first NPC. It chats back!
 """
 from grail2.multimethod import Multimethod

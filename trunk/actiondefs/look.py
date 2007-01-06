@@ -1,7 +1,3 @@
-# pylint: disable-msg=W0611,E0102
-#we import the whole of pyparsing for convenience's sake.
-#we also redefine multimethods using the same name for emphasis and a lack of
-#namespace pollution.
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, get_from_rooms, \
                                    UnfoundMethod, distributeEvent

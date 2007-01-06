@@ -1,5 +1,3 @@
-# pylint: disable-msg=C0103,W0232
-#finickity names and demanding an __init__
 """Handles server initialisation and pulls some Twisted ropes."""
 import logging
 from twisted.internet.protocol import Factory

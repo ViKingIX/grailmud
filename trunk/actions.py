@@ -1,5 +1,3 @@
-# pylint: disable-msg=C0103
-#pylint and it's finickity names...
 '''Pulls the actions from the definitions files underneath actiondefs.'''
 from collections import defaultdict
 

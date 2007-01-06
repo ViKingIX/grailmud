@@ -1,5 +1,3 @@
-# pylint: disable-msg=C0103
-#bloody pylint and its name pickiness.
 """Contains some classes for dealing with containers."""
 from grail2.orderedset import OrderedSet
 

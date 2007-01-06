@@ -1,8 +1,3 @@
-# pylint: disable-msg=C0103,W0613,W0231,R0903,W0611
-#pylint and its finickity names and insistence that every single argument be
-#used somewhere and that every single __init__ next-method is called and that
-#classes need at least 2 methods...
-#oh, and we import the whole of pyparsing for convenience's sake.
 """Emotes/ At present, only user-customised, but eventually I'll get round to
 writing some prefab ones.
 """

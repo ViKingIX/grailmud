@@ -1,5 +1,3 @@
-# pylint: disable-msg=W0611
-#we import the whole of pyparsing for convenience's sake.
 from string import printable, whitespace, ascii_letters, digits, punctuation
 from pyparsing import *
 

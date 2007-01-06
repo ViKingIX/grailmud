@@ -1,5 +1,3 @@
-# pylint: disable-msg=C0103
-#pylint and its finickity names...
 """This file contains an implementation of objects in the MUD and a simple
 interface for hooking them up with listeners and events.
 """

@@ -1,7 +1,3 @@
-# pylint: disable-msg=C0103,W0613,W0231,R0903
-#pylint and its finickity names and insistence that every single argument be
-#used somewhere and that every single __init__ next-method is called and that
-#classes need at least 2 methods...
 import logging
 from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
