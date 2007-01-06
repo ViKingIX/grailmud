@@ -1,5 +1,4 @@
-# pylint: disable-msg=C0103
-#it complains about practically all of the names in this module...
+
 """A couple of handy classes for the nitty-gritties of the telnet connection,
 and keeping track of that sort of stuff.
 """
@@ -107,6 +106,11 @@ class LoggerIn(StatefulTelnet):
         self.write("1) Enter the game with a new character.\r\n")
         self.write("2) Log in as an existing character.\r\n")
         self.write("Please enter the number of your choice.\xff\xfa")
+        self.connection_state = None
+        self.name = None
+        self.sdesc = None
+        self.adjs = None
+        self.passhash = None
 
     #we want this here for normalisation purposes.
     @strconstrained(corrector = toint)
