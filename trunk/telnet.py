@@ -209,7 +209,6 @@ class LoggerIn(StatefulTelnet):
         self.avatar = avatar
         self.connection_state = ConnectionState(self)
         self.avatar.addListener(self.connection_state)
-        self.connection_state.avatar = self.avatar
         self.startroom.add(self.avatar)
         login(self.avatar)
         self.connection_state.eventListenFlush(self.avatar)
@@ -256,9 +255,15 @@ class Listener(object):
     def unregister(self, source):
         """Unregister ourselves as a listener."""
         self.listening.remove(source)
-        if not self.listening:
-            self.telnet.close()
 
+    def disconnecting(self, source):
+        '''Acknowledge that an object has disconnected.'''
+        source.removeListener(self)
+
+    def transferControl(self, source, new):
+        source.removeListener(self)
+        new.addListener(self)
+        
 class ConnectionState(Listener):
     """Represents the state of the connection to the events as they collapse to
     text."""
@@ -268,9 +273,16 @@ class ConnectionState(Listener):
         self.on_newline = False
         self.on_prompt = False
         self.want_prompt = True
-        self.avatar = None
         self.event = object()
         Listener.__init__(self)
+
+    def avatar_get(self):
+        return self.telnet.avatar
+
+    def avatar_set(self, new):
+        self.telnet.avatar = new
+
+    avatar = property(avatar_get, avatar_set)
 
     def sendIACGA(self):
         """Write an IAC GA (go-ahead) code to the telnet connection."""
@@ -335,3 +347,17 @@ class ConnectionState(Listener):
             self.sendPrompt()
         self.want_prompt = True
         self.event = object()
+
+    def disconnecting(self, obj):
+        if obj is self.avatar:
+            #if this is the case, 
+            for listening_to in self.listening:
+                listening_to.removeListener(self)
+            self.telnet.close()
+        else:
+            Listener.disconnecting(self, obj)
+
+    def transferControl(self, source, other):
+        if source is self.avatar:
+            self.avatar = other
+        Listener.transferControl(self, source, other)

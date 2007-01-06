@@ -1,3 +1,6 @@
+# pylint: disable-msg=C0103,W0232
+#finickity names and demanding an __init__
+"""Handles server initialisation and pulls some Twisted ropes."""
 import logging
 from twisted.internet.protocol import Factory
 from grail2.telnet import LoggerIn
@@ -6,6 +9,7 @@ from grail2.objects import PlayerCatalogue, TargettableObject
 from grail2.npcs.chatty import ChattyNPC
 
 class ConnectionFactory(Factory):
+    """The actual server factory."""
 
     protocol = LoggerIn
     startroom = Room('An unremarkable moor.',

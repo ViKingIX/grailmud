@@ -1,7 +1,8 @@
-# pylint: disable-msg=E0102,W0613
+# pylint: disable-msg=E0102,W0613,C0103
 #we redefine listenToEvent several times to reinforce that it's a multimethod.
 #we also have a lot of mandatory parameters flying about that we don't care
 #about.
+#also, it complains about the names a lot.
 """This class contains my very first NPC. It chats back!
 """
 from grail2.multimethod import Multimethod
@@ -25,7 +26,7 @@ class ChattyNPC(Listener):
     listenToEvent = Multimethod()
 
 @ChattyNPC.listenToEvent.register(ChattyNPC, BaseEvent, MUDObject)
-def listenToEvent(self, event, obj):
+def listenToEvent(self, obj, event):
     """Events we don't care about will come down to here, so just ignore them.
     """
     pass
@@ -37,7 +38,7 @@ def doafter(time, func, *args, **kwargs):
                        lambda _: None, lambda _: None)
 
 @ChattyNPC.listenToEvent.register(ChattyNPC, SpeakToSecondEvent, MUDObject)
-def listenToEvent(self, event, obj):
+def listenToEvent(self, obj, event):
     '''Someone has said something to us. It's only polite to respond!'''
     text = event.text
     if not text:
@@ -47,7 +48,7 @@ def listenToEvent(self, event, obj):
             "Very interesting!")
 
 @ChattyNPC.listenToEvent.register(ChattyNPC, UnfoundObjectEvent, MUDObject)
-def listenToEvent(self, event, obj):
+def listenToEvent(self, obj, event):
     '''Someone we tried to do something to wasn't there.'''
     emote(self.avatar,
           "You look up and around, as if searching for someone, but look down "

@@ -1,5 +1,8 @@
 # pylint: disable-msg=C0103
 #pylint and its finickity names...
+"""This file contains an implementation of objects in the MUD and a simple
+interface for hooking them up with listeners and events.
+"""
 import logging
 from grail2.strutils import head_word_split
 from grail2.rooms import Room
@@ -32,8 +35,16 @@ class MUDObject(object):
     def transferControl(self, obj):
         """Utility method to shift all the listeners to another object."""
         for listener in self.listeners:
-            self.removeListener(listener)
-            obj.addListener(listener)
+            listener.transferControl(self, obj)
+
+    def disconnect(self):
+        '''Notify the listeners that this object is being disconnected.
+
+        Note that this only makes sense for Players, but it needs to be on
+        here else AttributeErrors will start flying around. I think. So we
+        just ignore it.
+        '''
+        pass
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
@@ -73,9 +84,16 @@ class Player(TargettableObject):
         """Receive a single line of input to process and act upon."""
         cmd, rest = head_word_split(line)
         logging.debug("cmd is %r." % cmd)
-        func = self.cmdict[cmd.lower()] #XXX: hardcoded
+        func = self.cmdict[cmd.lower()]
         logging.debug("Command found in cmdict, function is %r" % func)
         func(self, rest, info)
+
+    def disconnect(self):
+        '''Notify the listeners that we are being disconnected.'''
+        for listener in self.listeners.copy(): #copy because we mutate it
+            listener.disconnecting(self)
+            #no self.removeListener(listener) here because it's a little silly
+            #to not have it implied.
 
 class ExitObject(MUDObject):
     """An exit."""

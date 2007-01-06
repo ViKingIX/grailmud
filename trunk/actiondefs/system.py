@@ -1,3 +1,7 @@
+# pylint: disable-msg=C0103,W0613,W0231,R0903
+#pylint and its finickity names and insistence that every single argument be
+#used somewhere and that every single __init__ next-method is called and that
+#classes need at least 2 methods...
 import logging
 from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
@@ -93,8 +97,7 @@ def logoffFinal(actor):
     actor.connstate = 'offline'
     actor.receiveEvent(LogoffFirstEvent())
     distributeEvent(actor.room, [actor], LogoffThirdEvent(actor))
-    for listener in actor.listeners.copy(): #copy because we mutate it
-        actor.removeListener(listener)
+    actor.disconnect()
     actor.room.remove(actor)
 
 def permissionDenied(actor):
