@@ -22,7 +22,7 @@ class StatefulTelnet(Telnet, LineOnlyReceiver):
 
     def __init__(self):
         Telnet.__init__(self)
-        LineOnlyReceiver.__init__(self)
+        #LineOnlyReceiver doesn't have an __init__ method, weirdly.
         self.linestate = 'ignore'
 
     applicationDataReceived = LineOnlyReceiver.dataReceived

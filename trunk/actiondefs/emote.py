@@ -94,7 +94,7 @@ def emote(actor, first, third):
                     EmoteUntargettedThird(actor, third))
 
 def emoteTo(actor, target, first, second, third):
-    if not in_rooms(target, [actor.room, actor.inventory]):
+    if target.room not in [actor.room, actor.inventory]:
         unfoundObject()
         return
     first = process(first)

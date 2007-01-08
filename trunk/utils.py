@@ -24,6 +24,8 @@ class smartdict(dict):
         return eval(item, globals(), self)
 
 def in_rooms(obj, rooms):
+    #This actually turns out to be stupid and redundant.
+    #in_rooms(obj, rooms) -> obj.room in rooms
     for room in rooms:
         if obj in room:
             return True

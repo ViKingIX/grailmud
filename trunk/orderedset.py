@@ -3,6 +3,7 @@ from sets import BaseSet
 _set_types = (set, frozenset, BaseSet)
 
 def _operand_set_checking(fn):
+    '''Ensure that the other operand is a set.'''
     def func(self, other):
         if not isinstance(other, _set_types):
             return NotImplemented
@@ -105,11 +106,13 @@ class OrderedSet(list):
         return True
 
     def union(self, other):
+        '''Return an OrderedSet of elements in both operands.'''
         res = self.copy()
         res.extend(other)
         return res
 
     def intersection(self, other):
+        '''Return an OrderedSet of elements common to both operands.'''
         res = OrderedSet()
         if len(self) > len(other):
             #speed: this check is not needed other than to minimise the number
@@ -121,6 +124,9 @@ class OrderedSet(list):
         return res
 
     def difference(self, other):
+        '''Return the elements that do not appear in the other operand which do
+        appear in this one.
+        '''
         res = OrderedSet()
         for elem in self:
             if elem not in other:
@@ -128,6 +134,7 @@ class OrderedSet(list):
         return res
 
     def symmetric_difference(self, other):
+        '''Return the elements that appear in one operand but not the other.'''
         res = self.difference(other)
         for elem in other:
             if elem not in self:
@@ -135,6 +142,10 @@ class OrderedSet(list):
         return res
 
     def copy(self):
+        '''Return a new OrderedSet with the same elements.
+
+        The elements are not copied.
+        '''
         return OrderedSet(self)
     __copy__ = copy
 
@@ -142,15 +153,23 @@ class OrderedSet(list):
     update = extend
 
     def intersection_update(self, other):
+        '''Overwrite this OrderedSet with the operands' intersection.'''
         self._overwrite(self.intersection(other))
 
     def difference_update(self, other):
+        '''Overwrite this OrderedSet instance with the operands' assymetric
+        difference.
+        '''
         self._overwrite(self.difference(other))
 
     def symmetric_difference_update(self, other):
+        '''Overwrite this OrderedSet instance with the operands' symmetric
+        difference.
+        '''
         self._overwrite(self.symmetric_difference(other))
         
     def add(self, elem):
+        '''Add an element to the OrderedSet, at the end.'''
         if elem not in self:
             list.append(self, elem)
 
@@ -158,19 +177,26 @@ class OrderedSet(list):
     #wrong error, though (IndexError instead of KeyError). So we must wrap it,
     #making sure the error raised can be caught by IndexError and KeyError.
     def remove(self, elem):
+        '''Remove an element from the OrderedSet, raising an error if the
+        element is not present.
+        '''
         try:
             list.remove(self, elem)
         except IndexError:
             raise DualError
 
     def discard(self, elem):
+        '''Remove an element from the OrderedSet quietly.'''
         if elem in self:
             self.remove(elem)
 
     #ditto as for remove, but we can do some dispatching.
     def pop(self, index = None):
+        '''Remove an object at a given index from the OrderedSet, or at the end
+        if not specified.
+        '''
         if index is None:
-            #if index is none, it might be a set method, so the error raised
+            #if index is None, it might be a set method, so the error raised
             #must be caught by "except IndexError" and "except KeyError".
             try:
                 list.pop(self, -1)
@@ -191,6 +217,7 @@ class OrderedSet(list):
     __ixor__ = _operand_set_checking(symmetric_difference_update)
 
     def clear(self):
+        '''Remove all elements from the instance.'''
         self._overwrite([])
 
     #Comparisons are difficult, as sets and lists do wildly different things.
@@ -231,13 +258,18 @@ class OrderedSet(list):
     #This assumes that neither operand will have non-unique elements.
     #obviously, we can't have non-unique elements, but they might.
     def setcompare(self, other):
-        return set(self) == other
+        '''Compare the OrderedSet to another set type as a set.'''
+        #XXX per the above comment, this can't be correct
+        return set(self) == other 
 
     def __ne__(self, other):
         return not (self == other)
 
     #my convenience methods.
     def rmapp(self, elem):
+        '''Remove an element from the OrderedSet if it is present, then place
+        it at the end.
+        '''
         try:
             self.remove(elem)
         except IndexError:
@@ -246,7 +278,10 @@ class OrderedSet(list):
 
 
 class DualError(KeyError, IndexError):
+    """An error that can be caught by both 'KeyError' and 'IndexError'"""
     pass
 
 
 OSet = OrderedSet
+
+_set_types += (OSet,)

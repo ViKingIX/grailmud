@@ -47,15 +47,17 @@ def look(actor, text, info):
     try:
         target = get_from_rooms(blob, [actor.inventory, actor.room], info)
     except UnfoundError:
-        unfoundObject(actor)
+        return
     else:
         lookAt(actor, target)
+        return
+    unfoundObject(actor)
 
 lookAt = UnfoundMethod()
 
 @lookAt.register(MUDObject, TargettableObject)
 def lookAt(actor, target):
-    if target not in actor.room and target not in actor.inventory:
+    if target.room not in [actor.inventory, actor.room]:
         unfoundObject(actor)
     else:
         actor.receiveEvent(LookAtEvent(target))
