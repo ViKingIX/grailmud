@@ -1,3 +1,6 @@
+# pylint: disable-msg= E1101,W0212
+#pylint doesn't know about our metaclass hackery, and complains about the use
+#of the leading underscore variables.
 """This file contains an implementation of objects in the MUD and a simple
 interface for hooking them up with listeners and events.
 """
@@ -20,6 +23,15 @@ class MUDObject(InstanceTracker):
 
     def __hash__(self):
         return hash((type(self), self._num))
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_num']
+        return state
+
+    def __setstate__(self, state):
+        self._num = len(MUDObject._instances)
+        InstanceTracker.__setstate__(self, state)
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
@@ -66,7 +78,7 @@ class AgentObject(MUDObject):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        state = self.__dict__
+        state = MUDObject.__getstate__(self)
         state['listeners'] = listeners
         return state
 
@@ -131,12 +143,10 @@ class Player(TargettableObject):
         return self
 
     def __setstate__(self, state):
-        for name, val in state:
-            setattr(self, name, val)
+        TargettableObject.__setstate__(self, state)
         #XXX: some sort of holding room?
         self.room.remove(self)
         self.room = None
-        self.clean()
 
 class ExitObject(MUDObject):
     """An exit."""

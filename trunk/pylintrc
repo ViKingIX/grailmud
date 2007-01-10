@@ -49,8 +49,9 @@ load-plugins=
 #enable-msg=
 
 # Disable the message(s) with the given id(s).
-disable-msg=W0611,W0223,W0232,E0102,W0613,W0231,W0142,W0401
-
+disable-msg=W0611,W0223,W0232,E0102,W0613,W0231,W0142,W0401,C0203
+#now, ordinarily, some of these would be code smell indicators, but we have 
+#some fun hacks.
 
 [REPORTS]
 
@@ -112,7 +113,7 @@ module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 const-rgx=^(_?([A-Z][A-Z0-9_]+|[a-z][a-z0-9]+(_[a-z0-9]+)*|[a-z][a-z0-9]+([A-Z][a-z0-9]+)*)|__.*__)$
 
 # Regular expression which should only match correct class names
-class-rgx=[A-Z_][a-zA-Z0-9]+$
+class-rgx=([A-Z_][a-zA-Z0-9]+|__(extend|metaclass)__)$
 
 # Regular expression which should only match correct function names
 function-rgx=^(_?([A-Z][A-Z0-9_]+|[a-z][a-z0-9]+(_[a-z0-9]+)*|[a-z][a-z0-9]+([A-Z][a-z0-9]+)*)|__.*__)$

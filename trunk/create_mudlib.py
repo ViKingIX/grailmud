@@ -1,9 +1,13 @@
+# pylint: disable-msg= E1101,W0212
+#pylint doesn't know about our metaclass hackery, and complains about the use
+#of the leading underscore variables.
 """Instantiate the MUDlib and write it to disk."""
 from durus.file_storage import FileStorage
 from durus.connection import Connection
 from grail2.rooms import Room
 from grail2.objects import MUDObject, TargettableObject
 from grail2.npcs.chatty import ChattyNPC
+from grail2.ticks import Ticker
 
 startroom = Room('An unremarkable moor.',
                  'This moor is extremely bare. Overly so, perhaps. There '
@@ -26,5 +30,6 @@ root = connection.get_root()
 root['startroom'] = startroom
 root['all_rooms'] = Room._instances
 root['all_objects'] = MUDObject._instances
+root['ticker'] = Ticker(connection, 100)
 
 connection.commit()

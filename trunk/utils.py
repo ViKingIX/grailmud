@@ -1,4 +1,5 @@
-
+# pylint: disable-msg= E1101
+#pylint doesn't know about our metaclass hackery
 def monkeypatch(cls):
     def patchergrabber(patcher):
         name = patcher.__name__
@@ -43,3 +44,7 @@ class InstanceTracker(object):
     def __init__(self):
         #XXX: this probably ought to be a weakref.
         self._instances.append(self)
+
+    def __setstate__(self, state):
+        self._instances.append(self)
+        self.__dict__.update(state)
