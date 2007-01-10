@@ -15,16 +15,16 @@ startroom = Room('An unremarkable moor.',
                  ' exciting scents.')
 
 eliza = TargettableObject('a bespectacled old lady', 'Eliza',
-                          set(['old', 'lady', 'woman']), room)
+                          set(['old', 'lady', 'woman']), startroom)
 eliza.addListener(ChattyNPC(eliza))
-room.add(eliza)
+startroom.add(eliza)
 
 connection = Connection(FileStorage("mudlib.durus"))
 
 root = connection.get_root()
 
-root.startroom = startroom
-root.all_rooms = Room._instances
-root_all_objects = MUDObject._instances
+root['startroom'] = startroom
+root['all_rooms'] = Room._instances
+root['all_objects'] = MUDObject._instances
 
 connection.commit()

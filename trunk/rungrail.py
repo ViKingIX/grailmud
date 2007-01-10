@@ -17,7 +17,8 @@ logging.basicConfig(level = logging.DEBUG,
 
 def construct_mud(tickfreq, objstore):
     """Construct a MUD factory."""
-    return ConnectionFactory(tickfreq, objstore, objstore.get_root().startroom)
+    return ConnectionFactory(tickfreq, objstore,
+                             objstore.get_root()['startroom'])
 
 def run_mud(mud, port):
     """Run the MUD factory."""

@@ -9,29 +9,13 @@ from twisted.internet.task import LoopingCall
 from grail2.ticks import Ticker
 from bisect import insort
 
-def startroom():
-    """Returns a new room that the players are dumped into initially."""
-    room = Room('An unremarkable moor.',
-                'This moor is extremely bare. Overly so, perhaps. There '
-                'is a definite air of blandness about its grey horizon '
-                'and overcast sky. The ground is anonymous and blank; '
-                'grey dust litters the floor, and that is about all which '
-                'can be said about it. Even the air seems to be steeped in'
-                ' mediocrity - a lukewarm temperature, with no discernable'
-                ' exciting scents.')
-    eliza = TargettableObject('a bespectacled old lady', 'Eliza',
-                              set(['old', 'lady', 'woman']), room)
-    eliza.addListener(ChattyNPC(eliza))
-    room.add(eliza)
-    return room
-
 class ConnectionFactory(Factory):
     """The actual server factory."""
 
     protocol = LoggerIn
 
-    def __init__(self, freq, objstore, *args, **kwargs):
-        self.room = startroom()
+    def __init__(self, freq, objstore, startroom, *args, **kwargs):
+        self.startroom = startroom
         self.catalogue = PlayerCatalogue()
         self.ticker = Ticker(objstore)
         self.looper = LoopingCall(self.ticker.tick)
@@ -39,7 +23,7 @@ class ConnectionFactory(Factory):
         self.objstore = objstore
     
     def buildProtocol(self, address):
-        prot = self.protocol(self.room, self.catalogue, self.ticker)
+        prot = self.protocol(self.startroom, self.catalogue, self.ticker)
         prot.factory = self
         logging.debug("%r returned from Factory.buildProtocol." % prot)
         return prot

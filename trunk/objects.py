@@ -67,7 +67,7 @@ class AgentObject(MUDObject):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
         state = self.__dict__
-        state[listeners] = listeners
+        state['listeners'] = listeners
         return state
 
 @MUDObject.receiveEvent.register(AgentObject, BaseEvent)
