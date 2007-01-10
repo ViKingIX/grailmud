@@ -6,17 +6,20 @@ from grail2.strutils import head_word_split
 from grail2.rooms import Room
 from grail2.multimethod import Multimethod
 from grail2.events import BaseEvent
+from grail2.utils import InstanceTracker
 
-class MUDObject(object):
+class MUDObject(InstanceTracker):
     """An object in the MUD."""
-    _numinstances = 0
     
     def __init__(self, room):
         self.room = room
-        self._num = MUDObject._numinstances
-        MUDObject._numinstances += 1
+        self._num = len(MUDObject._instances)
+        InstanceTracker.__init__(self)
 
     receiveEvent = Multimethod()
+
+    def __hash__(self):
+        return hash((type(self), self._num))
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
@@ -60,6 +63,13 @@ class AgentObject(MUDObject):
         '''
         pass
 
+    def __getstate__(self):
+        listeners = set(listener for listener in self.listeners
+                        if listener._pickleme)
+        state = self.__dict__
+        state[listeners] = listeners
+        return state
+
 @MUDObject.receiveEvent.register(AgentObject, BaseEvent)
 def receiveEvent(self, event):
     """Receive an event in the MUD.
@@ -71,9 +81,13 @@ def receiveEvent(self, event):
 
 class TargettableObject(AgentObject):
     """A tangible object, that can be generically targetted."""
+
+    _name_registry = {}
+    
     def __init__(self, sdesc, name, adjs, room):
         self.sdesc = sdesc
         self.name = name
+        TargettableObject._name_registry[name] = self
         self.adjs = adjs | set([name])
         AgentObject.__init__(self, room)
     
@@ -86,11 +100,12 @@ class TargettableObject(AgentObject):
 class Player(TargettableObject):
     """A player avatar."""
 
-    def __init__(self, name, sdesc, adjs, cmdict, room):
+    def __init__(self, name, sdesc, adjs, cmdict, room, passhash):
         self.connstate = 'online'
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
         self.cmdict = cmdict
+        self.passhash = passhash
         self.session = {}
         TargettableObject.__init__(self, sdesc, name, adjs, room)
 
@@ -109,6 +124,19 @@ class Player(TargettableObject):
             #no self.removeListener(listener) here because it's a little silly
             #to not have it implied.
 
+    def __getstate__(self):
+        state = TargettableObject.__getstate__(self)
+        state['connstate'] = 'offline'
+        return self
+
+    def __setstate__(self, state):
+        for name, val in state:
+            setattr(self, name, val)
+        #XXX: some sort of holding room?
+        self.room.remove(self)
+        self.room = None
+        self.clean()
+
 class ExitObject(MUDObject):
     """An exit."""
 
@@ -124,18 +152,18 @@ class BadPassword(Exception):
 class PlayerCatalogue(object):
     """A bare-bones database of players."""
 
-    def __init__(self):
-        self.byname = {}
-        self.passhashes = {}
-
     def add(self, avatar, passhash):
         """Register a new player."""
-        self.byname[avatar.name] = avatar
-        self.passhashes[avatar.name] = passhash
+        pass #handled automatically.
 
     def player_exists(self, name):
         '''Returns True if a Player referred to by a given name exists.'''
-        return name in self.byname
+        try:
+            avatar = TargettableObject._name_registry[name]
+        except KeyError:
+            return False
+        else:
+            return isinstance(avatar, Player)
 
     def get(self, name, passhash):
         """Get the avatar referred to by name, but only if its passhash is
@@ -143,7 +171,10 @@ class PlayerCatalogue(object):
 
         Throws KeyErrors if the name is garbage.
         """
-        if passhash != self.passhashes[name]:
+        avatar = TargettableObject._name_registry[name]
+        if not isinstance(avatar, Player):
+            raise KeyError("name is not the name of a player")
+        if passhash != avatar.passhash:
             raise BadPassword()
-        return self.byname[name]
+        return avatar
         

@@ -30,12 +30,13 @@ class ConnectionFactory(Factory):
 
     protocol = LoggerIn
 
-    def __init__(self, freq, *args, **kwargs):
+    def __init__(self, freq, objstore, *args, **kwargs):
         self.room = startroom()
         self.catalogue = PlayerCatalogue()
-        self.ticker = Ticker()
+        self.ticker = Ticker(objstore)
         self.looper = LoopingCall(self.ticker.tick)
         self.looper.start(freq)
+        self.objstore = objstore
     
     def buildProtocol(self, address):
         prot = self.protocol(self.room, self.catalogue, self.ticker)

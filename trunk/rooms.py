@@ -1,17 +1,19 @@
 """Contains some classes for dealing with containers."""
 from grail2.orderedset import OrderedSet
+from grail2.utils import InstanceTracker
 
 class UnfoundError(Exception):
     """The object wasn't found."""
     pass
 
-class Room(object):
+class Room(InstanceTracker):
     """A single container or 'room'."""
 
     def __init__(self, title, desc):
         self.contents = OrderedSet()
         self.title = title
         self.desc = desc
+        InstanceTracker.__init__(self)
 
     def add(self, obj):
         """Add an object to the room. Does not modify the object to reflect

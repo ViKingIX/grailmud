@@ -3,6 +3,7 @@
 """This module is intended to be the main entry point for the server, run from
 the shell.
 """
+import durus
 import grail2
 from grail2.server import ConnectionFactory
 from twisted.internet import reactor
@@ -13,7 +14,7 @@ logging.basicConfig(level = logging.DEBUG,
                     format = '%(asctime)s %(levelname)s %(message)s',
                     stream = sys.stdout)
 
-def construct_mud(tickfreq):
+def construct_mud(tickfreq, objstore):
     """Construct a MUD factory."""
     return ConnectionFactory(tickfreq)
 

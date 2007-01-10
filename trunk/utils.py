@@ -31,3 +31,14 @@ def in_rooms(obj, rooms):
         if obj in room:
             return True
     return False
+
+class InstanceTracker(object):
+    '''A type that keeps track of its instances.'''
+    class __metaclass__(type):
+
+        def __init__(cls, name, bases, dictionary):
+            cls._instances = []
+            type.__init__(cls, name, bases, dictionary)
+
+    def __init__(self):
+        self._instances.append(self)

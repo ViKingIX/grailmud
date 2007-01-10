@@ -3,6 +3,8 @@ import logging
 class Listener(object):
     '''Base class for listeners.'''
 
+    _pickleme = True
+
     def __init__(self):
         self.listening = set()
 
@@ -25,6 +27,8 @@ class Listener(object):
 class ConnectionState(Listener):
     """Represents the state of the connection to the events as they collapse to
     text."""
+
+    _pickleme = False
 
     def __init__(self, telnet):
         self.telnet = telnet

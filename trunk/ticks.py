@@ -19,7 +19,7 @@ class WaitingForTick(object):
 
 class Ticker(object):
 
-    def __init__(self):
+    def __init__(self, objstore):
         self.doing = []
 
     def add_command(self, cmd):
@@ -30,3 +30,4 @@ class Ticker(object):
         self.doing = []
         for cmd in doing:
             cmd()
+        self.objstore.commit()
