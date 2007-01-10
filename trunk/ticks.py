@@ -1,4 +1,5 @@
 class WaitingForTick(object):
+    #XXX: needs some way to get itself known to the Ticker.
 
     def __init__(self, ticks, cmd):
         self.ticks = ticks
