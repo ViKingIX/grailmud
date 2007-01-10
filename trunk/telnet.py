@@ -16,7 +16,6 @@ from grail2.strutils import sanitise, alphatise, safetise, articleise, \
 
 #some random vaguely related TODOs:
 #-serialisation via dirty objects
-#-heartbeat tick server (steal from Buyasta?)
 #-referential integrity when MUDObjects go POOF
 #-better cataloguing (at the very least, all MUDObjects by name)
 
