@@ -21,7 +21,8 @@ def promptcolour(colourname = 'normal'):
     
 class smartdict(dict):
     def __getitem__(self, item):
-        return eval(item, globals(), self)
+        #convert to dict to prevent infinite recursion
+        return eval(item, globals(), dict(self))
 
 def in_rooms(obj, rooms):
     #This actually turns out to be stupid and redundant.

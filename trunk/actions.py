@@ -1,9 +1,15 @@
 '''Pulls the actions from the definitions files underneath actiondefs.'''
 from collections import defaultdict
 
-cdict = defaultdict()
-modules = ['core', 'look', 'says', 'system', 'who', 'setting', 'deaf', 'emote']
-actiondefs = __import__('grail2.actiondefs', fromlist = modules)
+modulenames = ['core', 'look', 'says', 'system', 'who', 'setting', 'deaf',
+               'emote', 'helpfiles']
+modules = [getattr(__import__('grail2.actiondefs', fromlist = modulenames),
+                   name)
+           for name in modulenames]
 
-for module in modules:
-    getattr(actiondefs, module).register(cdict)
+def get_actions():
+    '''Goes over all the actiondef modules and registers the cdict.'''
+    cdict = defaultdict()
+    for module in modules:
+        module.register(cdict)
+    return cdict

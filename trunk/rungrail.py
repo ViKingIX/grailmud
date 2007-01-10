@@ -12,6 +12,6 @@ logging.basicConfig(level = logging.DEBUG,
                     format = '%(asctime)s %(levelname)s %(message)s',
                     stream = sys.stdout)
 
-reactor.listenTCP(6666, ConnectionFactory())
+reactor.listenTCP(6666, ConnectionFactory(100))
 
 reactor.run()

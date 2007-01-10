@@ -7,16 +7,20 @@ from grail2.actiondefs.emote import lookUpAt, emote
 from grail2.actiondefs.says import SpeakToSecondEvent, speakTo
 from grail2.objects import MUDObject
 from grail2.telnet import Listener
+from grail2.npcs.elizaimpl import Therapist
+from grail2.utils import monkeypatch
 from twisted.internet.base import DelayedCall
 from random import randrange
 
 class ChattyNPC(Listener):
-    """An NPC that chats back. I want to turn this into an Eliza clone someday.
+    """An NPC that psychoanalyses you.
     """
 
     def __init__(self, avatar):
         self.avatar = avatar
         Listener.__init__(self)
+        self.lastchatted = None
+        self.therapist = None
 
     listenToEvent = Multimethod()
 
@@ -36,11 +40,15 @@ def doafter(time, func, *args, **kwargs):
 def listenToEvent(self, obj, event):
     '''Someone has said something to us. It's only polite to respond!'''
     text = event.text
+    actor = event.actor
     if not text:
-        doafter(randrange(2, 4), lookUpAt, self.avatar, event.actor)
+        doafter(randrange(2, 4), lookUpAt, self.avatar, actor)
         return
-    doafter(randrange(2, 4), speakTo, self.avatar, event.actor,
-            "Very interesting!")
+    if self.lastchatted is not actor:
+        self.therapist = Therapist()
+        self.lastchatted = actor
+    doafter(randrange(2, 4), speakTo, self.avatar, actor,
+            self.therapist.chat(text))
 
 @ChattyNPC.listenToEvent.register(ChattyNPC, UnfoundObjectEvent, MUDObject)
 def listenToEvent(self, obj, event):
@@ -50,3 +58,4 @@ def listenToEvent(self, obj, event):
           "again soon after, not finding your quarry.",
           "~ looks up and around, as if searching for someone, but looks down "
           "again soon after, not finding their quarry.")
+

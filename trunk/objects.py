@@ -9,12 +9,28 @@ from grail2.events import BaseEvent
 
 class MUDObject(object):
     """An object in the MUD."""
+    _numinstances = 0
+    
     def __init__(self, room):
-        self.listeners = set()
         self.room = room
+        self._num = MUDObject._numinstances
+        MUDObject._numinstances += 1
 
     receiveEvent = Multimethod()
 
+@MUDObject.receiveEvent.register(MUDObject, BaseEvent)
+def receiveEvent(self, event):
+    '''MUDObjects live their merry lives in peace by deafult, ignoring the world
+    and its hustle-bustle around them. Kind of cute.
+    '''
+    pass
+
+class AgentObject(MUDObject):
+    """An object that does stuff and has useful stuff done to it."""
+    def __init__(self, room):
+        MUDObject.__init__(self, room)
+        self.listeners = set()
+    
     def eventFlush(self):
         """Tell the listeners that the current lot of events are done."""
         for listener in self.listeners:
@@ -44,22 +60,22 @@ class MUDObject(object):
         '''
         pass
 
-@MUDObject.receiveEvent.register(MUDObject, BaseEvent)
+@MUDObject.receiveEvent.register(AgentObject, BaseEvent)
 def receiveEvent(self, event):
     """Receive an event in the MUD.
 
-    This is the very basic handler. It is the default case.
+    This is the very basic handler for objects that can be listened to.
     """
     for listener in self.listeners:
         listener.listenToEvent(self, event)
 
-class TargettableObject(MUDObject):
+class TargettableObject(AgentObject):
     """A tangible object, that can be generically targetted."""
     def __init__(self, sdesc, name, adjs, room):
         self.sdesc = sdesc
         self.name = name
         self.adjs = adjs | set([name])
-        MUDObject.__init__(self, room)
+        AgentObject.__init__(self, room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
@@ -102,6 +118,9 @@ class ExitObject(MUDObject):
         self.exit_desc = direction if exit_desc is not None else exit_desc
         MUDObject.__init__(self, room)
 
+class BadPassword(Exception):
+    pass
+
 class PlayerCatalogue(object):
     """A bare-bones database of players."""
 
@@ -113,3 +132,18 @@ class PlayerCatalogue(object):
         """Register a new player."""
         self.byname[avatar.name] = avatar
         self.passhashes[avatar.name] = passhash
+
+    def player_exists(self, name):
+        '''Returns True if a Player referred to by a given name exists.'''
+        return name in self.byname
+
+    def get(self, name, passhash):
+        """Get the avatar referred to by name, but only if its passhash is
+        equal.
+
+        Throws KeyErrors if the name is garbage.
+        """
+        if passhash != self.passhashes[name]:
+            raise BadPassword()
+        return self.byname[name]
+        
