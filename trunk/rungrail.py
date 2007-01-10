@@ -3,7 +3,8 @@
 """This module is intended to be the main entry point for the server, run from
 the shell.
 """
-import durus
+from durus.file_storage import FileStorage
+from durus.connection import Connection
 import grail2
 from grail2.server import ConnectionFactory
 from twisted.internet import reactor
@@ -16,7 +17,7 @@ logging.basicConfig(level = logging.DEBUG,
 
 def construct_mud(tickfreq, objstore):
     """Construct a MUD factory."""
-    return ConnectionFactory(tickfreq)
+    return ConnectionFactory(tickfreq, objstore, objstore.get_root().startroom)
 
 def run_mud(mud, port):
     """Run the MUD factory."""
@@ -25,4 +26,5 @@ def run_mud(mud, port):
     reactor.run()
 
 if __name__ == '__main__':
-    run_mud(construct_mud(100), 6666)
+    connection = Connection(FileStorage("mudlib.durus"))
+    run_mud(construct_mud(100, connection), 6666)

@@ -41,4 +41,5 @@ class InstanceTracker(object):
             type.__init__(cls, name, bases, dictionary)
 
     def __init__(self):
+        #XXX: this probably ought to be a weakref.
         self._instances.append(self)

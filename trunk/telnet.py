@@ -15,7 +15,6 @@ from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
 
 #some random vaguely related TODOs:
-#-serialisation via dirty objects
 #-referential integrity when MUDObjects go POOF
 #-better cataloguing (at the very least, all MUDObjects by name)
 
@@ -174,21 +173,21 @@ class CreationHandler(ConnectionHandler):
         self.setstate('get_password')
 
     def line_get_password_new(self, line):
-        """We've been given the password. Salt and hash it, then store the
-        hash.
+        """We've been given the password. Hash it, then store the hash.
         """
+        #XXX: probably ought to salt, too.
         line = safetise(line)
         if len(line) <= 3:
             self.write("That password is not long enough.")
             return
-        self.passhash = sha(line + self.name).digest()
+        self.passhash = sha(line).digest()
         self.write("Please repeat your password.")
         self.setstate('repeat_password')
 
     def line_repeat_password(self, line):
         """Make sure the user can remember the password they've entered."""
         line = safetise(line)
-        if sha(line + self.name).digest() != self.passhash:
+        if sha(line).digest() != self.passhash:
             self.write("Those passwords don't match. Please enter a new one.")
             return 'get_password_new'
         self.write("Enter your description (eg, 'short fat elf').")
@@ -240,7 +239,7 @@ class LoginHandler(ConnectionHandler):
         insert the appropriate avatar into the MUD.
         """
         line = safetise(line)
-        passhash = sha(line + self.name).digest()
+        passhash = sha(line).digest()
         try:
             avatar = self.telnet.playercatalogue.get(line, passhash)
         except BadPassword, err:
