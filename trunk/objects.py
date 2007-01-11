@@ -105,6 +105,16 @@ class TargettableObject(AgentObject):
         return (len(attrs) == 1 and self.name in attrs) or \
                self.adjs.issuperset(attrs)
 
+    @classmethod
+    def exists(cls, name):
+        '''Returns True if an object referred to by a given name exists.'''
+        try:
+            avatar = TargettableObject._name_registry[name]
+        except KeyError:
+            return False
+        else:
+            return isinstance(avatar, cls)
+
 class Player(TargettableObject):
     """A player avatar."""
 
@@ -143,6 +153,20 @@ class Player(TargettableObject):
         self.room.remove(self)
         self.room = None
 
+    @staticmethod
+    def get(name, passhash):
+        """Get the avatar referred to by name, but only if its passhash is
+        equal.
+
+        Throws KeyErrors if the name is garbage.
+        """
+        if not Player.exists(name):
+            raise KeyError("name is not the name of a player")
+        avatar = TargettableObject._name_registry[name]
+        if passhash != avatar.passhash:
+            raise BadPassword()
+        return avatar
+
 class ExitObject(MUDObject):
     """An exit."""
 
@@ -155,32 +179,3 @@ class ExitObject(MUDObject):
 class BadPassword(Exception):
     pass
 
-class PlayerCatalogue(object):
-    """A bare-bones database of players."""
-
-    def add(self, avatar, passhash):
-        """Register a new player."""
-        pass #handled automatically.
-
-    def player_exists(self, name):
-        '''Returns True if a Player referred to by a given name exists.'''
-        try:
-            avatar = TargettableObject._name_registry[name]
-        except KeyError:
-            return False
-        else:
-            return isinstance(avatar, Player)
-
-    def get(self, name, passhash):
-        """Get the avatar referred to by name, but only if its passhash is
-        equal.
-
-        Throws KeyErrors if the name is garbage.
-        """
-        avatar = TargettableObject._name_registry[name]
-        if not isinstance(avatar, Player):
-            raise KeyError("name is not the name of a player")
-        if passhash != avatar.passhash:
-            raise BadPassword()
-        return avatar
-        

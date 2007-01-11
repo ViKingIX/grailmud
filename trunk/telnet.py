@@ -7,12 +7,13 @@ from functional import compose
 from sha import sha
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
-from grail2.objects import Player, BadPassword
+from grail2.objects import Player, BadPassword, TargettableObject
 from grail2.actions import get_actions
 from grail2.actiondefs.system import logoffFinal, login
 from grail2.listeners import ConnectionState
 from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
+import grail2
 
 #some random vaguely related TODOs:
 #-referential integrity when MUDObjects go POOF
@@ -25,14 +26,13 @@ class LoggerIn(Telnet, LineOnlyReceiver):
 
     delimiter = '\n'
 
-    def __init__(self, playercatalogue, startroom, ticker):
+    def __init__(self):
+        #XXX: these instance variables are redundant.
         Telnet.__init__(self)
         #LineOnlyReceiver doesn't have an __init__ method, weirdly.
         self.linestate = 'ignore'
-        self.dispatchto = ChoiceHandler(self)
-        self.ticker = ticker
-        self.playercatalogue = playercatalogue
-        self.startroom = startroom
+        self.callback = lambda line: logging.debug("Doing nothing with %s" %
+                                                   line)
         self.connection_state = None
         self.avatar = None
 
@@ -42,10 +42,10 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         """Receive a line of text and delegate it to the method asked for
         previously.
         """
-        meth = getattr(self.dispatchto, 'line_%s' % self.linestate)
+        meth = self.callback
         logging.debug("Line %r received, putting %r for the ticker." %
                       (line, meth))
-        self.ticker.add_command(meth)
+        grail2.instance.ticker.add_command(lambda: meth(line))
 
     def close(self):
         """Convenience."""
@@ -60,7 +60,7 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         """The connection's been made, and send out the initial options."""
         Telnet.connectionMade(self)
         LineOnlyReceiver.connectionMade(self)
-        self.dispatchto.line_initial()
+        ChoiceHandler(self).initial()
 
     def connectionLost(self, reason):
         """Clean up and let the superclass handle it."""
@@ -83,18 +83,14 @@ class ConnectionHandler(object):
     def __init__(self, telnet):
         self.telnet = telnet
 
-    def line_ignore(self, line):
-        pass
-
     def write(self, text):
         self.telnet.write(text)
 
     def setstate(self, state):
-        self.telnet.linestate = state
+        self.telnet.linecallback = getattr(self, 'line_%s' % state)
 
-    def sethandler(self, handler):
-        self.telnet.dispatchto = handler
-        self.setstate('initial')
+    def setcallback(self, func):
+        self.telnet.callback = func
 
 NEW_CHARACTER = 1
 LOGIN = 2
@@ -133,25 +129,25 @@ def strconstrained(blankallowed = False, corrector = sanitise,
 
 class ChoiceHandler(ConnectionHandler):
 
-    def line_initial(self):
+    def initial(self):
         self.write("Welcome to GrailMUD.\r\n")
         self.write("Please choose:\r\n")
         self.write("1) Enter the game with a new character.\r\n")
         self.write("2) Log in as an existing character.\r\n")
-        self.write("Please enter the number of your choice.\xff\xfa")
+        self.write("Please enter the number of your choice.")
+        self.setcallback(self.choice_made)
 
     #we want this here for normalisation purposes.
     @strconstrained(corrector = toint)
-    def line_choice_made(self, opt):
+    def choice_made(self, opt):
         """The user's made their choice, so we pick the appropriate route: we
         either create a new character, or log in as an old one.
         """
+        logging.debug("ChoiceHandler.line_choice_made called.")
         if opt == NEW_CHARACTER:
-            self.write("Enter your name.")
-            self.sethandler(CreationHandler(self.telnet))
+            CreationHandler(self.telnet)
         elif opt == LOGIN:
-            self.write("What is your name?")
-            self.sethandler(LoginHandler(self.telnet))
+            LoginHandler(self.telnet)
 
 class CreationHandler(ConnectionHandler):
 
@@ -161,18 +157,22 @@ class CreationHandler(ConnectionHandler):
         self.adjs = None
         self.passhash = None
         ConnectionHandler.__init__(self, *args, **kwargs)
+        self.write("Enter your name.")
+        self.setcallback(self.get_name)
 
     @strconstrained(corrector = alphatise)
-    def line_initial(self, name):
+    def get_name(self, name):
         """The user's creating a new character. We've been given the name,
         so we ask for the password.
         """
-        #XXX: checking if the name exists already.
-        self.name = name
-        self.write("Please enter a password for this character.")
-        self.setstate('get_password')
+        if name in TargettableObject._name_registry:
+            self.write("That name is taken. Please use another.")
+        else:
+            self.name = name
+            self.write("Please enter a password for this character.")
+            self.setcallback(self.get_password)
 
-    def line_get_password_new(self, line):
+    def get_password(self, line):
         """We've been given the password. Hash it, then store the hash.
         """
         #XXX: probably ought to salt, too.
@@ -182,71 +182,73 @@ class CreationHandler(ConnectionHandler):
             return
         self.passhash = sha(line).digest()
         self.write("Please repeat your password.")
-        self.setstate('repeat_password')
+        self.setcallback(self.repeat_password)
 
-    def line_repeat_password(self, line):
+    def repeat_password(self, line):
         """Make sure the user can remember the password they've entered."""
         line = safetise(line)
         if sha(line).digest() != self.passhash:
             self.write("Those passwords don't match. Please enter a new one.")
-            return 'get_password_new'
-        self.write("Enter your description (eg, 'short fat elf').")
-        return 'get_sdesc'
+            self.setcallback(self.get_password)
+        else:
+            self.write("Enter your description (eg, 'short fat elf').")
+            self.setcallback(self.get_sdesc)
 
     @strconstrained(corrector = compose(sanitise, wsnormalise))
-    def line_get_sdesc(self, line):
+    def get_sdesc(self, line):
         """Got the sdesc; ask for the adjectives."""
         self.sdesc = articleise(line)
         self.write("Enter a comma-separated list of words that can be used to "
                    "refer to you (eg, 'hairy tall troll') or a blank line to "
                    "use your description.")
-        return 'get_adjs'
+        self.setcallback(self.get_adjs)
 
     @strconstrained(blankallowed = True,
                     corrector = compose(alphatise, wsnormalise))
-    def line_get_adjs(self, line):
-        """Got the adjectives; create the avatar, add it to the catalogue, and
-        insert the avatar into the game.
+    def get_adjs(self, line):
+        """Got the adjectives; create the avatar and insert the avatar into
+        the game.
         """
         if not line:
             line = self.sdesc
         self.adjs = set(line.split())
         avatar = Player(self.name, self.sdesc, self.adjs, get_actions(),
-                        self.telnet.startroom)
-        self.telnet.playercatalogue.add(avatar, self.passhash)
-        self.sethandler(AvatarHandler(self.telnet, avatar))
+                        grail2.instance.startroom, self.passhash)
+        AvatarHandler(self.telnet, avatar)
 
 class LoginHandler(ConnectionHandler):
 
     def __init__(self, telnet):
         self.name = None
         ConnectionHandler.__init__(self, telnet)
-    
+        self.write("What is your name?")
+        self.setcallback(self.get_name)
+        
     @strconstrained(corrector = alphatise)
-    def line_get_name_existing(self, line):
+    def get_name(self, line):
         """Logging in as an existing character, we've been given the name. We
         ask for the password next.
         """
-        if self.telnet.playercatalogue.player_exists(line):
+        if Player.exists(line):
             self.name = line
             self.write("Please enter your password.\xff\xfa")
-            return 'get_password_existing'
+            self.setcallback(self.get_password)
         else:
             self.write("That name is not recognised. Please try again.")
 
-    def line_get_password_existing(self, line):
+    def get_password(self, line):
         """We've been given the password. Check that it's correct, and then
         insert the appropriate avatar into the MUD.
         """
         line = safetise(line)
         passhash = sha(line).digest()
         try:
-            avatar = self.telnet.playercatalogue.get(line, passhash)
+            avatar = Player.get(line, passhash)
         except BadPassword, err:
             self.write("That password is invalid. Goodbye!")
             self.telnet.connectionLost(err)
         else:
-            self.sethandler(AvatarHandler(self.telnet, avatar))
+            AvatarHandler(self.telnet, avatar)
 
 class AvatarHandler(ConnectionHandler):
 
@@ -256,11 +258,12 @@ class AvatarHandler(ConnectionHandler):
         
         self.connection_state = ConnectionState(self.telnet)
         self.avatar.addListener(self.connection_state)
-        self.telnet.startroom.add(self.avatar)
+        grail2.instance.startroom.add(self.avatar)
         login(self.avatar)
         self.connection_state.eventListenFlush(self.avatar)
+        self.setcallback(self.handle_line)
 
-    def line_initial(self, line):
+    def handle_line(self, line):
         logging.debug('%r received, handling in avatar.' % line)
         try:
             self.avatar.receivedLine(line,

@@ -3,7 +3,6 @@
 """The heartbeat of the MUD."""
 import grail2
 import logging
-from collections import deque
 from twisted.internet.task import LoopingCall
 
 class WaitingForTick(object):
@@ -21,15 +20,11 @@ class WaitingForTick(object):
         """Go through one tick."""
         self.ticks -= 1
         if not self.ticks:
-            ticker.add_command(self.cmd)
+            self.cmd()
         else:
             ticker.add_command(self)
 
     __call__ = tick
-
-def leftpopiter(d):
-    while d:
-        yield d.popleft()
 
 class Ticker(object):
     """The object that sets the core rate of the MUD."""
@@ -37,7 +32,7 @@ class Ticker(object):
     def __init__(self, freq):
         self.freq = freq
         self.looper = LoopingCall(self.tick)
-        self.doing = deque()
+        self.doing = []
 
     def add_command(self, cmd):
         """Set a command to fire on the next tick."""
@@ -46,8 +41,9 @@ class Ticker(object):
 
     def tick(self):
         """Go through one tick."""
-        for cmd in leftpopiter(self.doing):
-            logging.debug("Ticker actually doing something - %r" % cmd)
+        doing = self.doing
+        self.doing = []
+        for cmd in doing:
             cmd()
         grail2.instance.objstore.commit()
 
