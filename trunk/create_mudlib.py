@@ -2,6 +2,7 @@
 #pylint doesn't know about our metaclass hackery, and complains about the use
 #of the leading underscore variables.
 """Instantiate the MUDlib and write it to disk."""
+import os
 from durus.file_storage import FileStorage
 from durus.connection import Connection
 from grail2.rooms import Room
@@ -23,6 +24,9 @@ eliza = TargettableObject('a bespectacled old lady', 'Eliza',
 eliza.addListener(ChattyNPC(eliza))
 startroom.add(eliza)
 
+if os.access("mudlib.durus", os.F_OK):
+    os.remove("mudlib.durus")
+
 connection = Connection(FileStorage("mudlib.durus"))
 
 root = connection.get_root()
@@ -30,6 +34,6 @@ root = connection.get_root()
 root['startroom'] = startroom
 root['all_rooms'] = Room._instances
 root['all_objects'] = MUDObject._instances
-root['ticker'] = Ticker(connection, 100)
+root['ticker'] = Ticker(0.1)
 
 connection.commit()

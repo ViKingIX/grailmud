@@ -16,22 +16,17 @@ class MUDObject(InstanceTracker):
     
     def __init__(self, room):
         self.room = room
-        self._num = len(MUDObject._instances)
-        InstanceTracker.__init__(self)
 
     receiveEvent = Multimethod()
 
     def __hash__(self):
-        return hash((type(self), self._num))
+        return id(self)
+
+    def __eq__(self, other):
+        return self is other
 
     def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['_num']
-        return state
-
-    def __setstate__(self, state):
-        self._num = len(MUDObject._instances)
-        InstanceTracker.__setstate__(self, state)
+        return self.__dict__.copy()
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):

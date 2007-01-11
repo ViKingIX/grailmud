@@ -29,7 +29,7 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         Telnet.__init__(self)
         #LineOnlyReceiver doesn't have an __init__ method, weirdly.
         self.linestate = 'ignore'
-        self.dispatchto = ChoiceHandler()
+        self.dispatchto = ChoiceHandler(self)
         self.ticker = ticker
         self.playercatalogue = playercatalogue
         self.startroom = startroom

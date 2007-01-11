@@ -41,10 +41,13 @@ class InstanceTracker(object):
             cls._instances = []
             type.__init__(cls, name, bases, dictionary)
 
-    def __init__(self):
-        #XXX: this probably ought to be a weakref.
-        self._instances.append(self)
+        def __call__(cls, *args, **kwargs):
+            #XXX: this probably ought to be a weakref.
+            res = type.__call__(cls, *args, **kwargs)
+            cls._instances.append(res)
+            return res
 
     def __setstate__(self, state):
-        self._instances.append(self)
+        if self not in self._instances:
+            self._instances.append(self)
         self.__dict__.update(state)
