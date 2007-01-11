@@ -17,7 +17,6 @@ import grail2
 
 #some random vaguely related TODOs:
 #-referential integrity when MUDObjects go POOF
-#-better cataloguing (at the very least, all MUDObjects by name)
 
 class LoggerIn(Telnet, LineOnlyReceiver):
     """A class that calls a specific method, depending on what the last method

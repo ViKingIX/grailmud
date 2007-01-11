@@ -1,5 +1,3 @@
-#pylint: disable-msg= E1101
-#our grail2.instance hackery
 """The heartbeat of the MUD."""
 import grail2
 import logging

@@ -1,6 +1,3 @@
-# pylint: disable-msg= E1101,W0212
-#pylint doesn't know about our metaclass hackery, and complains about the use
-#of the leading underscore variables.
 """This file contains an implementation of objects in the MUD and a simple
 interface for hooking them up with listeners and events.
 """
@@ -149,9 +146,7 @@ class Player(TargettableObject):
 
     def __setstate__(self, state):
         TargettableObject.__setstate__(self, state)
-        #XXX: some sort of holding room?
         self.room.remove(self)
-        self.room = None
 
     @staticmethod
     def get(name, passhash):

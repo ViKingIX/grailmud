@@ -1,3 +1,5 @@
+# pylint: disable-msg= E1101
+#object has no __getattr__ member, apparently
 """A Python MUD."""
 
 #instance is the currently running MUD instance, or None. Either we'd have to do
