@@ -41,6 +41,8 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         """Receive a line of text and delegate it to the method asked for
         previously.
         """
+        #XXX: turn this into a deferred thingy and have it disconnect on
+        #errback.
         meth = self.callback
         logging.debug("Line %r received, putting %r for the ticker." %
                       (line, meth))
@@ -105,7 +107,7 @@ def toint(s):
     try:
         return int(s)
     except ValueError:
-        return NotAllowed("That couldn't be parsed as a number.")
+        raise NotAllowed("That couldn't be parsed as a number.")
 
 def strconstrained(blankallowed = False, corrector = sanitise,
                    msg = 'Try actually writing something usable?'):
@@ -114,9 +116,11 @@ def strconstrained(blankallowed = False, corrector = sanitise,
     """
     def constrained(fn):
         def checker(self, line):
+            logging.debug("Constraining input (%r) to %r" % (line, fn))
             try:
                 line = corrector(line.lower())
             except NotAllowed, e:
+                logging.debug("NotAllowed caught, writing %s" % e.msg)
                 self.write(e.msg)
             else:
                 if not blankallowed and not line:
@@ -142,7 +146,7 @@ class ChoiceHandler(ConnectionHandler):
         """The user's made their choice, so we pick the appropriate route: we
         either create a new character, or log in as an old one.
         """
-        logging.debug("ChoiceHandler.line_choice_made called.")
+        logging.debug("ChoiceHandler.choice_made called.")
         if opt == NEW_CHARACTER:
             CreationHandler(self.telnet)
         elif opt == LOGIN:

@@ -1,7 +1,9 @@
 """The heartbeat of the MUD."""
 import grail2
 import logging
+import sys
 from twisted.internet.task import LoopingCall
+from twisted.python import Failure #cgitb is also an option here
 
 class WaitingForTick(object):
     """An object that'll wait for a certain number of ticks then executes a
@@ -42,7 +44,13 @@ class Ticker(object):
         doing = self.doing
         self.doing = []
         for cmd in doing:
-            cmd()
+            try:
+                cmd()
+            except:
+                Failure().printTraceback(file = sys.stdout,
+                                         detail = 'verbose')
+                #hm. we -could- reraise here, but I don't think it's the Right
+                #Thing to do.
         grail2.instance.objstore.commit()
 
     def __getstate__(self):

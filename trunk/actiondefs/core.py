@@ -3,6 +3,7 @@ from grail2.multimethod import Multimethod
 from pyparsing import *
 from grail2.rooms import UnfoundError
 from grail2.events import SystemEvent
+import logging
 
 #Some utilities.
 shorttarget_pattern = Suppress('$') + Group(Word(ascii_letters + digits))
@@ -11,6 +12,7 @@ adjs_pattern = Group(OneOrMore(Word(ascii_letters))) + Optional(Word(digits))
 object_pattern = Or(adjs_pattern, shorttarget_pattern)
 
 def distributeEvent(room, nodis, event):
+    logging.debug('Distributing event %s' % event)
     for obj in room.contents:
         if obj not in nodis:
             obj.receiveEvent(event)
@@ -39,7 +41,7 @@ def get_from_rooms(blob, rooms, info):
 
 class UnfoundMethod(Multimethod):
 
-    def _fail(self):
+    def _fail(self, sig):
         raise UnfoundError("Wrong object class.")
 
 class UnfoundActionEvent(SystemEvent):

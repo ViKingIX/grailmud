@@ -120,8 +120,11 @@ class Multimethod(object):
         sig = Signature(type(arg) for arg in args)
         self.next_method_stack.append(iter(self.signatures))
         try:
-            self._get_next_method(sig)(*args)
+            return self._get_next_method(sig)(*args)
         finally:
+            #dynamic scoping ... *cringe* ... but without resumable exceptions,
+            #this is about the best we can do, alongside sticking a big fat
+            #warning about its deficiencies somewhere.
             del self.next_method_stack[-1]
 
     def __get__(self, instance, owner):
@@ -131,11 +134,12 @@ class Multimethod(object):
         else:
             return partial(self, instance)
 
-    def _fail(self):
+    def _fail(self, sig):
         '''This is called when there's no matching type signature. Please, do
         override this.
         '''
-        raise TypeError("No matching signature was found.")
+        raise TypeError("No matching signature was found for %r." %
+                        sig)
 
     def _get_next_method(self, csig, noisy = True):
         '''Gets the next method from the stack of Signature-yielding iterables.
@@ -148,7 +152,7 @@ class Multimethod(object):
             if sig >= csig:
                 return self.s2fs[sig]
         if noisy:
-            self._fail()
+            self._fail(csig)
 
     def call_next_method(self, *args):
         '''Calls the next method down from the present one. Throws an error

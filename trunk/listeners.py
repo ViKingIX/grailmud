@@ -48,7 +48,8 @@ class ConnectionState(Listener):
 
     def sendIACGA(self):
         """Write an IAC GA (go-ahead) code to the telnet connection."""
-        self.telnet.write('\xFF\xFA')
+        #self.telnet.write('\xFF\xFA')
+        pass
 
     def sendPrompt(self):
         """Send a prompt, plus an IAC GA (-without- a trailing newline)."""
