@@ -38,16 +38,22 @@ class InstanceTracker(object):
     class __metaclass__(type):
 
         def __init__(cls, name, bases, dictionary):
-            cls._instances = []
+            #only add _instances to direct children of InstanceTracker
+            if cls.__name__ != 'InstanceTracker' and InstanceTracker in bases:
+                cls._instances = []
             type.__init__(cls, name, bases, dictionary)
 
         def __call__(cls, *args, **kwargs):
-            #XXX: this probably ought to be a weakref.
             res = type.__call__(cls, *args, **kwargs)
-            cls._instances.append(res)
+            res.add_to_instances()
             return res
+
+    def add_to_instances(self):
+        for cls in type(self).__mro__:
+            if hasattr(cls, '_instances'):
+                cls._instances.append(self)
 
     def __setstate__(self, state):
         if self not in self._instances:
-            self._instances.append(self)
+            self.add_to_instances()
         self.__dict__.update(state)

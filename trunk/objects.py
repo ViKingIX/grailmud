@@ -8,6 +8,9 @@ from grail2.multimethod import Multimethod
 from grail2.events import BaseEvent
 from grail2.utils import InstanceTracker
 
+#XXX: AgentObject and TargetObject are the wrong way around in the class
+#hierarchy.
+
 class MUDObject(InstanceTracker):
     """An object in the MUD."""
     

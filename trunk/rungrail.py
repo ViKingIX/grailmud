@@ -12,7 +12,7 @@ import logging
 
 logging.basicConfig(level = logging.DEBUG,
                     format = '%(asctime)s %(levelname)s %(message)s',
-                    stream = sys.stdout)
+                    stream = file('log.txt', 'w'))
 
 def construct_mud(objstorethunk):
     """Construct a MUD factory."""

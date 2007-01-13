@@ -168,6 +168,7 @@ class CreationHandler(ConnectionHandler):
         """The user's creating a new character. We've been given the name,
         so we ask for the password.
         """
+        name = name.lower()
         if name in TargettableObject._name_registry:
             self.write("That name is taken. Please use another.")
         else:
@@ -214,7 +215,7 @@ class CreationHandler(ConnectionHandler):
         """
         if not line:
             line = self.sdesc
-        self.adjs = set(line.split())
+        self.adjs = set(word.lower() for word in line.split())
         avatar = Player(self.name, self.sdesc, self.adjs, get_actions(),
                         grail2.instance.startroom, self.passhash)
         AvatarHandler(self.telnet, avatar)
@@ -232,6 +233,7 @@ class LoginHandler(ConnectionHandler):
         """Logging in as an existing character, we've been given the name. We
         ask for the password next.
         """
+        line = line.lower()
         if Player.exists(line):
             self.name = line
             self.write("Please enter your password.\xff\xfa")

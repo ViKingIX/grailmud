@@ -23,6 +23,9 @@ class Listener(object):
     def transferControl(self, source, new):
         source.removeListener(self)
         new.addListener(self)
+
+    def listenToEvent(self, obj, event):
+        raise NotImplementedError()
         
 class ConnectionState(Listener):
     """Represents the state of the connection to the events as they collapse to
@@ -35,7 +38,7 @@ class ConnectionState(Listener):
         self.on_newline = False
         self.on_prompt = False
         self.want_prompt = True
-        self.event = object()
+        self.nonce = {}
         Listener.__init__(self)
 
     def avatar_get(self):
@@ -109,7 +112,7 @@ class ConnectionState(Listener):
         if self.want_prompt:
             self.sendPrompt()
         self.want_prompt = True
-        self.event = object()
+        self.nonce = {}
 
     def disconnecting(self, obj):
         if obj is self.avatar:

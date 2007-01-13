@@ -10,7 +10,7 @@ from grail2.listeners import Listener
 from grail2.npcs.elizaimpl import Therapist
 from grail2.utils import monkeypatch
 
-class ChattyNPC(Listener):
+class ChattyListener(Listener):
     """An NPC that psychoanalyses you.
     """
 
@@ -22,13 +22,14 @@ class ChattyNPC(Listener):
 
     listenToEvent = Multimethod()
 
-@ChattyNPC.listenToEvent.register(ChattyNPC, BaseEvent, MUDObject)
+@ChattyListener.listenToEvent.register(ChattyListener, MUDObject, BaseEvent)
 def listenToEvent(self, obj, event):
     """Events we don't care about will come down to here, so just ignore them.
     """
     pass
 
-@ChattyNPC.listenToEvent.register(ChattyNPC, SpeakToSecondEvent, MUDObject)
+@ChattyListener.listenToEvent.register(ChattyListener, MUDObject,
+                                       SpeakToSecondEvent)
 def listenToEvent(self, obj, event):
     '''Someone has said something to us. It's only polite to respond!'''
     text = event.text
@@ -41,7 +42,8 @@ def listenToEvent(self, obj, event):
         self.lastchatted = actor
     speakTo(self.avatar, actor, self.therapist.chat(text))
 
-@ChattyNPC.listenToEvent.register(ChattyNPC, UnfoundObjectEvent, MUDObject)
+@ChattyListener.listenToEvent.register(ChattyListener, MUDObject,
+                                       UnfoundObjectEvent)
 def listenToEvent(self, obj, event):
     '''Someone we tried to do something to wasn't there.'''
     emote(self.avatar,

@@ -95,7 +95,7 @@ class SpeakToThirdEvent(AudibleEvent):
             state.sendEventLine('%s says to %s, "%s"' % (da, dt, self.text))
 
 speakToPattern = Group(object_pattern) + \
-                 ',' + Group(ZeroOrMore(Word(printables)))
+                 Suppress(',') + Group(ZeroOrMore(Word(printables)))
 
 def speakToWrapper(actor, text, info):
     try:
@@ -129,4 +129,5 @@ def speakTo(actor, target, text):
 def register(cdict):
     cdict['say'] = cdict['"'] = cdict["'"] = \
                    lambda actor, text, info: speak(actor, text)
-    cdict['say,'] = cdict["','"] = cdict['",'] = speakToWrapper
+    cdict['say,'] = cdict["','"] = cdict['",'] = cdict['sayto'] \
+                  = speakToWrapper
