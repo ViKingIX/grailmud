@@ -28,7 +28,7 @@ def capitalise(s):
     return s.capitalize()
 
 #it takes prefixes of symbols to be the 'head word'.
-_hwspattern = (Word(punctuation) + Optional(Word(alnumspace))) | \
+_hwspattern = (Word(punctuation) + Optional(Word(alnumspace))) ^ \
               (Optional(Word(nwprintable)) + Optional(Word(printable)))
 
 def head_word_split(string):
