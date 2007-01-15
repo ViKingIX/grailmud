@@ -14,7 +14,7 @@ from grail2.utils import InstanceTracker
 
 def definein(dictionary):
     def functiongetter(func):
-        setattr(dictionary, func.__name__, func)
+        dictionary[func.__name__] = func
         return func
     return functiongetter
 
