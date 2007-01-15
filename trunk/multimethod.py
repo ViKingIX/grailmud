@@ -83,7 +83,6 @@ class Multimethod(object):
     def __init__(self):
         self.signatures = OrderedSet()
         self.s2fs = {}
-        self.lastfunc = None
         self.next_method_stack = []
 
     def register(self, *sig):
@@ -93,12 +92,6 @@ class Multimethod(object):
         '''
         sig = Signature(sig)
         def functiongrabber(func):
-            if func is self:
-                #special case to allow stacking, eg for default options
-                if self.lastfunc is None:
-                    raise ValueError("This should not happen: lastfunc is None"
-                                     " and func is self.")
-                func = self.lastfunc
             #The magic is actually done here: self.signatures is always in
             #sorted order, so that when we iterate through it it's just a
             #matter of checking if the signature matches or not. Of course,
@@ -112,7 +105,14 @@ class Multimethod(object):
                 #also work, though.
                 bisect.insort(self.signatures, sig)
             self.s2fs[sig] = func
-            self.lastfunc = func
+            return self
+        return functiongrabber
+
+    def registermany(self, *sigs):
+        """Register several signatures for a function at once."""
+        def functiongrabber(func):
+            for sig in sigs:
+                self.register(sig)(func)
             return self
         return functiongrabber
 

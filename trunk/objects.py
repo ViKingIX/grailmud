@@ -10,9 +10,18 @@ from grail2.utils import InstanceTracker
 
 #XXX: AgentObject and TargetObject are the wrong way around in the class
 #hierarchy.
+#TODO: some sort of way to tell the classes not to pickle certain attributes.
+
+def definein(dictionary):
+    def functiongetter(func):
+        setattr(dictionary, func.__name__, func)
+        return func
+    return functiongetter
 
 class MUDObject(InstanceTracker):
     """An object in the MUD."""
+
+    _instance_variable_factories = {}
     
     def __init__(self, room):
         self.room = room
@@ -28,6 +37,16 @@ class MUDObject(InstanceTracker):
     def __getstate__(self):
         return self.__dict__.copy()
 
+    def __getattr__(self, attr):
+        try:
+            return InstanceTracker.__getattr__(self, attr)
+        except AttributeError:
+            for cls in type(self).__mro__:
+                if attr in getattr(cls, '_instance_variable_factories', {}):
+                    res = cls._instance_variabe_factories[attr]
+                    setattr(self, attr, res)
+                    return res
+
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
     '''MUDObjects live their merry lives in peace by deafult, ignoring the world
@@ -37,6 +56,9 @@ def receiveEvent(self, event):
 
 class AgentObject(MUDObject):
     """An object that does stuff and has useful stuff done to it."""
+
+    _instance_variable_factories = {}
+    
     def __init__(self, room):
         MUDObject.__init__(self, room)
         self.listeners = set()
@@ -90,6 +112,7 @@ class TargettableObject(AgentObject):
     """A tangible object, that can be generically targetted."""
 
     _name_registry = {}
+    _instance_variable_factories = {}
     
     def __init__(self, sdesc, name, adjs, room):
         self.sdesc = sdesc
@@ -117,6 +140,8 @@ class TargettableObject(AgentObject):
 
 class Player(TargettableObject):
     """A player avatar."""
+
+    _instance_variable_factories = {}
 
     def __init__(self, name, sdesc, adjs, cmdict, room, passhash):
         self.connstate = 'online'
@@ -153,6 +178,7 @@ class Player(TargettableObject):
 
     @staticmethod
     def get(name, passhash):
+        #XXX: refactor this to telnet.py?
         """Get the avatar referred to by name, but only if its passhash is
         equal.
 
