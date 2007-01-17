@@ -30,6 +30,8 @@ def _cooler_issubclass(child, parent):
     '''An issubclass that's aware of the above classes.'''
     #typically, where multimethods would be a boon, we can't use them because
     #we have to bootstrap.
+    if isinstance(parent, tuple):
+        parent = Union(*parent)
     if isinstance(parent, Not):
         return not _cooler_issubclass(child, parent.typ)
     if isinstance(parent, Union):
@@ -99,12 +101,10 @@ class Multimethod(object):
             #is used to do the algorithmic lifting.
             if sig not in self.signatures:
                 #If it's already in there, it'll be at the correct index.
-                #But, if we do get an identically-signatured method definition,
-                #the behaviour I think correct is to only have the very last
-                #function defined with that signature called. An error would
-                #also work, though.
                 bisect.insort(self.signatures, sig)
-            self.s2fs[sig] = func
+                #but, its signature won't be in the s2fs dict
+                self.s2fs[sig] = []
+            self.s2fs[sig].append(func)
             return self
         return functiongrabber
 
@@ -118,7 +118,7 @@ class Multimethod(object):
 
     def __call__(self, *args):
         sig = Signature(type(arg) for arg in args)
-        self.next_method_stack.append(iter(self.signatures))
+        self.next_method_stack.append(self._get_functions(sig))
         try:
             return self._get_next_method(sig)(*args)
         finally:
@@ -144,25 +144,35 @@ class Multimethod(object):
     def _get_next_method(self, csig, noisy = True):
         '''Gets the next method from the stack of Signature-yielding iterables.
         '''
+        try:
+            return self.next_method_stack[-1].next()
+        except StopIteration:
+            if noisy:
+                self._fail(csig)
+
+    def _get_functions(self, csig):
+        """Construct an iterator over all the matching functions for the given
+        signature.
+        """
         #Here comes the clever bit: self.signatures is stored in a sorted order,
         #going from most to least specific type signatures, so we can simply
         #iterate through it comparing our signature with its elements and use
-        #the first matching signature's function.
-        for sig in self.next_method_stack[-1]:
+        #the functions whose signatures match. The beauty of using a generator
+        #for this is that we can be lazy about it.
+        for sig in self.signatures:
             if sig >= csig:
-                return self.s2fs[sig]
-        if noisy:
-            self._fail(csig)
+                for func in self.s2fs[sig]:
+                    yield func
 
     def call_next_method(self, *args):
         '''Calls the next method down from the present one. Throws an error
         if it doesn't have a next method.
         '''
-        self._call_next_method_helper(args, True)
+        return self._call_next_method_helper(args, True)
 
     def call_next_method_quiet(self, *args):
         '''Like call_next_method, but it doesn't throw.'''
-        self._call_next_method_helper(args, False)
+        return self._call_next_method_helper(args, False)
 
     def _call_next_method_helper(self, args, noisy):
         sig = Signature(type(arg) for arg in args)
@@ -170,4 +180,4 @@ class Multimethod(object):
             raise ValueError("Don't call this outside of a call to a "
                              "multimethod.")
         meth = self._get_next_method(sig, noisy)
-        meth(*args)
+        return meth(*args)
