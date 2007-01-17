@@ -1,4 +1,4 @@
-from grail2.multimethod import Multimethod
+from grail2.multimethod import Multimethod, Signature
 
 class Foo(object):
     pass
@@ -22,6 +22,30 @@ class Foe(Foo):
     pass
 
 sentinel = object()
+
+def test_signature_creation():
+    for typetuple in [(Foo, object, Bar),
+                      (Baz, Qux),
+                      (object, object, str),
+                      ((str, object), Foo)]:
+        assert Signature(typetuple).tsig == typetuple
+
+def test_signature_supertyping_success():
+    for s1, s2 in [((object,), (Foo,)),
+                   ((Foo,), (Foo,)),
+                   ((Foo,), (Baz,))]:
+        print 'Round one - dingding'
+        assert Signature(s1) >= Signature(s2)
+        assert Signature(s1).supertypes(Signature(s2))
+        assert Signature(s2) <= Signature(s1)
+
+def test_signature_supertyping_failure():
+    for s1, s2 in [((Foo, object), (Baz,)),
+                   ((Fie,), (Foo,))]:
+        print 'Round one - dingding'
+        assert not (Signature(s1) >= Signature(s2))
+        assert not (Signature(s1).supertypes(Signature(s2)))
+        assert not (Signature(s2) <= Signature(s1))
 
 basecase = Multimethod()
 

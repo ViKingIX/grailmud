@@ -1,7 +1,7 @@
 '''Type-based multimethods, with support for call-next-method functionality.
 '''
 import bisect
-from functional import partial
+from functional import partial, flip
 from grail2.orderedset import OrderedSet
 
 class Not(object):
@@ -50,12 +50,12 @@ class Signature(object):
         #generator expressions.
         self.tsig = tuple(tsig)
     
-    def __cmp__(self, other):
+    def supertypes(self, other):
         if len(self.tsig) != len(other.tsig):
-            return NotImplemented
+            return False
         
         if self.tsig == other.tsig:
-            return 0
+            return True
         
         z = zip(self.tsig, other.tsig)
         #Is it just me, or is the argument order for issubclass completely
@@ -63,13 +63,13 @@ class Signature(object):
         #of turning it into a Haskell style infix thingy and then reading it
         #aloud ("b `issubclass` a") doesn't help. I think it ought to be renamed
         #'issubclassof' and the argument order reversed.
-        if all(_cooler_issubclass(b, a) for a, b in z):
-            return 1
-        if all(_cooler_issubclass(a, b) for a, b in z):
-            return -1
-        
-        #Can we even get here?
-        return NotImplemented
+        if all(_cooler_issubclass(theirs, ours) for ours, theirs in z):
+            return True
+
+        return False
+
+    __ge__ = supertypes
+    __le__ = flip(supertypes)
 
     def __repr__(self):
         return "Signature%s" % repr(self.tsig)
@@ -160,7 +160,7 @@ class Multimethod(object):
         #the functions whose signatures match. The beauty of using a generator
         #for this is that we can be lazy about it.
         for sig in self.signatures:
-            if sig >= csig:
+            if sig.supertypes(csig):
                 for func in self.s2fs[sig]:
                     yield func
 
