@@ -12,6 +12,8 @@ from grail2.utils import monkeypatch
 
 class ChattyListener(Listener):
     """An NPC that psychoanalyses you.
+
+    In communist Russia, you psychoanalyse an NPC!
     """
 
     def __init__(self, avatar):

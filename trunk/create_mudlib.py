@@ -27,14 +27,20 @@ startroom.add(eliza)
 if os.access("mudlib.durus", os.F_OK):
     os.remove("mudlib.durus")
 
-connection = Connection(FileStorage("mudlib.durus"))
+try:
+    connection = Connection(FileStorage("mudlib.durus"))
 
-root = connection.get_root()
+    root = connection.get_root()
 
-root['startroom'] = startroom
-root['all_rooms'] = Room._instances
-root['all_objects'] = MUDObject._instances
-root['targettable_objects_by_name'] = TargettableObject._name_registry
-root['ticker'] = Ticker(0.1)
+    root['startroom'] = startroom
+    root['all_rooms'] = Room._instances
+    root['all_objects'] = MUDObject._instances
+    root['targettable_objects_by_name'] = TargettableObject._name_registry
+    root['ticker'] = Ticker(0.1)
 
-connection.commit()
+    connection.commit()
+except:
+    connection.abort()
+    #if os.access("mudlib.durus", os.F_OK):
+    #    os.remove("mudlib.durus")
+    raise

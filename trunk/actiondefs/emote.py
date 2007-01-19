@@ -6,6 +6,7 @@ from string import printable
 from grail2.events import GameEvent
 from grail2.rooms import UnfoundError
 from grail2.utils import promptcolour, smartdict, in_rooms
+from grail2.strutils import wsnormalise
 from grail2.actiondefs.core import object_pattern, get_from_rooms, \
                                    distributeEvent
 from grail2.actiondefs.system import badSyntax, unfoundObject
@@ -105,21 +106,54 @@ def emoteTo(actor, target, first, second, third):
     distributeEvent(actor.room, [actor, target],
                     EmoteTargettedThird(actor, target, third))
 
-def lookUpDistributor(actor, text, info):
-    try:
-        blob, = object_pattern.parseString(text)
-    except ParseException:
-        lookUp(actor)
-    else:
-        target = get_from_rooms(blob, [actor.inventory, actor.room], info)
-        lookUpAt(actor, target)
+class YankedUntargetted(object):
 
-def lookUp(actor):
-    emote(actor, 'You look up expectantly.', '~ looks up expectantly.')
+    def __init__(self, first, third = None):
+        self.first = first
+        self.third = third
 
-def lookUpAt(actor, target):
-    emoteTo(actor, target, 'You look up at @ expectantly.',
-            '~ looks up at you expectantly.', '~ looks up at @ expectantly.')
+    def __call__(self, actor, text, info):
+        self.send_out_events(actor)
+
+    def send_out_events(self, actor):
+        if self.third is not None:
+            emote(actor, self.first, self.third)
+        else:
+            #solipsism
+            actor.receiveEvent(EmoteUntargettedFirst(actor, self.first))
+
+class YankedTargetted(object):
+    
+    def __init__(self, first, second, third, fallback):
+        self.first = first
+        self.second = second
+        self.third = third
+
+    def __call__(self, actor, text, info):
+        try:
+            blob, = object_pattern.parseString(text)
+        except ParseException:
+            self.fallback(actor)
+        else:
+            target = get_from_rooms(blob, [actor.inventory, actor.room], info)
+            self.send_out_events(actor, target)
+
+    def send_out_events(self, actor, target):
+        emoteTo(actor, target, self.first, self.second, self.third)
+
+def yank_emotes(cdict, emotefile):
+    emote_definitions = get_dict_definitions(emotefile)
+    for definition in emote_definitions:
+        if 'untargetted' in definition:
+            function = untargetted = \
+                                 YankedUntargetted(**definition['untargetted'])
+        else:
+            untargetted = unfoundObject()
+        if 'targetted' in definition:
+            function = YankedTargetted(fallback = untargetted,
+                                       **definition['targetted'])
+        for name in definition['names']:
+            cdict[name] = function
 
 def register(cdict):
     cdict['emote'] = emoteWrapper
@@ -127,6 +161,7 @@ def register(cdict):
     cdict['emote,'] = emoteToWrapper
     
 def process(text):
-    text = text.replace('~', '%(actor.sdesc)s')
-    text = text.replace('@', '%(target.sdesc)s')
+    text = wsnormalise(text)
+    text = text.replace(' ~', ' %(actor.sdesc)s')
+    text = text.replace(' @', ' %(target.sdesc)s')
     return text

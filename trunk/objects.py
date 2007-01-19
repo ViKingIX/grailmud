@@ -117,7 +117,6 @@ class TargettableObject(AgentObject):
     def __init__(self, sdesc, name, adjs, room):
         self.sdesc = sdesc
         self.name = name
-        #XXX: this probably ought to be a weakref
         TargettableObject._name_registry[name] = self
         self.adjs = adjs | set([name])
         AgentObject.__init__(self, room)
@@ -137,6 +136,9 @@ class TargettableObject(AgentObject):
             return False
         else:
             return isinstance(avatar, cls)
+
+    def __repr__(self):
+        return "<%s named %s>" % (type(self).__name__, self.name)
 
 class Player(TargettableObject):
     """A player avatar."""

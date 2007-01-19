@@ -1,5 +1,7 @@
 # pylint: disable-msg= E1101
 #pylint doesn't know about our metaclass hackery
+from grail2.orderedset import OSet
+
 def monkeypatch(cls):
     def patchergrabber(patcher):
         name = patcher.__name__
@@ -40,7 +42,7 @@ class InstanceTracker(object):
         def __init__(cls, name, bases, dictionary):
             #only add _instances to direct children of InstanceTracker
             if cls.__name__ != 'InstanceTracker' and InstanceTracker in bases:
-                cls._instances = []
+                cls._instances = OSet()
             type.__init__(cls, name, bases, dictionary)
 
         def __call__(cls, *args, **kwargs):
@@ -49,6 +51,8 @@ class InstanceTracker(object):
             return res
 
     def add_to_instances(self):
+        #there used to be a small buglet here: objects were being put into
+        #_instances repeatedly. using an ordered set fixed this.
         for cls in type(self).__mro__:
             if hasattr(cls, '_instances'):
                 cls._instances.append(self)
