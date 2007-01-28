@@ -165,7 +165,7 @@ def yank_emotes(emotefile):
 
 def get_dict_definitions(emotefile):
     '''This transforms a file of emote definitions into a list of dictionaries.
-    ''''
+    '''
     pass #XXX
 
 def register(cdict):
