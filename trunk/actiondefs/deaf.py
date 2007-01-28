@@ -34,7 +34,11 @@ class DeafnessOffAlreadyEvent(GameEvent):
 on_pattern = Literal('on')
 off_pattern = Literal('off')
 
+syntaxmessage = "Use 'deaf on' to turn deafness on, or 'deaf off' to turn "\
+                "deafness off."
+
 def deafDistributor(actor, rest, lineinfo):
+    rest = rest.lower()
     try:
         on_pattern.parseString(rest)
     except ParseException:
@@ -49,18 +53,17 @@ def deafDistributor(actor, rest, lineinfo):
     else:
         deafOff(actor)
         return
-    badSyntax(actor, "Use 'deaf on' to turn deafness on, or 'deaf off' to turn "
-                     "deafness off.")
+    badSyntax(actor, syntaxmessage)
 
 def deafOn(actor):
-    if actor.deaf:
+    if not actor.deaf:
         actor.deaf = True
         actor.receiveEvent(DeafnessOnEvent())
     else:
         actor.receiveEvent(DeafnessOnAlreadyEvent())
 
 def deafOff(actor):
-    if actor.deaf:
+    if not actor.deaf:
         actor.receiveEvent(DeafnessOffAlreadyEvent())
     else:
         actor.deaf = False

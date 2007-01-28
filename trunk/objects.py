@@ -79,9 +79,10 @@ class MUDObject(InstanceTracker):
         except AttributeError:
             for cls in type(self).__mro__:
                 if attr in getattr(cls, '_instance_variable_factories', {}):
-                    res = cls._instance_variabe_factories[attr]
+                    res = cls._instance_variable_factories[attr]()
                     setattr(self, attr, res)
                     return res
+            raise
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
