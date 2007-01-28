@@ -2,7 +2,7 @@ from pyparsing import *
 from grail2.events import AudibleEvent, GameEvent
 from grail2.objects import AgentObject, MUDObject, definein
 from grail2.actiondefs.system import badSyntax
-from grail2.utils import monkeypatch, promptcolour
+from grail2.utils import promptcolour
 
 class DeafnessOnEvent(GameEvent):
 

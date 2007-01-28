@@ -86,6 +86,7 @@ def login(actor):
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
 
 def logoffFinal(actor):
+    #XXX: is this doing stuff in the correct order?
     assert isinstance(actor, Player)
     if actor.connstate != 'online':
         logging.info("Foiled a double logoff attempt with %r." % actor)

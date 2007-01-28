@@ -3,7 +3,7 @@
 from grail2.multimethod import Multimethod
 from grail2.events import BaseEvent
 from grail2.actiondefs.system import UnfoundObjectEvent
-from grail2.actiondefs.emote import lookUpAt, emote
+from grail2.actiondefs.emote import yanked_emotes, emote
 from grail2.actiondefs.says import SpeakToSecondEvent, speakTo
 from grail2.objects import MUDObject
 from grail2.listeners import Listener
@@ -14,6 +14,7 @@ class ChattyListener(Listener):
     """An NPC that psychoanalyses you.
 
     In communist Russia, you psychoanalyse an NPC!
+    (or is that debugging?)
     """
 
     def __init__(self, avatar):
@@ -37,7 +38,7 @@ def listenToEvent(self, obj, event):
     text = event.text
     actor = event.actor
     if not text:
-        lookUpAt(self.avatar, actor)
+        yanked_emotes['lookup'](self.avatar, actor)
         return
     if self.lastchatted is not actor:
         self.therapist = Therapist()

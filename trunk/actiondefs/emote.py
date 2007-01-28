@@ -5,7 +5,7 @@ from pyparsing import *
 from string import printable
 from grail2.events import GameEvent
 from grail2.rooms import UnfoundError
-from grail2.utils import promptcolour, smartdict, in_rooms
+from grail2.utils import promptcolour, smartdict
 from grail2.strutils import wsnormalise
 from grail2.actiondefs.core import object_pattern, get_from_rooms, \
                                    distributeEvent
@@ -128,40 +128,60 @@ class YankedTargetted(object):
         self.first = first
         self.second = second
         self.third = third
+        self.fallback = fallback
 
     def __call__(self, actor, text, info):
         try:
             blob, = object_pattern.parseString(text)
         except ParseException:
-            self.fallback(actor)
+            pass
         else:
-            target = get_from_rooms(blob, [actor.inventory, actor.room], info)
-            self.send_out_events(actor, target)
+            try:
+                target = get_from_rooms(blob, [actor.inventory, actor.room],
+                                        info)
+                self.send_out_events(actor, target)
+            except UnfoundError:
+                pass
+            else:
+                return
+        self.fallback(actor)
 
     def send_out_events(self, actor, target):
         emoteTo(actor, target, self.first, self.second, self.third)
 
-def yank_emotes(cdict, emotefile):
+def yank_emotes(emotefile):
     emote_definitions = get_dict_definitions(emotefile)
     for definition in emote_definitions:
         if 'untargetted' in definition:
             function = untargetted = \
                                  YankedUntargetted(**definition['untargetted'])
         else:
-            untargetted = unfoundObject()
+            untargetted = unfoundObject
         if 'targetted' in definition:
             function = YankedTargetted(fallback = untargetted,
                                        **definition['targetted'])
         for name in definition['names']:
-            cdict[name] = function
+            yield name, function
+
+def get_dict_definitions(emotefile):
+    '''This transforms a file of emote definitions into a list of dictionaries.
+    ''''
+    pass #XXX
 
 def register(cdict):
     cdict['emote'] = emoteWrapper
     cdict['emoteto'] = emoteToWrapper
     cdict['emote,'] = emoteToWrapper
+
+    emotefile = open("emotefile.txt")
+    for name, yanked_emote in yank_emotes:
+        cdict[name] = yanked_emote
+        yanked_emotes[name] = yanked_emote.send_out_events
     
 def process(text):
     text = wsnormalise(text)
     text = text.replace(' ~', ' %(actor.sdesc)s')
     text = text.replace(' @', ' %(target.sdesc)s')
     return text
+
+yanked_emotes = {}

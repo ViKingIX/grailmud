@@ -1,15 +1,15 @@
 from pyparsing import *
 from grail2.events import BaseEvent
-from grail2.objects import MUDObject
-from grail2.utils import monkeypatch, promptcolour
+from grail2.objects import MUDObject, definein
+from grail2.utils import promptcolour
 from grail2.rooms import UnfoundError
 from grail2.actiondefs.core import object_pattern, shorttarget_pattern, \
                                    get_from_rooms
 from grail2.actiondefs.system import permissionDenied, badSyntax, unfoundObject
 
-@monkeypatch(MUDObject)
-def __init__(self, *args, **kwargs):
-    self.targetting_shorts = {}
+@definein(MUDObject._instance_variable_factories)
+def targetting_shorts():
+    return {}
 
 class TargetSetEvent(BaseEvent):
     '''A target's been set to a value.'''
