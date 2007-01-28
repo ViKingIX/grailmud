@@ -1,6 +1,6 @@
 from pyparsing import *
 from grail2.events import AudibleEvent, GameEvent
-from grail2.objects import AgentObject, MUDObject, definein
+from grail2.objects import MUDObject, definein
 from grail2.actiondefs.system import badSyntax
 from grail2.utils import promptcolour
 
@@ -70,7 +70,7 @@ def deafOff(actor):
 def deaf():
     return False
 
-@MUDObject.receiveEvent.register(AgentObject, AudibleEvent)
+@MUDObject.receiveEvent.register(MUDObject, AudibleEvent)
 def receiveEvent(self, event):
     """Ignore sound events for deaf things."""
     if not self.deaf:

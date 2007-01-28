@@ -8,8 +8,6 @@ from grail2.multimethod import Multimethod
 from grail2.events import BaseEvent
 from grail2.utils import InstanceTracker
 
-#XXX: AgentObject and TargetObject are the wrong way around in the class
-#hierarchy.
 #TODO: some sort of way to tell the classes not to pickle certain attributes.
 
 def definein(dictionary):
@@ -25,6 +23,44 @@ class MUDObject(InstanceTracker):
     
     def __init__(self, room):
         self.room = room
+        self.listeners = set()
+    
+    def eventFlush(self):
+        """Tell the listeners that the current lot of events are done."""
+        for listener in self.listeners:
+            listener.eventListenFlush(self)
+
+    def addListener(self, listener):
+        """Register a new listener."""
+        listener.register(self)
+        self.listeners.add(listener)
+
+    def removeListener(self, listener):
+        """Remove a listener. Throws errors if it's not currently listening."""
+        listener.unregister(self)
+        self.listeners.remove(listener)
+
+    #XXX: these two methods should be reimplemented as events.
+    def transferControl(self, obj):
+        """Utility method to shift all the listeners to another object."""
+        for listener in self.listeners:
+            listener.transferControl(self, obj)
+
+    def disconnect(self):
+        '''Notify the listeners that this object is being disconnected.
+
+        Note that this only makes sense for Players, but it needs to be on
+        here else AttributeErrors will start flying around. I think. So we
+        just ignore it.
+        '''
+        pass
+
+    def __getstate__(self):
+        listeners = set(listener for listener in self.listeners
+                        if listener._pickleme)
+        state = MUDObject.__getstate__(self)
+        state['listeners'] = listeners
+        return state
 
     receiveEvent = Multimethod()
 
@@ -49,58 +85,6 @@ class MUDObject(InstanceTracker):
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
-    '''MUDObjects live their merry lives in peace by deafult, ignoring the world
-    and its hustle-bustle around them. Kind of cute.
-    '''
-    pass
-
-class AgentObject(MUDObject):
-    """An object that does stuff and has useful stuff done to it."""
-
-    _instance_variable_factories = {}
-    
-    def __init__(self, room):
-        MUDObject.__init__(self, room)
-        self.listeners = set()
-    
-    def eventFlush(self):
-        """Tell the listeners that the current lot of events are done."""
-        for listener in self.listeners:
-            listener.eventListenFlush(self)
-
-    def addListener(self, listener):
-        """Register a new listener."""
-        listener.register(self)
-        self.listeners.add(listener)
-
-    def removeListener(self, listener):
-        """Remove a listener. Throws errors if it's not currently listening."""
-        listener.unregister(self)
-        self.listeners.remove(listener)
-
-    def transferControl(self, obj):
-        """Utility method to shift all the listeners to another object."""
-        for listener in self.listeners:
-            listener.transferControl(self, obj)
-
-    def disconnect(self):
-        '''Notify the listeners that this object is being disconnected.
-
-        Note that this only makes sense for Players, but it needs to be on
-        here else AttributeErrors will start flying around. I think. So we
-        just ignore it.
-        '''
-        pass
-
-    def __getstate__(self):
-        listeners = set(listener for listener in self.listeners
-                        if listener._pickleme)
-        state = MUDObject.__getstate__(self)
-        state['listeners'] = listeners
-        return state
-
-@MUDObject.receiveEvent.register(AgentObject, BaseEvent)
-def receiveEvent(self, event):
     """Receive an event in the MUD.
 
     This is the very basic handler for objects that can be listened to.
@@ -108,7 +92,7 @@ def receiveEvent(self, event):
     for listener in self.listeners:
         listener.listenToEvent(self, event)
 
-class TargettableObject(AgentObject):
+class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
 
     _name_registry = {}
@@ -119,12 +103,12 @@ class TargettableObject(AgentObject):
         self.name = name
         TargettableObject._name_registry[name] = self
         self.adjs = adjs | set([name])
-        AgentObject.__init__(self, room)
+        MUDObject.__init__(self, room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
         """
-        return (len(attrs) == 1 and self.name in attrs) or \
+        return attrs == set([self.name]) or \
                self.adjs.issuperset(attrs)
 
     @classmethod
