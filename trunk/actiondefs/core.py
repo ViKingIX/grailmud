@@ -39,11 +39,6 @@ def get_from_rooms(blob, rooms, info):
         raise UnfoundError
     raise RuntimeError("Shouldn't get here.")
 
-class UnfoundMethod(Multimethod):
-
-    def _fail(self, sig):
-        raise UnfoundError("Wrong object class.")
-
 class UnfoundActionEvent(SystemEvent):
 
     def collapseToText(self, state, obj):

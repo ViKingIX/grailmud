@@ -103,7 +103,6 @@ class Multimethod(object):
         with the signature.
         '''
         sig = Signature(sig)
-        print 'Register called.'
         def functiongrabber(func):
             #The magic is actually done here: self.signatures is always in
             #sorted order, so that when we iterate through it it's just a
@@ -111,12 +110,8 @@ class Multimethod(object):
             #this means we need to -maintain- sorted order, so bisect.insort
             #is used to do the algorithmic lifting.
             if sig not in self.signatures:
-                print '\n'.join(repr(s) for s in self.signatures)
-                print
                 #If it's already in there, it'll be at the correct index.
                 bisect.insort_right(self.signatures, sig)
-                print '\n'.join(repr(s) for s in self.signatures)
-                print
                 #but, its signature won't be in the s2fs dict if it's not
                 self.s2fs[sig] = []
             self.s2fs[sig].append(func)

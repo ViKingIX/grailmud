@@ -1,12 +1,13 @@
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, distributeEvent, \
-                                   UnfoundMethod, get_from_rooms
+                                   get_from_rooms
 from grail2.events import AudibleEvent
 from grail2.actiondefs.system import unfoundObject, badSyntax
 from grail2.rooms import UnfoundError
 from grail2.strutils import capitalise, printables
 from grail2.objects import MUDObject, TargettableObject
 from grail2.utils import promptcolour
+from grail2.multimethod import Multimethod
 
 class SpeakNormalFirstEvent(AudibleEvent):
 
@@ -114,7 +115,11 @@ def speak(actor, text):
     actor.receiveEvent(SpeakNormalFirstEvent(text))
     distributeEvent(actor.room, [actor], SpeakNormalThirdEvent(actor, text))
 
-speakTo = UnfoundMethod()
+speakTo = Multimethod()
+
+@speakTo.register(MUDObject, MUDObject, basestring)
+def speakTo(acttor, _, text):
+    unfoundObject(actor)
 
 @speakTo.register(MUDObject, TargettableObject, basestring)
 def speakTo(actor, target, text):

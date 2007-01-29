@@ -1,9 +1,9 @@
 from pyparsing import *
 from grail2.actiondefs.core import object_pattern, get_from_rooms, \
-                                   UnfoundMethod, distributeEvent
+                                   distributeEvent
 from grail2.events import VisibleEvent
-from grail2.actiondefs.system import unfoundObject
 from grail2.rooms import UnfoundError
+from grail2.actiondefs.system import unfoundObject
 from grail2.objects import Player, TargettableObject, ExitObject, MUDObject
 from grail2.strutils import capitalise
 from grail2.utils import promptcolour
