@@ -70,7 +70,7 @@ def deafOff(actor):
         actor.receiveEvent(DeafnessOffEvent())
 
 @definein(MUDObject._instance_variable_factories)
-def deaf():
+def deaf(self):
     return False
 
 @MUDObject.receiveEvent.register(MUDObject, AudibleEvent)

@@ -102,7 +102,7 @@ class Multimethod(object):
             if sig not in self.signatures:
                 #If it's already in there, it'll be at the correct index.
                 bisect.insort(self.signatures, sig)
-                #but, its signature won't be in the s2fs dict
+                #but, its signature won't be in the s2fs dict if it's not
                 self.s2fs[sig] = []
             self.s2fs[sig].append(func)
             return self

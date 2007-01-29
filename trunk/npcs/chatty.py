@@ -8,7 +8,6 @@ from grail2.actiondefs.says import SpeakToSecondEvent, speakTo
 from grail2.objects import MUDObject
 from grail2.listeners import Listener
 from grail2.npcs.elizaimpl import Therapist
-from grail2.utils import monkeypatch
 
 class ChattyListener(Listener):
     """An NPC that psychoanalyses you.
