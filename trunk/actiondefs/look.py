@@ -54,24 +54,22 @@ lookAt = Multimethod()
 
 @lookAt.register(MUDObject, MUDObject)
 def lookAt(actor, target):
-    print "Deafault path picked."
     unfoundObject(actor)
 
 @lookAt.register(MUDObject, TargettableObject)
 def lookAt(actor, target):
-    print "TargettableObject method picked."
     if target.room not in [actor.inventory, actor.room]:
-        print 'Not in the rooms'
         unfoundObject(actor)
     else:
-        print "Receiving event"
         actor.receiveEvent(LookAtEvent(target))
 
 @lookAt.register(MUDObject, ExitObject)
 def lookAt(actor, target):
-    if target not in actor.room: #stricter deliberately.
+    if target.room is not actor.room: #stricter deliberately.
+        print 'Not in room'
         unfoundObject(actor)
     else:
+        print 'Sending event...'
         actor.receiveEvent(LookRoomEvent(target.target_room))
 
 def lookRoom(actor):
