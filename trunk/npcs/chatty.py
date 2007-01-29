@@ -19,6 +19,9 @@ class ChattyListener(Listener):
     def __init__(self, avatar):
         self.avatar = avatar
         Listener.__init__(self)
+        #ideally, each individual object would be given its own therapist on
+        #demand, but that would require some way of keeping referential
+        #integrity intact if they're removed from the gameworld.
         self.lastchatted = None
         self.therapist = None
 

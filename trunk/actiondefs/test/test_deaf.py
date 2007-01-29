@@ -5,17 +5,7 @@ from grail2.actiondefs.deaf import DeafnessOnEvent, DeafnessOnAlreadyEvent, \
 from grail2.actiondefs.system import BadSyntaxEvent
 from grail2.objects import MUDObject
 from grail2.events import AudibleEvent
-
-class MockListener(object):
-
-    def __init__(self):
-        self.received = []
-
-    def listenToEvent(self, obj, event):
-        self.received.append(event)
-
-    def register(self, obj):
-        pass
+from grail2.test.helper import SetupHelper
 
 def test_registration():
     d = {}
@@ -36,12 +26,7 @@ def test_deafness_turning_off():
 def test_default_deafness():
     assert not MUDObject(None).deaf
 
-class TestActionsAndEvents(object):
-
-    def setUp(self):
-        self.obj = MUDObject(None)
-        self.listener = MockListener()
-        self.obj.addListener(self.listener)
+class TestActionsAndEvents(SetupHelper):
         
     def test_deaf_on_success(self):
         deafOn(self.obj)

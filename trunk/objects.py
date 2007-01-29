@@ -96,21 +96,36 @@ def receiveEvent(self, event):
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
 
-    _name_registry = {}
     _instance_variable_factories = {}
     
-    def __init__(self, sdesc, name, adjs, room):
+    def __init__(self, sdesc, adjs, room):
+        self.inventory = Room("A burlap sack.", "")
         self.sdesc = sdesc
-        self.name = name
-        TargettableObject._name_registry[name] = self
-        self.adjs = adjs | set([name])
+        self.adjs = adjs
         MUDObject.__init__(self, room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
         """
+        return self.adjs.issuperset(attrs)
+
+class NamedObject(TargettableObject):
+
+    _name_registry = {}
+    _instance_variable_factories = {}
+
+    def __init__(self, sdesc, name, adjs, room):
+        TargettableObject.__init__(self, sdesc, adjs, room)
+        self.inventory = Room("%s's inventory" % name,
+                              "You should not be here.")
+        NamedObject_name_registry[name] = self
+        self.adjs = adjs | set([name])
+    
+    def match(self, attrs):
+        """Check to see if a set of attributes is applicable for this object.
+        """
         return attrs == set([self.name]) or \
-               self.adjs.issuperset(attrs)
+               TargettableObject.match(self, attrs)
 
     @classmethod
     def exists(cls, name):
@@ -125,15 +140,13 @@ class TargettableObject(MUDObject):
     def __repr__(self):
         return "<%s named %s>" % (type(self).__name__, self.name)
 
-class Player(TargettableObject):
+class Player(NamedObject):
     """A player avatar."""
 
     _instance_variable_factories = {}
 
     def __init__(self, name, sdesc, adjs, cmdict, room, passhash):
         self.connstate = 'online'
-        self.inventory = Room("%s's inventory" % name,
-                              "You should not be here.")
         self.cmdict = cmdict
         self.passhash = passhash
         self.session = {}
@@ -181,10 +194,8 @@ class Player(TargettableObject):
 class ExitObject(MUDObject):
     """An exit."""
 
-    def __init__(self, direction, room, target_room, exit_desc = None):
-        self.direction = direction
+    def __init__(self, room, target_room):
         self.target_room = target_room
-        self.exit_desc = direction if exit_desc is not None else exit_desc
         MUDObject.__init__(self, room)
 
 class BadPassword(Exception):

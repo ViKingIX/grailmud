@@ -35,7 +35,7 @@ class LookRoomEvent(VisibleEvent):
 lookAtPattern = Suppress(Optional(Keyword("at"))) + \
                 object_pattern
 
-def look(actor, text, info):
+def lookDistributor(actor, text, info):
     try:
         blob = lookAtPattern.parseString(text)
     except ParseException:
@@ -43,10 +43,12 @@ def look(actor, text, info):
         return
     try:
         target = get_from_rooms(blob, [actor.inventory, actor.room], info)
-    except UnfoundError:
-        return
-    else:
+        #this can raise an UnfoundError if the target isn't of the correct
+        #class, so it needs to go here,
         lookAt(actor, target)
+    except UnfoundError:
+        pass
+    else:
         return
     unfoundObject(actor)
 
@@ -70,5 +72,5 @@ def lookRoom(actor):
     actor.receiveEvent(LookRoomEvent(actor.room))
 
 def register(cdict):
-    cdict['l'] = look
-    cdict['look'] = look
+    cdict['l'] = lookDistributor
+    cdict['look'] = lookDistributor
