@@ -1,6 +1,7 @@
 from pyparsing import *
 from grail2.events import BaseEvent
 from grail2.utils import promptcolour
+from grail2.objects import TargettableObject, definein
 
 class UnknownOptionEvent(BaseEvent):
 
@@ -38,6 +39,10 @@ def unknownOption(actor, command):
 def setLDesc(actor, desc):
     actor.ldesc = desc
     actor.receiveEvent(LDescSetEvent(desc))
+
+@definein(TargettableObject._instance_variable_factories)
+def ldesc(self):
+    return "%s. Nothing more, nothing less." % self.sdesc
 
 def register(cdict):
     cdict['set'] = setDistribute

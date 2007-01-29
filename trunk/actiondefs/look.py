@@ -15,10 +15,7 @@ class LookAtEvent(VisibleEvent):
 
     @promptcolour()
     def collapseToText(self, state, obj):
-        desc = getattr(self.target, 'ldesc',
-                       "They're %s. Nothing more, nothing less."
-                       % self.target.sdesc)
-        state.sendEventLine(capitalise(desc))
+        state.sendEventLine(capitalise(self.target.ldesc))
 
 class LookRoomEvent(VisibleEvent):
 
