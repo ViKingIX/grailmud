@@ -51,11 +51,16 @@ class Signature(object):
         self.tsig = tuple(tsig)
     
     def supertypes(self, other):
-        if len(self.tsig) != len(other.tsig):
-            return False
-        
         if self.tsig == other.tsig:
             return True
+        return self.strict_supertypes(other)
+
+    def strict_supertypes(self, other):
+        if len(self.tsig) != len(other.tsig):
+            return False
+
+        if self.tsig == other.tsig:
+            return False
         
         z = zip(self.tsig, other.tsig)
         #Is it just me, or is the argument order for issubclass completely
@@ -70,12 +75,17 @@ class Signature(object):
 
     __ge__ = supertypes
     __le__ = flip(supertypes)
+    __gt__ = strict_supertypes
+    __lt__ = flip(strict_supertypes)
 
     def __repr__(self):
         return "Signature%s" % repr(self.tsig)
 
     def __hash__(self):
         return hash(self.tsig)
+
+    def __eq__(self, other):
+        return self.tsig == other.tsig
 
 class Multimethod(object):
     '''A function that can dispatch based on the types of all its arguments, not
@@ -93,6 +103,7 @@ class Multimethod(object):
         with the signature.
         '''
         sig = Signature(sig)
+        print 'Register called.'
         def functiongrabber(func):
             #The magic is actually done here: self.signatures is always in
             #sorted order, so that when we iterate through it it's just a
@@ -100,8 +111,12 @@ class Multimethod(object):
             #this means we need to -maintain- sorted order, so bisect.insort
             #is used to do the algorithmic lifting.
             if sig not in self.signatures:
+                print '\n'.join(repr(s) for s in self.signatures)
+                print
                 #If it's already in there, it'll be at the correct index.
-                bisect.insort(self.signatures, sig)
+                bisect.insort_right(self.signatures, sig)
+                print '\n'.join(repr(s) for s in self.signatures)
+                print
                 #but, its signature won't be in the s2fs dict if it's not
                 self.s2fs[sig] = []
             self.s2fs[sig].append(func)

@@ -1,9 +1,10 @@
-from grail2.actiondefs import LookAtEvent, LookRoomEvent, lookDistributor, \
-                              lookAt, lookRoom, register
+from grail2.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
+                                   lookAt, lookRoom, register
 from grail2.test.helper import SetupHelper
-from grail2.objects import TargettableObject, ExitObject, NamedObject
+from grail2.objects import TargettableObject, ExitObject, NamedObject, \
+                           MUDObject
 from grail2.rooms import Room
-from grail2.actiondefs.system import UnfoundEvent
+from grail2.actiondefs.system import UnfoundObjectEvent
 
 def test_registration():
     d = {}
@@ -16,13 +17,14 @@ class TestEventSending(SetupHelper):
     def setUp(self):
         self.room = Room("Just outside a dark cave.", "")
         self.actor = TargettableObject("a decapitated knight",
-                                       set('shiny', 'dead'),
+                                       set(['shiny', 'dead']),
                                        self.room)
         self.roomtarget = TargettableObject("a killer rabbit",
-                                            set('bunny', 'fluffy', 'murderous'),
+                                            set(['bunny', 'fluffy',
+                                                 'murderous']),
                                             self.room)
         self.invtarget = NamedObject("a surprised-looking decapitated head",
-                                     "Boris", set("head", "dead"),
+                                     "Boris", set(["head", "dead"]),
                                      self.actor.inventory)
         self.otherroom = Room("Just inside a dark cave.", "")
         self.exit = ExitObject(self.room, self.otherroom)
@@ -38,9 +40,9 @@ class TestEventSending(SetupHelper):
         lookAt(self.actor, self.invtarget)
 
         assert self.actor.listener.received == [LookAtEvent(self.invtarget)]
-
+        
     def test_look_at_nowhere(self):
         lookAt(self.actor, MUDObject(None))
 
-        assert self.actor.listener.received == [UnfoundEvent()]
+        assert self.actor.listener.received == [UnfoundObjectEvent()]
     

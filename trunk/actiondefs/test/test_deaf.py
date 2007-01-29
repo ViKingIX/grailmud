@@ -27,57 +27,61 @@ def test_default_deafness():
     assert not MUDObject(None).deaf
 
 class TestActionsAndEvents(SetupHelper):
+
+    def setUp(self):
+        self.obj = MUDObject(None)
+        self.setup_for_object(self.obj)
         
     def test_deaf_on_success(self):
         deafOn(self.obj)
 
-        assert self.listener.received == [DeafnessOnEvent()], \
+        assert self.obj.listener.received == [DeafnessOnEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_on_failure(self):
         self.obj.deaf = True
         deafOn(self.obj)
 
-        assert self.listener.received == [DeafnessOnAlreadyEvent()], \
+        assert self.obj.listener.received == [DeafnessOnAlreadyEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_off_failure(self):
         deafOff(self.obj)
 
-        assert self.listener.received == [DeafnessOffAlreadyEvent()], \
+        assert self.obj.listener.received == [DeafnessOffAlreadyEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_off_success(self):
         self.obj.deaf = True
         deafOff(self.obj)
 
-        assert self.listener.received == [DeafnessOffEvent()], \
+        assert self.obj.listener.received == [DeafnessOffEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_on_success_with_parsing(self):
         deafDistributor(self.obj, 'on', None)
 
-        assert self.listener.received == [DeafnessOnEvent()], \
+        assert self.obj.listener.received == [DeafnessOnEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_on_failure_with_parsing(self):
         self.obj.deaf = True
         deafDistributor(self.obj, 'on', None)
 
-        assert self.listener.received == [DeafnessOnAlreadyEvent()], \
+        assert self.obj.listener.received == [DeafnessOnAlreadyEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_off_failure_with_parsing(self):
         deafDistributor(self.obj, 'off', None)
 
-        assert self.listener.received == [DeafnessOffAlreadyEvent()], \
+        assert self.obj.listener.received == [DeafnessOffAlreadyEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_deaf_off_success_with_parsing(self):
         self.obj.deaf = True
         deafDistributor(self.obj, 'off', None)
 
-        assert self.listener.received == [DeafnessOffEvent()], \
+        assert self.obj.listener.received == [DeafnessOffEvent()], \
                "self.listener.received is %r" % self.listener.received
 
     def test_interesting_but_correct_syntaxes(self):
@@ -87,25 +91,26 @@ class TestActionsAndEvents(SetupHelper):
             
             deafDistributor(self.obj, cmd % 'on', None)
             deafDistributor(self.obj, cmd % 'off', None)
-            assert self.listener.received == [DeafnessOnEvent(),
-                                              DeafnessOffEvent()], \
+            assert self.obj.listener.received == [DeafnessOnEvent(),
+                                                  DeafnessOffEvent()], \
                    "Failed on %r, self.listener.received is %r" % \
                    (cmd, self.listener.received)
-            self.listener.received = []
+            self.obj.listener.received = []
             
             deafDistributor(self.obj, cmd % 'ON', None)
             deafDistributor(self.obj, cmd % 'OFF', None)
-            assert self.listener.received == [DeafnessOnEvent(),
-                                              DeafnessOffEvent()], \
+            assert self.obj.listener.received == [DeafnessOnEvent(),
+                                                  DeafnessOffEvent()], \
                    "Failed on %r, self.listener.received is %r" % \
                    (cmd, self.listener.received)
-            self.listener.received = []
+            self.obj.listener.received = []
 
     def test_wrong_syntax(self):
         for cmd in ['this', 'is', 'all wrong', 'and', 'should', 'not', 'turn',
                     'it on', 'or off']:
             deafDistributor(self.obj, cmd, None)
-            assert self.listener.received == [BadSyntaxEvent(syntaxmessage)],\
+            assert self.obj.listener.received == \
+                                              [BadSyntaxEvent(syntaxmessage)],\
                    "Failed on %r, self.listener.received is %r" % \
                    (cmd, self.listener.received)
-            self.listener.received = []
+            self.obj.listener.received = []

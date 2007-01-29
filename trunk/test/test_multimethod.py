@@ -34,7 +34,6 @@ def test_signature_supertyping_success():
     for s1, s2 in [((object,), (Foo,)),
                    ((Foo,), (Foo,)),
                    ((Foo,), (Baz,))]:
-        print 'Round one - dingding'
         assert Signature(s1) >= Signature(s2)
         assert Signature(s1).supertypes(Signature(s2))
         assert Signature(s2) <= Signature(s1)
@@ -42,7 +41,6 @@ def test_signature_supertyping_success():
 def test_signature_supertyping_failure():
     for s1, s2 in [((Foo, object), (Baz,)),
                    ((Fie,), (Foo,))]:
-        print 'Round one - dingding'
         assert not (Signature(s1) >= Signature(s2))
         assert not (Signature(s1).supertypes(Signature(s2)))
         assert not (Signature(s2) <= Signature(s1))
@@ -79,3 +77,23 @@ def test_simple_dispatch():
     assert res == "Fee"
     assert simple_dispatch(Foe()) == "Foe"
 
+def test_more_complicated_dispatch():
+    more_complicated_dispatch = Multimethod()
+
+    @more_complicated_dispatch.register(object, object)
+    def more_complicated_dispatch(x, y):
+        pass
+
+    @more_complicated_dispatch.register(object, str)
+    def more_complicated_dispatch(x, y):
+        pass
+
+    @more_complicated_dispatch.register(object, int)
+    def more_complicated_dispatch(x, y):
+        pass
+
+    #print '\n'.join(repr(s) for s in more_complicated_dispatch.signatures)
+    assert more_complicated_dispatch.signatures == \
+                                               [Signature((object, str)),
+                                                Signature((object, int)),
+                                                Signature((object, object))]

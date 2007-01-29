@@ -7,6 +7,7 @@ from grail2.rooms import UnfoundError
 from grail2.objects import Player, TargettableObject, ExitObject, MUDObject
 from grail2.strutils import capitalise
 from grail2.utils import promptcolour
+from grail2.multimethod import Multimethod
 
 class LookAtEvent(VisibleEvent):
 
@@ -43,22 +44,27 @@ def lookDistributor(actor, text, info):
         return
     try:
         target = get_from_rooms(blob, [actor.inventory, actor.room], info)
-        #this can raise an UnfoundError if the target isn't of the correct
-        #class, so it needs to go here,
-        lookAt(actor, target)
     except UnfoundError:
         pass
     else:
-        return
+        lookAt(actor, target)
     unfoundObject(actor)
 
-lookAt = UnfoundMethod()
+lookAt = Multimethod()
+
+@lookAt.register(MUDObject, MUDObject)
+def lookAt(actor, target):
+    print "Deafault path picked."
+    unfoundObject(actor)
 
 @lookAt.register(MUDObject, TargettableObject)
 def lookAt(actor, target):
+    print "TargettableObject method picked."
     if target.room not in [actor.inventory, actor.room]:
+        print 'Not in the rooms'
         unfoundObject(actor)
     else:
+        print "Receiving event"
         actor.receiveEvent(LookAtEvent(target))
 
 @lookAt.register(MUDObject, ExitObject)

@@ -118,7 +118,7 @@ class NamedObject(TargettableObject):
         TargettableObject.__init__(self, sdesc, adjs, room)
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
-        NamedObject_name_registry[name] = self
+        NamedObject._name_registry[name] = self
         self.adjs = adjs | set([name])
     
     def match(self, attrs):
