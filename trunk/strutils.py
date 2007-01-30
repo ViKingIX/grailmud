@@ -49,7 +49,8 @@ def _wsnormalisehelper(string):
         elif buf:
             yield buf
             buf = ''
-    yield buf
+    if buf.isspace():
+        yield buf
 
 def wsnormalise(string):
     """Normalise the whitespace to just one space per blob of it."""
