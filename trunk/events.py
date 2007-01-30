@@ -3,8 +3,6 @@
 class BaseEvent(object):
     '''The root of all events.'''
 
-    chunkable = False
-
     def collapseToText(self, state, obj):
         raise NotImplementedError("Base class.")
 

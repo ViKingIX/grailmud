@@ -2,10 +2,12 @@
 #pylint doesn't know about our metaclass hackery
 from grail2.orderedset import OSet
 
-def promptcolour(colourname = 'normal'):
+def promptcolour(colourname = 'normal', chunk = False):
     def fngrabber(func):
         def doer_of_stuff(self, state, obj):
             state.forcePrompt()
+            if chunk:
+                state.chunk()
             state.setColourName(colourname)
             func(self, state, obj)
         return doer_of_stuff

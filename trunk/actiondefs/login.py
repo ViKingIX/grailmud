@@ -23,6 +23,7 @@ class LoginFirstEvent(SystemEvent):
 def login(actor):
     '''Perform some initialisation for the Player being logged in.'''
     actor.connstate = 'online'
-    actor.session = {}
+    actor.chunked_event = None
+    actor.chunks = iter([])
     actor.receiveEvent(LoginFirstEvent())
     distributeEvent(actor.room, [actor], LoginThirdEvent(actor))

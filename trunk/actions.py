@@ -2,7 +2,7 @@
 from collections import defaultdict
 
 modulenames = ['core', 'look', 'says', 'system', 'who', 'setting', 'deaf',
-               'emote', 'helpfiles', 'targetting']
+               'emote', 'helpfiles', 'targetting', 'login', 'logoff', 'more']
 modules = [getattr(__import__('grail2.actiondefs', fromlist = modulenames),
                    name)
            for name in modulenames]

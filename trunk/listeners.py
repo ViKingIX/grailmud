@@ -1,4 +1,7 @@
 import logging
+from grail2.morelimiter import MoreLimiter
+from grail2.system import displayMore
+from grail2.objects import definein, Player
 
 class Listener(object):
     '''Base class for listeners.'''
@@ -26,7 +29,19 @@ class Listener(object):
 
     def listenToEvent(self, obj, event):
         raise NotImplementedError()
-        
+
+@definein(Player._instance_variable_factories)
+def more_limiter(self):
+    return MoreLimiter(20)
+
+@definein(Player._instance_variable_factories)
+def chunks(self):
+    return iter([])
+
+@definein(Player._instance_variable_factories)
+def chunked_event(self):
+    return None
+
 class ConnectionState(Listener):
     """Represents the state of the connection to the events as they collapse to
     text."""
@@ -34,12 +49,13 @@ class ConnectionState(Listener):
     _pickleme = False
 
     def __init__(self, telnet):
-        self.telnet = telnet
+        self.telnet = self.target = telnet
         self.on_newline = False
         self.on_prompt = False
         self.want_prompt = True
         self.nonce = {}
         Listener.__init__(self)
+        self.chunking = False
 
     def avatar_get(self):
         return self.telnet.avatar
@@ -54,11 +70,16 @@ class ConnectionState(Listener):
         #self.telnet.write('\xFF\xFA')
         pass
 
+    def chunk(self):
+        """Chunkify our output."""
+        self.chunking = True
+        self.target = StringIO()
+
     def sendPrompt(self):
         """Send a prompt, plus an IAC GA (-without- a trailing newline)."""
         logging.debug("Sending a prompt.")
         self.forceNewline()
-        self.telnet.write('-->')
+        self.target.write('-->')
         self.sendIACGA()
         self.on_prompt = True
         self.want_prompt = True
@@ -71,16 +92,20 @@ class ConnectionState(Listener):
 
     def sendEventLine(self, line):
         """Send a line, with \\r\\n appended."""
-        self.sendEventData(line + '\r\n')
+        self.sendEventData(line)
+        self.forceNewline()
 
     def sendEventData(self, data):
         """Write a blob of data to the telnet connection. Sets self.on_prompt to
         False, and on_newline to the appropriate value.
         """
-        self.telnet.write(data)
+        #TODO: when colours are implemented (itself a fairly major TODO), this
+        #will have to check through the data for newlines and add in the current
+        #colour information if it is chunked, because otherwise it may be lost.
+        self.target.write(data)
         logging.debug("%r written." % data)
         self.on_prompt = False
-        self.on_newline = data[-2:] == '\r\n'
+        self.on_newline = False
 
     def dontWantPrompt(self):
         """We don't want a prompt next flush."""
@@ -93,7 +118,8 @@ class ConnectionState(Listener):
     def forceNewline(self):
         """Ensure we're on a newline."""
         if not self.on_newline:
-            self.telnet.write('\r\n')
+            #see the note above, in sendEventData
+            self.target.write('\r\n')
             self.on_newline = True
 
     def forcePromptNL(self):
@@ -105,6 +131,13 @@ class ConnectionState(Listener):
         """Collapse an event to text."""
         logging.debug("Handling event %r." % event)
         event.collapseToText(self, self.avatar)
+        if self.chunking:
+            bigchunk = self.target.getvalue()
+            self.avatar.chunks = self.avatar.more_limiter.chunk(bigchunk)
+            self.avatar.chunked_event = event
+            self.chunking = False
+            self.target = self.telnet
+            displayMore(self.avatar)
 
     def eventListenFlush(self, obj):
         """Send off a final prompt to finish off the events."""

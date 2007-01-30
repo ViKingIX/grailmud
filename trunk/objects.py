@@ -74,15 +74,16 @@ class MUDObject(InstanceTracker):
         return self.__dict__.copy()
 
     def __getattr__(self, attr):
-        try:
-            return InstanceTracker.__getattr__(self, attr)
-        except AttributeError:
+        if attr not in self.__dict__ and not any((attr in cls.__dict__) for cls
+                                                 in type(self).__mro__):
             for cls in type(self).__mro__:
                 if attr in getattr(cls, '_instance_variable_factories', {}):
                     res = cls._instance_variable_factories[attr](self)
                     setattr(self, attr, res)
                     return res
             raise
+        else:
+            return getattr(self, attr)
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
@@ -149,7 +150,6 @@ class Player(NamedObject):
         self.connstate = 'online'
         self.cmdict = cmdict
         self.passhash = passhash
-        self.session = {}
         TargettableObject.__init__(self, sdesc, name, adjs, room)
 
     def receivedLine(self, line, info):

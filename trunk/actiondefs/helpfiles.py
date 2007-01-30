@@ -4,16 +4,14 @@ from grail2.strutils import wsnormalise
 
 class HelpEvent(SystemEvent):
 
-    chunkable = True
-
     def __init__(self, pagename, helppage):
         self.pagename = pagename
         self.helppage = helppage
 
-    @promptcolour('normal')
+    @promptcolour('normal', chunk = True)
     def collapseToText(self, state, obj):
         state.sendEventLine("HELP %s:" % self.pagename.upper())
-        state.sendEventLine('')
+        state.sendEventLine'')
         state.sendEventLine(self.helppage)
 
 class HelpNotFoundEvent(SystemEvent):
