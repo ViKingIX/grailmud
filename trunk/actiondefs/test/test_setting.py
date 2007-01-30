@@ -1,15 +1,17 @@
 from grail2.test.helper import SetupHelper
 from grail2.actiondefs.setting import LDescSetEvent, setDistribute, setLDesc, \
-                                      register
+                                      register, syntax_message
 from grail2.objects import TargettableObject
 from grail2.actiondefs.system import BadSyntaxEvent
 
 def test_registration():
+    cdict = {}
+    register(cdict)
     assert cdict['set'] is setDistribute
 
 def test_default_ldesc():
     assert TargettableObject("a fat elf", set(), None).ldesc == \
-           "a fat elf. Nothing more."
+           "a fat elf. Nothing more, nothing less."
 
 def test_ldesc_setting():
     obj = TargettableObject("a fat elf", set(), None)
@@ -31,11 +33,14 @@ class TestEvents(SetupHelper):
     def test_parsing_ldesc(self):
         desc = "foo bar"
         setDistribute(self.obj, "ldesc %s" % desc, None)
+        print self.obj.listener.received
         assert self.obj.listener.received == [LDescSetEvent(desc)]
 
     def test_bad_syntaxes(self):
         for evilbad in ["foo", "bar baz", "quuux"]:
             setDistribute(self.obj, evilbad, None)
+            print self.obj.listener.received
             assert self.obj.listener.received == \
                                      [BadSyntaxEvent(syntax_message % evilbad)]
+            self.obj.listener.received = []
             
