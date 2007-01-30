@@ -18,6 +18,8 @@ import grail2
 
 #some random vaguely related TODOs:
 #-referential integrity when MUDObjects go POOF
+#-this module could be split into two parts: the telnet protocol part, and the
+#handlers part.
 
 class LoggerIn(Telnet, LineOnlyReceiver):
     """A class that calls a specific method, depending on what the last method

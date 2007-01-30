@@ -11,5 +11,6 @@ def get_actions():
     '''Goes over all the actiondef modules and registers the cdict.'''
     cdict = defaultdict()
     for module in modules:
-        module.register(cdict)
+        if hasattr(module, "register"):
+            module.register(cdict)
     return cdict

@@ -1,11 +1,10 @@
 import logging
 from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
-from grail2.events import SystemEvent
+from grail2.events import SystemEvent, GaneEvent
 from grail2.utils import promptcolour
-from grail2.objects import Player
 
-class UnfoundObjectEvent(SystemEvent):
+class UnfoundObjectEvent(GameEvent):
 
     @promptcolour()
     def collapseToText(self, state, obj):
@@ -19,7 +18,7 @@ class BlankLineEvent(SystemEvent):
 
 class PermissionDeniedEvent(SystemEvent):
 
-    @promptcolour()
+    @promptcolour("system")
     def collapseToText(self, state, obj):
         state.sendEventLine("Hey, you can't do that!")
 
@@ -28,7 +27,7 @@ class BadSyntaxEvent(SystemEvent):
     def __init__(self, expl):
         self.expl = expl
 
-    @promptcolour()
+    @promptcolour("system")
     def collapseToText(self, state, obj):
         expl = "Couldn't parse that, I'm afraid."
         if self.expl is not None:
