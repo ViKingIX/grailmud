@@ -41,7 +41,6 @@ def get_helpfiles():
     '''
     #no, this is not anti-namespace pollution, this is breaking an import cycle
     from grail2.actions import modules
-    hdict = {}
     for module in modules:
         if hasattr(module, 'help_register'):
             module.help_register(hdict)
@@ -55,3 +54,4 @@ def help_register(hdict):
         'Just type HELP <phrase> to look up the help for it. A search will be '\
         'implemented someday.'
     
+hdict = {}
