@@ -30,8 +30,6 @@ class Chunker(object):
         self.initial_lines = self.lines_left = data.count('\n') + 1
 
     def next(self):
-        print self.lines_left
-        print self.limiter.limit
         if not self.lines_left:
             raise StopIteration()
         try:
@@ -43,5 +41,4 @@ class Chunker(object):
             res = self.data[:nl_ind]
             self.data = self.data[nl_ind:]
             self.lines_left -= self.limiter.limit
-        print self.lines_left
         return res
