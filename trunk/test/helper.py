@@ -1,3 +1,5 @@
+from grail2.objects import MUDObject
+
 class MockListener(object):
 
     def __init__(self):
@@ -16,3 +18,7 @@ class SetupHelper(object):
             self.room.add(obj)
         obj.listener = MockListener()
         obj.addListener(obj.listener)
+
+    def setUp(self):
+        self.obj = MUDObject(None)
+        self.setup_for_object(self.obj)

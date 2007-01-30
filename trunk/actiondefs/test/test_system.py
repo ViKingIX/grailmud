@@ -2,7 +2,7 @@ from grail2.actiondefs.system import UnfoundObjectEvent, PermissionDeniedEvent,\
                                      BadSyntaxEvent, BlankLineEvent, blankLine,\
                                      permissionDenied, badSyntax, \
                                      unfoundObject, register
-from grail2.tests.helper import SetupHelper
+from grail2.test.helper import SetupHelper
 
 def test_registration():
     d = {}

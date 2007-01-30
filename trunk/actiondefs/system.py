@@ -1,7 +1,7 @@
 import logging
 from grail2.actiondefs.core import distributeEvent
 from grail2.strutils import capitalise
-from grail2.events import SystemEvent, GaneEvent
+from grail2.events import SystemEvent, GameEvent
 from grail2.utils import promptcolour
 
 class UnfoundObjectEvent(GameEvent):
