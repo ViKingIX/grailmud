@@ -9,7 +9,8 @@ from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
 from grail2.objects import Player, BadPassword, TargettableObject
 from grail2.actions import get_actions
-from grail2.actiondefs.system import logoffFinal, login
+from grail2.actiondefs.logoff import logoffFinal
+from grail2.actiondefs.login import login
 from grail2.listeners import ConnectionState
 from grail2.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
