@@ -5,39 +5,6 @@ from grail2.events import SystemEvent
 from grail2.utils import promptcolour
 from grail2.objects import Player
 
-class LogoffFirstEvent(SystemEvent):
-
-    @promptcolour()
-    def collapseToText(self, state, obj):
-        state.sendEventLine("Goodbye!")
-        state.dontWantPrompt()
-
-class LogoffThirdEvent(SystemEvent):
-
-    def __init__(self, actor):
-        self.actor = actor
-
-    @promptcolour()
-    def collapseToText(self, state, obj):
-        state.sendEventLine("%s has left the game." %
-                            capitalise(self.actor.sdesc))
-
-class LoginThirdEvent(SystemEvent):
-
-    def __init__(self, actor):
-        self.actor = actor
-
-    @promptcolour()
-    def collapseToText(self, state, obj):
-        state.sendEventLine("%s's form appears, and they crackle into life." %
-                            capitalise(self.actor.dsesc))
-
-class LoginFirstEvent(SystemEvent):
-
-    def collapseToText(self, state, obj):
-        state.setColourName('normal')
-        state.sendEventLine("Welcome to the game.")
-
 class UnfoundObjectEvent(SystemEvent):
 
     @promptcolour()
@@ -71,32 +38,6 @@ class BadSyntaxEvent(SystemEvent):
 def blankLine(actor, text, info):
     actor.receiveEvent(BlankLineEvent())
 
-def quitGame(actor, text, info):
-    if info.instigator is not actor:
-        info.instigator.receiveEvent(PermissionDeniedEvent())
-    else:
-        logoffFinal(actor)
-
-def login(actor):
-    '''Perform some initialisation for the Player being logged in.'''
-    assert isinstance(actor, Player)
-    actor.connstate = 'online'
-    actor.session = {}
-    actor.receiveEvent(LoginFirstEvent())
-    distributeEvent(actor.room, [actor], LoginThirdEvent(actor))
-
-def logoffFinal(actor):
-    #XXX: is this doing stuff in the correct order?
-    assert isinstance(actor, Player)
-    if actor.connstate != 'online':
-        logging.info("Foiled a double logoff attempt with %r." % actor)
-        return
-    actor.connstate = 'offline'
-    actor.receiveEvent(LogoffFirstEvent())
-    distributeEvent(actor.room, [actor], LogoffThirdEvent(actor))
-    actor.disconnect()
-    actor.room.remove(actor)
-
 def permissionDenied(actor):
     actor.receiveEvent(PermissionDeniedEvent())
 
@@ -108,5 +49,3 @@ def unfoundObject(actor):
 
 def register(cdict):
     cdict[''] = blankLine
-    cdict['qq'] = quitGame
-    cdict['quit'] = quitGame
