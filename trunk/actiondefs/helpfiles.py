@@ -4,6 +4,8 @@ from grail2.strutils import wsnormalise
 
 class HelpEvent(SystemEvent):
 
+    chunkable = True
+
     def __init__(self, pagename, helppage):
         self.pagename = pagename
         self.helppage = helppage
