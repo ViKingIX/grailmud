@@ -6,7 +6,7 @@ from grail2.strutils import head_word_split
 from grail2.rooms import Room
 from grail2.multimethod import Multimethod
 from grail2.events import BaseEvent
-from grail2.utils import InstanceTracker
+from grail2.utils import BothAtOnce
 
 #TODO: some sort of way to tell the classes not to pickle certain attributes.
 
@@ -16,10 +16,8 @@ def definein(dictionary):
         return func
     return functiongetter
 
-class MUDObject(InstanceTracker):
+class MUDObject(BothAtOnce):
     """An object in the MUD."""
-
-    _instance_variable_factories = {}
     
     def __init__(self, room):
         self.room = room
@@ -73,18 +71,6 @@ class MUDObject(InstanceTracker):
     def __getstate__(self):
         return self.__dict__.copy()
 
-    def __getattr__(self, attr):
-        if attr not in self.__dict__ and not any((attr in cls.__dict__) for cls
-                                                 in type(self).__mro__):
-            for cls in type(self).__mro__:
-                if attr in getattr(cls, '_instance_variable_factories', {}):
-                    res = cls._instance_variable_factories[attr](self)
-                    setattr(self, attr, res)
-                    return res
-            raise
-        else:
-            return getattr(self, attr)
-
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
     """Receive an event in the MUD.
@@ -96,8 +82,6 @@ def receiveEvent(self, event):
 
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
-
-    _instance_variable_factories = {}
     
     def __init__(self, sdesc, adjs, room):
         self.inventory = Room("A burlap sack.", "")
@@ -113,8 +97,7 @@ class TargettableObject(MUDObject):
 class NamedObject(TargettableObject):
 
     _name_registry = {}
-    _instance_variable_factories = {}
-
+    
     def __init__(self, sdesc, name, adjs, room):
         TargettableObject.__init__(self, sdesc, adjs, room)
         self.inventory = Room("%s's inventory" % name,
@@ -143,8 +126,6 @@ class NamedObject(TargettableObject):
 
 class Player(NamedObject):
     """A player avatar."""
-
-    _instance_variable_factories = {}
 
     def __init__(self, name, sdesc, adjs, cmdict, room, passhash):
         self.connstate = 'online'

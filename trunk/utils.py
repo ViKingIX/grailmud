@@ -25,9 +25,11 @@ class InstanceTrackingMetaclass(type):
 
     def __init__(cls, name, bases, dictionary):
         #only add _instances to direct children of InstanceTracker
+        #is this check needed any more?
         if cls.__name__ != 'InstanceTracker' and InstanceTracker in bases:
             cls._instances = OSet()
-        type.__init__(cls, name, bases, dictionary)
+        super(InstanceTrackingMetaclass,
+              self).__init__(cls, name, bases, dictionary)
 
     def __call__(cls, *args, **kwargs):
         res = type.__call__(cls, *args, **kwargs)
@@ -58,3 +60,34 @@ class InstanceTracker(object):
         if self not in self._instances:
             self.add_to_instances()
         self.__dict__.update(state)
+
+class InstanceVariableFactoryMetaclass(type):
+
+    def __init__(cls, name, bases, dictionary):
+        cls._instance_variable_factories = {}
+        super(InstanceVariableFactoryMetaclass,
+              self).__init__(cls, name, bases, dictionary)
+
+class InstanveVariableFactoryObject(object):
+
+    __metaclass__ = InstanceVariableFactoryMetaclass
+    
+    def __getattr__(self, attr):
+        if attr not in self.__dict__ and not any((attr in cls.__dict__) for cls
+                                                 in type(self).__mro__):
+            for cls in type(self).__mro__:
+                if attr in getattr(cls, '_instance_variable_factories', {}):
+                    res = cls._instance_variable_factories[attr](self)
+                    setattr(self, attr, res)
+                    return res
+            raise
+        else:
+            return getattr(self, attr)
+
+class BothAtOnceMetaclass(InstanceTrackingMetaclass,
+                          InstanceVariableFactoryMetaclass):
+    pass
+
+class BothAtOnce(InstanveVariableFactoryObject, InstanceTracker):
+
+    __metaclass__ = BothAtOnceMetaclass
