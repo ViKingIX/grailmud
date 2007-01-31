@@ -29,7 +29,7 @@ class InstanceTrackingMetaclass(type):
         if cls.__name__ != 'InstanceTracker' and InstanceTracker in bases:
             cls._instances = OSet()
         super(InstanceTrackingMetaclass,
-              self).__init__(cls, name, bases, dictionary)
+              cls).__init__(name, bases, dictionary)
 
     def __call__(cls, *args, **kwargs):
         res = type.__call__(cls, *args, **kwargs)
@@ -66,7 +66,7 @@ class InstanceVariableFactoryMetaclass(type):
     def __init__(cls, name, bases, dictionary):
         cls._instance_variable_factories = {}
         super(InstanceVariableFactoryMetaclass,
-              self).__init__(cls, name, bases, dictionary)
+              cls).__init__(name, bases, dictionary)
 
 class InstanveVariableFactoryObject(object):
 
