@@ -29,10 +29,8 @@ class LoggerIn(Telnet, LineOnlyReceiver):
     delimiter = '\n'
 
     def __init__(self):
-        #XXX: these instance variables are redundant.
         Telnet.__init__(self)
         #LineOnlyReceiver doesn't have an __init__ method, weirdly.
-        self.linestate = 'ignore'
         self.callback = lambda line: logging.debug("Doing nothing with %s" %
                                                    line)
         self.connection_state = None

@@ -11,7 +11,7 @@ class HelpEvent(SystemEvent):
     @promptcolour('normal', chunk = True)
     def collapseToText(self, state, obj):
         state.sendEventLine("HELP %s:" % self.pagename.upper())
-        state.sendEventLine'')
+        state.sendEventLine('')
         state.sendEventLine(self.helppage)
 
 class HelpNotFoundEvent(SystemEvent):
