@@ -26,7 +26,8 @@ class FooSubclass(FooClass):
     pass
 
 def test_non_instance_tracking_subclass():
-    assert "_instances" not in FooSubclass.__dict__
+    assert "_instances" in FooSubclass.__dict__
 
 def test_superclass_tracking():
     _helper(FooSubclass, FooClass)
+    _helper(FooSubclass)

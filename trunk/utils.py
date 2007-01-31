@@ -24,10 +24,7 @@ class InstanceTrackingMetaclass(type):
     '''
 
     def __init__(cls, name, bases, dictionary):
-        #only add _instances to direct children of InstanceTracker
-        #is this check needed any more?
-        if cls.__name__ != 'InstanceTracker' and InstanceTracker in bases:
-            cls._instances = OSet()
+        cls._instances = OSet()
         super(InstanceTrackingMetaclass,
               cls).__init__(name, bases, dictionary)
 
