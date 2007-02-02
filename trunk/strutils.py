@@ -41,17 +41,6 @@ def head_word_split(string):
     else:
         return res
 
-def _wsnormalisehelper(string):
-    buf = ''
-    for c in string:
-        if c not in whitespace:
-            buf += c
-        elif buf:
-            yield buf
-            buf = ''
-    if buf.isspace():
-        yield buf
-
 def wsnormalise(string):
     """Normalise the whitespace to just one space per blob of it."""
-    return ' '.join(_wsnormalisehelper(string))
+    return ' '.join(s for s in string.split(' ') if s)
