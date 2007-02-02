@@ -70,6 +70,9 @@ class InstanceVariableFactoryObject(object):
     __metaclass__ = InstanceVariableFactoryMetaclass
     
     def __getattribute__(self, attr):
+        #please note, this method took a little while to get right, so don't
+        #just change it willy-nilly. if something is here, it is here for a
+        #reason, and not a hysterical one.
         if attr not in ('__dict__', '__class__'):
             if attr not in self.__dict__:
                 for cls in type(self).__mro__:

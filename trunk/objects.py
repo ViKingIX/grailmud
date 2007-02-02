@@ -22,6 +22,9 @@ class MUDObject(BothAtOnce):
     def __init__(self, room):
         self.room = room
         self.listeners = set()
+        self.inventory = Room("A dummy inventory.", "This is a dummy "
+                              "inventory, to make the checking code a little "
+                              "bit simpler.")
     
     def eventFlush(self):
         """Tell the listeners that the current lot of events are done."""
@@ -29,14 +32,20 @@ class MUDObject(BothAtOnce):
             listener.eventListenFlush(self)
 
     def addListener(self, listener):
-        """Register a new listener."""
-        listener.register(self)
+        """Register a new listener.
+
+        Throws a ValueError if it's already listening."""
+        if listener in self.listeners:
+            raise ValueError("Listener is already listening.")
         self.listeners.add(listener)
+        listener.register(self)
 
     def removeListener(self, listener):
         """Remove a listener. Throws errors if it's not currently listening."""
-        listener.unregister(self)
+        if listener not in self.listeners:
+            raise ValueError("Listener is not listening.")
         self.listeners.remove(listener)
+        listener.unregister(self)
 
     #XXX: these two methods should be reimplemented as events.
     def transferControl(self, obj):
@@ -68,9 +77,6 @@ class MUDObject(BothAtOnce):
     def __eq__(self, other):
         return self is other
 
-    def __getstate__(self):
-        return self.__dict__.copy()
-
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):
     """Receive an event in the MUD.
@@ -84,7 +90,6 @@ class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
     
     def __init__(self, sdesc, adjs, room):
-        self.inventory = Room("A burlap sack.", "")
         self.sdesc = sdesc
         self.adjs = adjs
         MUDObject.__init__(self, room)
@@ -115,7 +120,7 @@ class NamedObject(TargettableObject):
     def exists(cls, name):
         '''Returns True if an object referred to by a given name exists.'''
         try:
-            avatar = TargettableObject._name_registry[name]
+            avatar = NamedObject._name_registry[name]
         except KeyError:
             return False
         else:
@@ -167,7 +172,7 @@ class Player(NamedObject):
         """
         if not Player.exists(name):
             raise KeyError("name is not the name of a player")
-        avatar = TargettableObject._name_registry[name]
+        avatar = NamedObject._name_registry[name]
         if passhash != avatar.passhash:
             raise BadPassword()
         return avatar
