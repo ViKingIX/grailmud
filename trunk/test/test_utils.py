@@ -1,4 +1,4 @@
-from grail2.utils import InstanceTracker
+from grail2.utils import InstanceTracker, InstanceVariableFactoryObject
 
 class FooClass(InstanceTracker):
     pass
@@ -31,3 +31,45 @@ def test_non_instance_tracking_subclass():
 def test_superclass_tracking():
     _helper(FooSubclass, FooClass)
     _helper(FooSubclass)
+
+class FooFactoryClass(InstanceVariableFactoryObject):
+    qux = "class"
+    pass
+
+def test_instance_variable_factory():
+    assert hasattr(FooFactoryClass, "_instance_variable_factories")
+
+def test_default_variables():
+    sentinel = object()
+    FooFactoryClass._instance_variable_factories['foo'] = lambda self: sentinel
+    assert FooFactoryClass().foo is sentinel
+
+def test_setting_default_variables():
+    sentinel = object()
+    FooFactoryClass._instance_variable_factories['foo'] = lambda self: sentinel
+    f = FooFactoryClass()
+    assert 'foo' not in f.__dict__
+    assert f.foo is sentinel
+    assert f.__dict__['foo'] is sentinel
+
+def test_throws_AttributeError():
+    try:
+        FooFactoryClass().nonexistant
+    except AttributeError:
+        pass
+    else:
+        assert False
+
+def test_returns_from___dict___():
+    FooFactoryClass._instance_variable_factories['foo'] = lambda s: 'bar'
+    f = FooFactoryClass()
+    f.foo = "baz"
+    assert f.foo == "baz"
+
+class FooFactorySubclass(FooFactoryClass):
+    pass
+
+def test_inherited():
+    FooFactoryClass._instance_variable_factories['qux'] = lambda s: 'right'
+    print FooFactorySubclass().qux
+    assert FooFactorySubclass().qux == 'right'

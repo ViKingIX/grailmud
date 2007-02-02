@@ -65,26 +65,31 @@ class InstanceVariableFactoryMetaclass(type):
         super(InstanceVariableFactoryMetaclass,
               cls).__init__(name, bases, dictionary)
 
-class InstanveVariableFactoryObject(object):
+class InstanceVariableFactoryObject(object):
 
     __metaclass__ = InstanceVariableFactoryMetaclass
     
     def __getattr__(self, attr):
-        if attr not in self.__dict__ and not any((attr in cls.__dict__) for cls
-                                                 in type(self).__mro__):
+        print '__getattr__ called'
+        if attr not in self.__dict__:
+            print 'Not in self dict'
             for cls in type(self).__mro__:
                 if attr in getattr(cls, '_instance_variable_factories', {}):
                     res = cls._instance_variable_factories[attr](self)
                     setattr(self, attr, res)
                     return res
-            raise
-        else:
-            return getattr(self, attr)
+            print 'No default factories'
+
+            if not any((attr in cls.__dict__) for cls in type(self).__mro__):
+                print 'Raising'
+                raise AttributeError()
+            
+        return getattr(self, attr)
 
 class BothAtOnceMetaclass(InstanceTrackingMetaclass,
                           InstanceVariableFactoryMetaclass):
     pass
 
-class BothAtOnce(InstanveVariableFactoryObject, InstanceTracker):
+class BothAtOnce(InstanceVariableFactoryObject, InstanceTracker):
 
     __metaclass__ = BothAtOnceMetaclass
