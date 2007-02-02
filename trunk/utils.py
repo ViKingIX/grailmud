@@ -86,8 +86,10 @@ class InstanceVariableFactoryObject(object):
                 if not any((attr in cls.__dict__) for cls in type(self).__mro__):
                     print 'Raising'
                     raise AttributeError()
+
+        print 'Special name? Failure? Who knows?'
             
-        return InstanceVariableFactoryObject.__getattribute__(self, attr)
+        return object.__getattribute__(self, attr)
 
 class BothAtOnceMetaclass(InstanceTrackingMetaclass,
                           InstanceVariableFactoryMetaclass):
