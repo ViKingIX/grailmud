@@ -69,22 +69,25 @@ class InstanceVariableFactoryObject(object):
 
     __metaclass__ = InstanceVariableFactoryMetaclass
     
-    def __getattr__(self, attr):
-        print '__getattr__ called'
-        if attr not in self.__dict__:
-            print 'Not in self dict'
-            for cls in type(self).__mro__:
-                if attr in getattr(cls, '_instance_variable_factories', {}):
-                    res = cls._instance_variable_factories[attr](self)
-                    setattr(self, attr, res)
-                    return res
-            print 'No default factories'
+    def __getattribute__(self, attr):
+        print '__getattribute__ called'
+        if attr not in ('__dict__', '__class__'):
+            print 'Not a special name'
+            if attr not in self.__dict__:
+                print 'Not in self dict'
+                for cls in type(self).__mro__:
+                    if attr in getattr(cls, '_instance_variable_factories',
+                                       {}):
+                        res = cls._instance_variable_factories[attr](self)
+                        setattr(self, attr, res)
+                        return res
+                print 'No default factories'
 
-            if not any((attr in cls.__dict__) for cls in type(self).__mro__):
-                print 'Raising'
-                raise AttributeError()
+                if not any((attr in cls.__dict__) for cls in type(self).__mro__):
+                    print 'Raising'
+                    raise AttributeError()
             
-        return getattr(self, attr)
+        return InstanceVariableFactoryObject.__getattribute__(self, attr)
 
 class BothAtOnceMetaclass(InstanceTrackingMetaclass,
                           InstanceVariableFactoryMetaclass):
