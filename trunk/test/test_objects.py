@@ -29,6 +29,15 @@ def test_register():
     obj = MUDObject(None)
     obj.addListener(ListenerHelper(obj))
 
+def test_equality():
+    m = MUDObject(None)
+    assert m == m
+    assert MUDObject(None) != m
+
+def test_hashability():
+    s = set([MUDObject(None), MUDObject(None)])
+    assert len(s) == 2
+
 class TesterForListening(object):
 
     def setUp(self):
