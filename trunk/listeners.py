@@ -1,6 +1,6 @@
 import logging
 from grail2.morelimiter import MoreLimiter
-from grail2.system import displayMore
+from grail2.actiondefs.more import displayMore
 from grail2.objects import definein, Player
 
 class Listener(object):

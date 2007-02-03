@@ -21,6 +21,9 @@ import grail2
 #-this module could be split into two parts: the telnet protocol part, and the
 #handlers part.
 
+#XXX: there is a race condition here. Consider two different connections trying
+#to create a character with the same name at the same time. Ickiness.
+
 class LoggerIn(Telnet, LineOnlyReceiver):
     """A class that calls a specific method, depending on what the last method
     called returned.

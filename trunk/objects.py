@@ -9,6 +9,7 @@ from grail2.events import BaseEvent
 from grail2.utils import BothAtOnce
 
 #TODO: some sort of way to tell the classes not to pickle certain attributes.
+#XXX: need some sort of implementation for stateless, groupable objects.
 
 def definein(dictionary):
     def functiongetter(func):
@@ -99,11 +100,16 @@ class TargettableObject(MUDObject):
         """
         return self.adjs.issuperset(attrs)
 
+class NamealreadyUsedError(BaseException):
+    pass
+
 class NamedObject(TargettableObject):
 
     _name_registry = {}
     
     def __init__(self, sdesc, name, adjs, room):
+        if NamedObject.exists(name):
+            raise NamealreadyUsedError()
         TargettableObject.__init__(self, sdesc, adjs, room)
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
