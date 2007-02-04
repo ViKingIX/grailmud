@@ -36,6 +36,14 @@ class TestEventSending(SetupHelper):
 
         self.setup_for_object(self.actor)
 
+    def tearDown(self):
+        self.room.remove_from_instances()
+        self.actor.remove_from_instances()
+        self.roomtarget.remove_from_instances()
+        self.invtarget.remove_from_instances()
+        del NamedObject._name_registry[self.invtarget.name]
+        self.exit.remove_from_instances()
+
     def test_look_at_room_TargettableObject(self):
         lookAt(self.actor, self.roomtarget)
 

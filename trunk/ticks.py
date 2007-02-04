@@ -56,7 +56,7 @@ class Ticker(object):
         return {'doing': self.doing, 'freq': self.freq}
 
     def __setstate__(self, state):
-        self.__dict__ = state
+        self.__dict__.update(state)
         self.looper = LoopingCall(self.tick)
 
     def start(self):
