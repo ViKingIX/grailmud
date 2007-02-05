@@ -66,7 +66,7 @@ class MUDObject(BothAtOnce):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        state = MUDObject.__getstate__(self)
+        state = super(MUDObject, self).__getstate__(self)
         state['listeners'] = listeners
         return state
 
@@ -93,7 +93,7 @@ class TargettableObject(MUDObject):
     def __init__(self, sdesc, adjs, room):
         self.sdesc = sdesc
         self.adjs = adjs
-        MUDObject.__init__(self, room)
+        super(TargettableObject, self).__init__(room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
@@ -110,7 +110,7 @@ class NamedObject(TargettableObject):
     def __init__(self, sdesc, name, adjs, room):
         if NamedObject.exists(name):
             raise NamealreadyUsedError()
-        TargettableObject.__init__(self, sdesc, adjs, room)
+        super(NamedObject, self).__init__(sdesc, adjs, room)
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
         NamedObject._name_registry[name] = self
@@ -121,7 +121,7 @@ class NamedObject(TargettableObject):
         """Check to see if a set of attributes is applicable for this object.
         """
         return attrs == set([self.name]) or \
-               TargettableObject.match(self, attrs)
+               super(NamedObject, self).match(self, attrs)
 
     @classmethod
     def exists(cls, name):
@@ -143,7 +143,7 @@ class Player(NamedObject):
         self.connstate = 'online'
         self.cmdict = cmdict
         self.passhash = passhash
-        TargettableObject.__init__(self, sdesc, name, adjs, room)
+        super(Player, self).__init__(sdesc, name, adjs, room)
 
     def receivedLine(self, line, info):
         """Receive a single line of input to process and act upon."""
@@ -161,12 +161,13 @@ class Player(NamedObject):
             #to not have it implied.
 
     def __getstate__(self):
-        state = TargettableObject.__getstate__(self)
+        #is using super correct here?
+        state = super(Player, self).__getstate__()
         state['connstate'] = 'offline'
         return self
 
     def __setstate__(self, state):
-        TargettableObject.__setstate__(self, state)
+        super(Player, self).__setstate__(state)
         self.room.remove(self)
 
     @staticmethod
@@ -189,7 +190,7 @@ class ExitObject(MUDObject):
 
     def __init__(self, room, target_room):
         self.target_room = target_room
-        MUDObject.__init__(self, room)
+        super(ExitObject, self).__init__(room)
 
 class BadPassword(Exception):
     pass
