@@ -31,4 +31,11 @@ setup(name = "grailmud",
       author_email = "free.condiments@gmail.com",
       description = "A Python MUD server",
       license = "GNU GPL; see LICENSE",
-      keywords = "mud server game online rpg mmorpg text adventure")
+      keywords = "mud server game online rpg mmorpg text adventure",
+      classifiers = \
+               ["License :: OSI Approved :: GNU General Public License (GPL)",
+                "Operating System :: OS Independent",
+                "Programming Language :: Python",
+                "Topic :: Communications :: Chat"
+                "Topic :: Games/Entertainment :: Multi-User Dungeons (MUD)"]
+)
