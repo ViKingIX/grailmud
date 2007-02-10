@@ -23,7 +23,7 @@ setup(name = "grailmud",
       version = "0.1a0",
       packages = find_packages(),
       package_data = {'actiondefs': ['emotefile.txt'],
-                      '': ['LICENSE']},
+                      '': ['LICENSE', 'pylintrc']},
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
 
