@@ -26,7 +26,7 @@ import os
 from durus.file_storage import FileStorage
 from durus.connection import Connection
 from grail2.rooms import Room
-from grail2.objects import MUDObject, TargettableObject
+from grail2.objects import MUDObject, NamedObject
 from grail2.npcs.chatty import ChattyListener
 from grail2.ticks import Ticker
 
@@ -39,8 +39,8 @@ startroom = Room('An unremarkable moor.',
                  ' mediocrity - a lukewarm temperature, with no discernable'
                  ' exciting scents.')
 
-eliza = TargettableObject('a bespectacled old lady', 'Eliza',
-                          set(['old', 'lady', 'woman']), startroom)
+eliza = NamedObject('a bespectacled old lady', 'Eliza',
+                    set(['old', 'lady', 'woman']), startroom)
 eliza.addListener(ChattyListener(eliza))
 startroom.add(eliza)
 
@@ -55,7 +55,7 @@ try:
     root['startroom'] = startroom
     root['all_rooms'] = Room._instances
     root['all_objects'] = MUDObject._instances
-    root['targettable_objects_by_name'] = TargettableObject._name_registry
+    root['targettable_objects_by_name'] = NamedObject._name_registry
     root['ticker'] = Ticker(0.1)
 
     connection.commit()
