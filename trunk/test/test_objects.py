@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from grail2.objects import MUDObject, TargettableObject, NamedObject, Player
 from grail2.events import BaseEvent
+import pickle
 
 class ListenerHelper(object):
 
@@ -90,3 +91,12 @@ class TesterForListening(object):
             pass
         else:
             assert False
+
+class PicklingTestHelper(object):
+    def test_pickling(self):
+        assert pickle.loads(pickle.dumps(self.obj)) == self.obj
+
+class TestMUDObjectPickling(PicklingTestHelper):
+
+    def setUp(self):
+        self.obj = MUDObject(None)
