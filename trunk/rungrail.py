@@ -42,6 +42,7 @@ def run_mud(mud, port):
     """Run the MUD factory."""
     reactor.listenTCP(port, mud)
     mud.ticker.start()
+    logging.info("OK, setup done, handing you over to the reactor's loop!")
     reactor.run()
 
 if __name__ == '__main__':

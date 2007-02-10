@@ -47,11 +47,6 @@ class InstanceTrackingMetaclass(type):
         super(InstanceTrackingMetaclass,
               cls).__init__(name, bases, dictionary)
 
-    def __call__(cls, *args, **kwargs):
-        res = type.__call__(cls, *args, **kwargs)
-        res.add_to_instances()
-        return res
-
     def prefab_instances(cls, instances):
         #XXX: some way to push down to subclasses?
         cls._curnum = max(instances) + 1
@@ -61,6 +56,12 @@ class InstanceTracker(object):
     '''A type that keeps track of its instances.'''
 
     __metaclass__ = InstanceTrackingMetaclass
+
+    @classmethod
+    def __new__(cls, *args, **kwargs):
+        obj = object.__new__(cls, *args, **kwargs)
+        obj.add_to_instances()
+        return obj
 
     def add_to_instances(self):
         num = 0
@@ -92,15 +93,13 @@ class InstanceTracker(object):
         self.__dict__.update(state)
 
     #the number faffing around ensures that we survive pickles.
+    #we need to not die when we've not been properly initialised, too: that's
+    #hopefully now not a problem thanks to __new__.
     def __hash__(self):
-        if hasattr(self, '_number'):
-            return self._number
-        return -1
+        return self._number
 
     def __eq__(self, other):
-        if hasattr(self, '_number'):
-            return self._number == other._number
-        return self is other
+        return self._number == other._number
 
 class InstanceVariableFactoryMetaclass(type):
 
