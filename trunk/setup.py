@@ -22,12 +22,13 @@ from setuptools import setup, find_packages
 setup(name = "grailmud",
       version = "0.1a0",
       packages = find_packages(),
-      package_data = {'actiondefs': ['emotefile.txt']}
+      package_data = {'actiondefs': ['emotefile.txt'],
+                      '': ['LICENSE']},
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
 
       author = "Sam Pointon",
       author_email = "free.condiments@gmail.com",
       description = "A Python MUD server",
-      license = "GNU GPL",
+      license = "GNU GPL; see LICENSE",
       keywords = "mud server game online rpg mmorpg text adventure")
