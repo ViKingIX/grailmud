@@ -70,7 +70,6 @@ class InstanceTracker(object):
             #sibling classes, though.
             num = max(num, cls._curnum)
         self._number = num
-        print self._number
         num = num + 1
         for cls in classes:
             cls._instances[num] = self
