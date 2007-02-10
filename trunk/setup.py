@@ -18,12 +18,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from setuptools import setup, find_packages
+import os
 
 setup(name = "grailmud",
       version = "0.1a0",
-      packages = find_packages(),
-      package_data = {'actiondefs': ['emotefile.txt'],
-                      '': ['LICENSE', 'pylintrc']},
+      package_dir = {'grailmud' : os.curdir},
+      packages = ["grailmud"],
+      package_data = {'grailmud.actiondefs': ['emotefile.txt'],
+                      'grailmud': ['LICENSE', 'pylintrc']},
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
 

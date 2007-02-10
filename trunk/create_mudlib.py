@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 import os
 from durus.file_storage import FileStorage
 from durus.connection import Connection
-from grail2.rooms import Room
-from grail2.objects import MUDObject, NamedObject
-from grail2.npcs.chatty import ChattyListener
-from grail2.ticks import Ticker
+from grailmud.rooms import Room
+from grailmud.objects import MUDObject, NamedObject
+from grailmud.npcs.chatty import ChattyListener
+from grailmud.ticks import Ticker
 
 startroom = Room('An unremarkable moor.',
                  'This moor is extremely bare. Overly so, perhaps. There '

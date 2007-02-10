@@ -18,10 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from string import ascii_letters, digits
-from grail2.multimethod import Multimethod
+from grailmud.multimethod import Multimethod
 from pyparsing import *
-from grail2.rooms import UnfoundError
-from grail2.events import SystemEvent
+from grailmud.rooms import UnfoundError
+from grailmud.events import SystemEvent
 import logging
 
 #Some utilities.

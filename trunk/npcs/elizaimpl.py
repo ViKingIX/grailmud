@@ -21,8 +21,8 @@ from collections import deque
 from pyparsing import *
 from string import punctuation, maketrans, printable
 from random import randrange, choice
-from grail2.strutils import wsnormalise
-from grail2.utils import smartdict
+from grailmud.strutils import wsnormalise
+from grailmud.utils import smartdict
 
 napunctuation = ''.join(s for s in punctuation if s != "'")
 

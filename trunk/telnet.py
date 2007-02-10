@@ -26,14 +26,14 @@ from functional import compose
 from sha import sha
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
-from grail2.objects import Player, BadPassword, TargettableObject
-from grail2.actions import get_actions
-from grail2.actiondefs.logoff import logoffFinal
-from grail2.actiondefs.login import login
-from grail2.listeners import ConnectionState
-from grail2.strutils import sanitise, alphatise, safetise, articleise, \
+from grailmud.objects import Player, BadPassword, TargettableObject
+from grailmud.actions import get_actions
+from grailmud.actiondefs.logoff import logoffFinal
+from grailmud.actiondefs.login import login
+from grailmud.listeners import ConnectionState
+from grailmud.strutils import sanitise, alphatise, safetise, articleise, \
                             wsnormalise
-import grail2
+import grailmud
 
 #some random vaguely related TODOs:
 #-referential integrity when MUDObjects go POOF
@@ -69,7 +69,7 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         meth = self.callback
         logging.debug("Line %r received, putting %r for the ticker." %
                       (line, meth))
-        grail2.instance.ticker.add_command(lambda: meth(line))
+        grailmud.instance.ticker.add_command(lambda: meth(line))
 
     def close(self):
         """Convenience."""
@@ -240,7 +240,7 @@ class CreationHandler(ConnectionHandler):
             line = self.sdesc
         self.adjs = set(word.lower() for word in line.split())
         avatar = Player(self.name, self.sdesc, self.adjs, get_actions(),
-                        grail2.instance.startroom, self.passhash)
+                        grailmud.instance.startroom, self.passhash)
         AvatarHandler(self.telnet, avatar)
 
 class LoginHandler(ConnectionHandler):
@@ -286,7 +286,7 @@ class AvatarHandler(ConnectionHandler):
         
         self.connection_state = ConnectionState(self.telnet)
         self.avatar.addListener(self.connection_state)
-        grail2.instance.startroom.add(self.avatar)
+        grailmud.instance.startroom.add(self.avatar)
         login(self.avatar)
         self.connection_state.eventListenFlush(self.avatar)
         self.setcallback(self.handle_line)

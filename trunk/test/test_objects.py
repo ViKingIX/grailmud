@@ -17,8 +17,8 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.objects import MUDObject, TargettableObject, NamedObject, Player
-from grail2.events import BaseEvent
+from grailmud.objects import MUDObject, TargettableObject, NamedObject, Player
+from grailmud.events import BaseEvent
 import pickle
 
 class ListenerHelper(object):

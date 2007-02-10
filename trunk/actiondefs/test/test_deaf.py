@@ -17,14 +17,14 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.actiondefs.deaf import DeafnessOnEvent, DeafnessOnAlreadyEvent, \
+from grailmud.actiondefs.deaf import DeafnessOnEvent, DeafnessOnAlreadyEvent, \
                                    DeafnessOffEvent, DeafnessOffAlreadyEvent, \
                                    deafDistributor, deafOn, deafOff, register, \
                                    syntaxmessage
-from grail2.actiondefs.system import BadSyntaxEvent
-from grail2.objects import MUDObject
-from grail2.events import AudibleEvent
-from grail2.test.helper import SetupHelper
+from grailmud.actiondefs.system import BadSyntaxEvent
+from grailmud.objects import MUDObject
+from grailmud.events import AudibleEvent
+from grailmud.test.helper import SetupHelper
 
 def test_registration():
     d = {}

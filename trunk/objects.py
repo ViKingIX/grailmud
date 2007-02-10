@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-from grail2.strutils import head_word_split
-from grail2.rooms import Room
-from grail2.multimethod import Multimethod
-from grail2.events import BaseEvent
-from grail2.utils import BothAtOnce
+from grailmud.strutils import head_word_split
+from grailmud.rooms import Room
+from grailmud.multimethod import Multimethod
+from grailmud.events import BaseEvent
+from grailmud.utils import BothAtOnce
 
 #TODO: some sort of way to tell the classes not to pickle certain attributes.
 #XXX: need some sort of implementation for stateless, groupable objects.

@@ -17,9 +17,9 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.events import SystemEvent
-from grail2.utils import promptcolour
-from grail2.strutils import wsnormalise
+from grailmud.events import SystemEvent
+from grailmud.utils import promptcolour
+from grailmud.strutils import wsnormalise
 
 class HelpEvent(SystemEvent):
 
@@ -59,7 +59,7 @@ def get_helpfiles():
     definitions near the helpfiles.
     '''
     #no, this is not anti-namespace pollution, this is breaking an import cycle
-    from grail2.actions import modules
+    from grailmud.actions import modules
     for module in modules:
         if hasattr(module, 'help_register'):
             module.help_register(hdict)

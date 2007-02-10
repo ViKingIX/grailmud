@@ -17,7 +17,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.morelimiter import MoreLimiter
+from grailmud.morelimiter import MoreLimiter
 from StringIO import StringIO
 
 def test_basic_more():

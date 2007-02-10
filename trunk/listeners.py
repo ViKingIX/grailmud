@@ -18,9 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-from grail2.morelimiter import MoreLimiter
-from grail2.actiondefs.more import displayMore
-from grail2.objects import definein, Player
+from grailmud.morelimiter import MoreLimiter
+from grailmud.actiondefs.more import displayMore
+from grailmud.objects import definein, Player
 
 class Listener(object):
     '''Base class for listeners.'''

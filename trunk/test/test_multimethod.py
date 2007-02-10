@@ -17,7 +17,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.multimethod import Multimethod, Signature
+from grailmud.multimethod import Multimethod, Signature
 
 class Foo(object):
     pass

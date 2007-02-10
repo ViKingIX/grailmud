@@ -18,15 +18,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from grail2.actiondefs.core import object_pattern, distributeEvent, \
+from grailmud.actiondefs.core import object_pattern, distributeEvent, \
                                    get_from_rooms
-from grail2.events import AudibleEvent
-from grail2.actiondefs.system import unfoundObject, badSyntax
-from grail2.rooms import UnfoundError
-from grail2.strutils import capitalise, printables
-from grail2.objects import MUDObject, TargettableObject
-from grail2.utils import promptcolour
-from grail2.multimethod import Multimethod
+from grailmud.events import AudibleEvent
+from grailmud.actiondefs.system import unfoundObject, badSyntax
+from grailmud.rooms import UnfoundError
+from grailmud.strutils import capitalise, printables
+from grailmud.objects import MUDObject, TargettableObject
+from grailmud.utils import promptcolour
+from grailmud.multimethod import Multimethod
 
 class SpeakNormalFirstEvent(AudibleEvent):
 

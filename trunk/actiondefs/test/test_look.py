@@ -17,13 +17,13 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
+from grailmud.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
                                    lookAt, lookRoom, register
-from grail2.test.helper import SetupHelper
-from grail2.objects import TargettableObject, ExitObject, NamedObject, \
+from grailmud.test.helper import SetupHelper
+from grailmud.objects import TargettableObject, ExitObject, NamedObject, \
                            MUDObject
-from grail2.rooms import Room
-from grail2.actiondefs.system import UnfoundObjectEvent
+from grailmud.rooms import Room
+from grailmud.actiondefs.system import UnfoundObjectEvent
 
 def test_registration():
     d = {}

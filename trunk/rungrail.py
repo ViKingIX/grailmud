@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from durus.file_storage import FileStorage
 from durus.connection import Connection
-from grail2.server import ConnectionFactory
+from grailmud.server import ConnectionFactory
 from twisted.internet import reactor
 import sys
 import logging

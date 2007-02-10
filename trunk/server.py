@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-import grail2
+import grailmud
 from twisted.internet.protocol import Factory
-from grail2.telnet import LoggerIn
-from grail2.rooms import Room
-from grail2.objects import MUDObject, TargettableObject
+from grailmud.telnet import LoggerIn
+from grailmud.rooms import Room
+from grailmud.objects import MUDObject, TargettableObject
 
 class ConnectionFactory(Factory):
     """The actual server factory."""
@@ -32,7 +32,7 @@ class ConnectionFactory(Factory):
     protocol = LoggerIn
 
     def __init__(self, objstorethunk):
-        grail2.instance._bind(self)
+        grailmud.instance._bind(self)
         self.objstore = objstorethunk()
         self.root = self.objstore.get_root()
         Room.prefab_instances(self.root['all_rooms'])

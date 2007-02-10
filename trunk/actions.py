@@ -37,7 +37,7 @@ for filename in os.listdir(actiondefpath):
     if module or package:
         modulenames.append(filename)
 
-modules = [getattr(__import__('grail2.actiondefs', fromlist = modulenames),
+modules = [getattr(__import__('grailmud.actiondefs', fromlist = modulenames),
                    name)
            for name in modulenames]
 

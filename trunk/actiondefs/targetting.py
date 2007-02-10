@@ -18,13 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from grail2.events import BaseEvent
-from grail2.objects import MUDObject, definein
-from grail2.utils import promptcolour
-from grail2.rooms import UnfoundError
-from grail2.actiondefs.core import object_pattern, shorttarget_pattern, \
+from grailmud.events import BaseEvent
+from grailmud.objects import MUDObject, definein
+from grailmud.utils import promptcolour
+from grailmud.rooms import UnfoundError
+from grailmud.actiondefs.core import object_pattern, shorttarget_pattern, \
                                    get_from_rooms
-from grail2.actiondefs.system import permissionDenied, badSyntax, unfoundObject
+from grailmud.actiondefs.system import permissionDenied, badSyntax, unfoundObject
 
 @definein(MUDObject._instance_variable_factories)
 def targetting_shorts():

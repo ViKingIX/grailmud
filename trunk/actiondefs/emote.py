@@ -23,13 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from pyparsing import *
 from string import printable
-from grail2.events import GameEvent
-from grail2.rooms import UnfoundError
-from grail2.utils import promptcolour, smartdict
-from grail2.strutils import wsnormalise
-from grail2.actiondefs.core import object_pattern, get_from_rooms, \
+from grailmud.events import GameEvent
+from grailmud.rooms import UnfoundError
+from grailmud.utils import promptcolour, smartdict
+from grailmud.strutils import wsnormalise
+from grailmud.actiondefs.core import object_pattern, get_from_rooms, \
                                    distributeEvent
-from grail2.actiondefs.system import badSyntax, unfoundObject
+from grailmud.actiondefs.system import badSyntax, unfoundObject
 
 class EmoteUntargettedFirst(GameEvent):
 

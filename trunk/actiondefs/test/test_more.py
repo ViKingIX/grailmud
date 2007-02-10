@@ -17,11 +17,11 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.objects import MUDObject
-from grail2.test.helper import SetupHelper
-from grail2.actiondefs.more import displayMore, MoreEvent, NoMoreEvent, register
-from grail2.morelimiter import MoreLimiter
-from grail2.events import BaseEvent
+from grailmud.objects import MUDObject
+from grailmud.test.helper import SetupHelper
+from grailmud.actiondefs.more import displayMore, MoreEvent, NoMoreEvent, register
+from grailmud.morelimiter import MoreLimiter
+from grailmud.events import BaseEvent
 
 def test_registration():
     d = {}

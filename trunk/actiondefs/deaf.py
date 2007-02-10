@@ -18,10 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from grail2.events import AudibleEvent, GameEvent
-from grail2.objects import MUDObject, definein
-from grail2.actiondefs.system import badSyntax
-from grail2.utils import promptcolour
+from grailmud.events import AudibleEvent, GameEvent
+from grailmud.objects import MUDObject, definein
+from grailmud.actiondefs.system import badSyntax
+from grailmud.utils import promptcolour
 
 class DeafnessOnEvent(GameEvent):
 

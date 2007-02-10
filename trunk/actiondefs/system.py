@@ -18,10 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-from grail2.actiondefs.core import distributeEvent
-from grail2.strutils import capitalise
-from grail2.events import SystemEvent, GameEvent
-from grail2.utils import promptcolour
+from grailmud.actiondefs.core import distributeEvent
+from grailmud.strutils import capitalise
+from grailmud.events import SystemEvent, GameEvent
+from grailmud.utils import promptcolour
 
 class UnfoundObjectEvent(GameEvent):
 

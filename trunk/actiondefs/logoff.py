@@ -18,9 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-from grail2.events import SystemEvent
-from grail2.utils import promptcolour
-from grail2.strutils import capitalise
+from grailmud.events import SystemEvent
+from grailmud.utils import promptcolour
+from grailmud.strutils import capitalise
 
 class LogoffFirstEvent(SystemEvent):
 

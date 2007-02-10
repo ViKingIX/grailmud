@@ -19,7 +19,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-import grail2
+import grailmud
 import logging
 from twisted.internet.task import LoopingCall
 import cgitb
@@ -70,7 +70,7 @@ class Ticker(object):
                 logging.error(cgitb.text(sys.exc_info()))
                 #hm. we -could- reraise here, but I don't think it's the Right
                 #Thing to do.
-        grail2.instance.objstore.commit()
+        grailmud.instance.objstore.commit()
 
     def __getstate__(self):
         return {'doing': self.doing, 'freq': self.freq}
@@ -87,5 +87,5 @@ def doafter(time, cmd):
     """A handy shortcut for doing stuff after a certain amount of time. The
     first parameter is in seconds.
     """
-    ticks = time / grail2.instance.ticker.freq
-    grail2.instance.ticker.add_command(WaitingForTick(ticks, cmd))
+    ticks = time / grailmud.instance.ticker.freq
+    grailmud.instance.ticker.add_command(WaitingForTick(ticks, cmd))

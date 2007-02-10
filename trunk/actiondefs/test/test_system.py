@@ -17,11 +17,11 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.actiondefs.system import UnfoundObjectEvent, PermissionDeniedEvent,\
+from grailmud.actiondefs.system import UnfoundObjectEvent, PermissionDeniedEvent,\
                                      BadSyntaxEvent, BlankLineEvent, blankLine,\
                                      permissionDenied, badSyntax, \
                                      unfoundObject, register
-from grail2.test.helper import SetupHelper
+from grailmud.test.helper import SetupHelper
 
 def test_registration():
     d = {}

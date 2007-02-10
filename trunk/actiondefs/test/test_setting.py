@@ -17,11 +17,11 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.test.helper import SetupHelper
-from grail2.actiondefs.setting import LDescSetEvent, setDistribute, setLDesc, \
+from grailmud.test.helper import SetupHelper
+from grailmud.actiondefs.setting import LDescSetEvent, setDistribute, setLDesc, \
                                       register, syntax_message
-from grail2.objects import TargettableObject
-from grail2.actiondefs.system import BadSyntaxEvent
+from grailmud.objects import TargettableObject
+from grailmud.actiondefs.system import BadSyntaxEvent
 
 def test_registration():
     cdict = {}

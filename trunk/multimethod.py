@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 import bisect
 from functional import partial, flip
-from grail2.orderedset import OrderedSet
+from grailmud.orderedset import OrderedSet
 
 class Not(object):
     '''A type's complement.'''

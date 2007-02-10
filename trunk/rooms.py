@@ -19,8 +19,8 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.orderedset import OrderedSet
-from grail2.utils import InstanceTracker
+from grailmud.orderedset import OrderedSet
+from grailmud.utils import InstanceTracker
 
 class UnfoundError(Exception):
     """The object wasn't found."""

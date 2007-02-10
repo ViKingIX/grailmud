@@ -17,9 +17,9 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.ticks import Ticker
+from grailmud.ticks import Ticker
 import pickle
-import grail2
+import grailmud
 
 def test_ticker_freq_setting():
     interval = 0.5
@@ -72,4 +72,4 @@ class MockInstance(object):
     def __init__(self):
         self.objstore = MockObjStore()
 
-grail2.instance._bind(MockInstance())
+grailmud.instance._bind(MockInstance())

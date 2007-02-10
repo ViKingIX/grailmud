@@ -18,12 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from grail2.events import BaseEvent
-from grail2.utils import promptcolour
-from grail2.objects import TargettableObject, definein
-from grail2.actiondefs.system import badSyntax
+from grailmud.events import BaseEvent
+from grailmud.utils import promptcolour
+from grailmud.objects import TargettableObject, definein
+from grailmud.actiondefs.system import badSyntax
 from string import whitespace
-from grail2.strutils import wsnormalise
+from grailmud.strutils import wsnormalise
 
 class LDescSetEvent(BaseEvent):
 
