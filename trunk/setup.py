@@ -28,7 +28,8 @@ setup(name = "grailmud",
       package_data = {'grailmud.actiondefs': ['emotefile.txt'],
                       'grailmud': ['LICENSE', 'pylintrc']},
 
-      install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
+      install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5',
+                          'functional'],
 
       author = "Sam Pointon",
       author_email = "free.condiments@gmail.com",

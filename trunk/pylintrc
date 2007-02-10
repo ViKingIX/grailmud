@@ -241,7 +241,7 @@ max-public-methods=40
 [IMPORTS]
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
 # Create a graph of every (i.e. internal and external) dependencies in the
 # given file (report R0402 must not be disabled)
@@ -253,7 +253,7 @@ ext-import-graph=
 
 # Create a graph of internal dependencies in the given file (report R0402 must
 # not be disabled)
-int-import-graph=
+int-import-graph=pylintintimports
 
 
 # checks for :
@@ -265,7 +265,7 @@ int-import-graph=
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=79
 
 # Maximum number of lines in a module
 max-module-lines=1000
@@ -292,10 +292,10 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Minimum lines number of a similarity.
-min-similarity-lines=10
+#min-similarity-lines=10
 
 # Ignore comments when computing similarities.
-ignore-comments=yes
+#ignore-comments=yes
 
 # Ignore docstrings when computing similarities.
-ignore-docstrings=yes
+#ignore-docstrings=yes
