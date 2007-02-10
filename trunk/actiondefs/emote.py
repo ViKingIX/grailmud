@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """Emotes/ At present, only user-customised, but eventually I'll get round to
 writing some prefab ones.
 """
@@ -27,7 +29,7 @@ from grailmud.events import GameEvent
 from grailmud.rooms import UnfoundError
 from grailmud.utils import promptcolour, smartdict
 from grailmud.strutils import wsnormalise
-from grailmud.actiondefs.core import object_pattern, get_from_rooms, \
+from .core import object_pattern, get_from_rooms, \
                                    distributeEvent
 from grailmud.actiondefs.system import badSyntax, unfoundObject
 

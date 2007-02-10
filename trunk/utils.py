@@ -58,7 +58,6 @@ class InstanceTrackingMetaclass(type):
         cls._instances = instances
 
     def __call__(cls, *args, **kwargs):
-        print args, kwargs
         obj = super(InstanceTrackingMetaclass, cls).__call__(*args, **kwargs)
         InstanceTracker._producing_instances = True
         return obj

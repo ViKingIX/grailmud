@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -21,7 +23,7 @@ from pyparsing import *
 from grailmud.events import BaseEvent
 from grailmud.utils import promptcolour
 from grailmud.objects import TargettableObject, definein
-from grailmud.actiondefs.system import badSyntax
+from .system import badSyntax
 from string import whitespace
 from grailmud.strutils import wsnormalise
 

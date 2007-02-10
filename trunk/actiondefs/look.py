@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -18,11 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from grailmud.actiondefs.core import object_pattern, get_from_rooms, \
+from .core import object_pattern, get_from_rooms, \
                                    distributeEvent
 from grailmud.events import VisibleEvent
 from grailmud.rooms import UnfoundError
-from grailmud.actiondefs.system import unfoundObject
+from .system import unfoundObject
 from grailmud.objects import Player, TargettableObject, ExitObject, MUDObject
 from grailmud.strutils import capitalise
 from grailmud.utils import promptcolour

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -22,9 +24,9 @@ from grailmud.events import BaseEvent
 from grailmud.objects import MUDObject, definein
 from grailmud.utils import promptcolour
 from grailmud.rooms import UnfoundError
-from grailmud.actiondefs.core import object_pattern, shorttarget_pattern, \
+from .core import object_pattern, shorttarget_pattern, \
                                    get_from_rooms
-from grailmud.actiondefs.system import permissionDenied, badSyntax, unfoundObject
+from .system import permissionDenied, badSyntax, unfoundObject
 
 @definein(MUDObject._instance_variable_factories)
 def targetting_shorts():

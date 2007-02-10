@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -18,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
-from grailmud.actiondefs.core import distributeEvent
+from .core import distributeEvent
 from grailmud.strutils import capitalise
 from grailmud.events import SystemEvent, GameEvent
 from grailmud.utils import promptcolour

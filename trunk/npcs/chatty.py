@@ -1,6 +1,8 @@
 """This class contains my very first NPC. It chats back!
 """
 
+from __future__ import absolute_import
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -22,12 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from grailmud.multimethod import Multimethod
 from grailmud.events import BaseEvent
-from grailmud.actiondefs.system import UnfoundObjectEvent
-from grailmud.actiondefs.emote import yanked_emotes, emote
-from grailmud.actiondefs.says import SpeakToSecondEvent, speakTo
+from ..actiondefs.system import UnfoundObjectEvent
+from ..actiondefs.emote import yanked_emotes, emote
+from ..actiondefs.says import SpeakToSecondEvent, speakTo
 from grailmud.objects import MUDObject
 from grailmud.listeners import Listener
-from grailmud.npcs.elizaimpl import Therapist
+from .elizaimpl import Therapist
 
 class ChattyListener(Listener):
     """An NPC that psychoanalyses you.
