@@ -35,8 +35,8 @@ class ConnectionFactory(Factory):
         grail2.instance._bind(self)
         self.objstore = objstorethunk()
         self.root = self.objstore.get_root()
-        Room._instances = self.root['all_rooms']
-        MUDObject._instances = self.root['all_objects']
+        Room.prefab_instances(self.root['all_rooms'])
+        MUDObject.prefab_instances(self.root['all_objects'])
         TargettableObject._name_registry = \
                                        self.root['targettable_objects_by_name']
     

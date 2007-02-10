@@ -86,17 +86,17 @@ class MUDObject(BothAtOnce):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        state = super(MUDObject, self).__getstate__(self)
+        #ugh. bloody super.
+        try:
+            call = super(MUDObject, self).__getstate__
+        except AttributeError:
+            state = self.__dict__.copy()
+        else:
+            state = call(self)
         state['listeners'] = listeners
         return state
 
     receiveEvent = Multimethod()
-
-    def __hash__(self):
-        return id(self)
-
-    def __eq__(self, other):
-        return self is other
 
 @MUDObject.receiveEvent.register(MUDObject, BaseEvent)
 def receiveEvent(self, event):

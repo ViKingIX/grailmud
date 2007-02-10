@@ -20,8 +20,6 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grail2.orderedset import OSet
-
 def promptcolour(colourname = 'normal', chunk = False):
     def fngrabber(func):
         def doer_of_stuff(self, state, obj):
@@ -44,7 +42,8 @@ class InstanceTrackingMetaclass(type):
     '''
 
     def __init__(cls, name, bases, dictionary):
-        cls._instances = OSet()
+        cls._instances = {}
+        cls._curnum = 0
         super(InstanceTrackingMetaclass,
               cls).__init__(name, bases, dictionary)
 
@@ -53,30 +52,52 @@ class InstanceTrackingMetaclass(type):
         res.add_to_instances()
         return res
 
+    def prefab_instances(cls, instances):
+        #XXX: some way to push down to subclasses?
+        cls._curnum = max(instances) + 1
+        cls._instances = instances
+
 class InstanceTracker(object):
     '''A type that keeps track of its instances.'''
 
     __metaclass__ = InstanceTrackingMetaclass
 
     def add_to_instances(self):
-        #there used to be a small buglet here: objects were being put into
-        #_instances repeatedly. using an ordered set fixed this.
-        for cls in self.get_suitable_classes():
-            cls._instances.append(self)
+        num = 0
+        classes = list(self.get_suitable_classes())
+        for cls in classes:
+            #first, get our number: we can't poach numbers from subclasses or
+            #sibling classes, though.
+            num = max(num, cls._curnum)
+        self._number = num
+        print self._number
+        num = num + 1
+        for cls in classes:
+            cls._instances[num] = self
+            cls._curnum = num
 
     def remove_from_instances(self):
         for cls in self.get_suitable_classes():
-            cls._instances.remove(self)
+            if self._number in cls._instances:
+                del cls._instances[self._number]
 
     def get_suitable_classes(self):
         for cls in type(self).__mro__:
-            if '_instances' in cls.__dict__:
+            if '_instances' in cls.__dict__ and '_curnum' in cls.__dict__:
                 yield cls
 
     def __setstate__(self, state):
-        if self not in self._instances:
+        if not hasattr(self, "_number") or \
+           self._number not in self._instances:
             self.add_to_instances()
         self.__dict__.update(state)
+
+    #the number faffing around ensures that we survive pickles.
+    def __hash__(self):
+        return self._number
+
+    def __eq__(self, other):
+        return self._number == other._number
 
 class InstanceVariableFactoryMetaclass(type):
 
