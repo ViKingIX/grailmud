@@ -25,6 +25,8 @@ setup(name = "grailmud",
       package_dir = {'grailmud' : os.curdir},
       packages = ["grailmud", 'grailmud.actiondefs', 'grailmud.npcs',
                   'grailmud.test', 'grailmud.actiondefs.test'],
+      package_data = {'grailmud.actiondefs': ['emotefile.txt'],
+                      'grailmud': ['LICENSE', 'pylintrc']},
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
 
