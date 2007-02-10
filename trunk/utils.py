@@ -93,10 +93,14 @@ class InstanceTracker(object):
 
     #the number faffing around ensures that we survive pickles.
     def __hash__(self):
-        return self._number
+        if hasattr(self, '_number'):
+            return self._number
+        return -1
 
     def __eq__(self, other):
-        return self._number == other._number
+        if hasattr(self, '_number'):
+            return self._number == other._number
+        return self is other
 
 class InstanceVariableFactoryMetaclass(type):
 
