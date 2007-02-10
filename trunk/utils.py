@@ -44,11 +44,17 @@ class InstanceTrackingMetaclass(type):
     def __init__(cls, name, bases, dictionary):
         cls._instances = {}
         cls._curnum = 0
+        cls._producing_instances = False
         super(InstanceTrackingMetaclass,
               cls).__init__(name, bases, dictionary)
 
     def prefab_instances(cls, instances):
         #XXX: some way to push down to subclasses?
+        #OK, we need to make this check here, otherwise there'll be corruption
+        #as new instances are assigned old numbers.
+        if cls._producing_instances:
+            raise ValueError("Don't do this while classes are producing "
+                             "instances.")
         cls._curnum = max(instances) + 1
         cls._instances = instances
 
@@ -59,7 +65,8 @@ class InstanceTracker(object):
 
     @classmethod
     def __new__(cls, *args, **kwargs):
-        obj = object.__new__(cls, *args, **kwargs)
+        cls._producing_instances = True
+        obj = object.__new__(cls)
         obj.add_to_instances()
         return obj
 

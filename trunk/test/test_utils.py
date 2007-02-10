@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from grail2.utils import InstanceTracker, InstanceVariableFactoryObject
+import pickle
 
 class FooClass(InstanceTracker):
     pass
@@ -105,3 +106,9 @@ def test_non_equality():
 def test_equality():
     obj = FooClass()
     assert obj == obj
+
+def test_surviving_pickling():
+    obj = FooClass()
+    objdump = pickle.dumps(obj)
+    FooClass()
+    assert pickle.loads(objdump) == obj
