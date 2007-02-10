@@ -4,7 +4,7 @@ setup(name = "grailmud",
       version = "0.1a0",
       packages = find_packages(),
 
-      install_requires = ['durus>=3.6', 'pyparsing'],
+      install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5'],
 
       author = "Sam Pointon",
       author_email = "free.condiments@gmail.com",
