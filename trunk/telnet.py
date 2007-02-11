@@ -305,6 +305,8 @@ class AvatarHandler(ConnectionHandler):
         self.connection_state.eventListenFlush(self.avatar)
         self.setcallback(self.handle_line)
 
+    @strconstrained(blanksallowed = True,
+                    corrector = safetise)
     def handle_line(self, line):
         logging.debug('%r received, handling in avatar.' % line)
         try:
