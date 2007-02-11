@@ -20,14 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from pyparsing import *
-from .core import object_pattern, get_from_rooms, \
-                                   distributeEvent
+from .core import object_pattern
 from grailmud.events import VisibleEvent
 from grailmud.rooms import UnfoundError
 from .system import unfoundObject
 from grailmud.objects import Player, TargettableObject, ExitObject, MUDObject
 from grailmud.strutils import capitalise
-from grailmud.utils import promptcolour
+from grailmud.utils import promptcolour, get_from_rooms, distributeEvent
 from grailmud.multimethod import Multimethod
 
 class LookAtEvent(VisibleEvent):

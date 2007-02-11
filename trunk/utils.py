@@ -20,6 +20,8 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
+import logging
+
 def promptcolour(colourname = 'normal', chunk = False):
     def fngrabber(func):
         def doer_of_stuff(self, state, obj):
@@ -30,7 +32,35 @@ def promptcolour(colourname = 'normal', chunk = False):
             func(self, state, obj)
         return doer_of_stuff
     return fngrabber
-    
+
+def distributeEvent(room, nodis, event):
+    logging.debug('Distributing event %s' % event)
+    for obj in room.contents:
+        if obj not in nodis:
+            obj.receiveEvent(event)
+
+def adjs_num_parse((adjs, number), info):
+    adjs = frozenset(x.lower() for x in adjs)
+    number = int(number) if number else 0
+    return adjs, number
+
+def get_from_rooms(blob, rooms, info):
+    if len(blob) == 2:
+        adjs, num = adjs_num_parse(blob)
+        for room in rooms:
+            return room.matchContent(adjs, num)
+        raise UnfoundError
+    elif len(blob) == 1:
+        try:
+            obj = info.instigator.targetting_shorts[blob[0]]
+        except KeyError:
+            raise UnfoundError
+        for room in rooms:
+            if obj in room:
+                return obj
+        raise UnfoundError
+    raise RuntimeError("Shouldn't get here.")
+
 class smartdict(dict):
     def __getitem__(self, item):
         #convert to dict to prevent infinite recursion

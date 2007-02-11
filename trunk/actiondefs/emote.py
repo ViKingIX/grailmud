@@ -27,10 +27,10 @@ from pyparsing import *
 from string import printable
 from grailmud.events import GameEvent
 from grailmud.rooms import UnfoundError
-from grailmud.utils import promptcolour, smartdict
+from grailmud.utils import promptcolour, smartdict, get_from_rooms, \
+                           distributeEvent
 from grailmud.strutils import wsnormalise
-from .core import object_pattern, get_from_rooms, \
-                                   distributeEvent
+from .core import object_pattern
 from grailmud.actiondefs.system import badSyntax, unfoundObject
 
 class EmoteUntargettedFirst(GameEvent):

@@ -29,7 +29,7 @@ setup(name = "grailmud",
                       'grailmud': ['LICENSE', 'pylintrc']},
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5',
-                          'functional'],
+                          'functional', 'setuptools'],
 
       author = "Sam Pointon",
       author_email = "free.condiments@gmail.com",

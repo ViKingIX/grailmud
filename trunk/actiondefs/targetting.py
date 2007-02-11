@@ -22,10 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 from pyparsing import *
 from grailmud.events import BaseEvent
 from grailmud.objects import MUDObject, definein
-from grailmud.utils import promptcolour
+from grailmud.utils import promptcolour, get_from_rooms
 from grailmud.rooms import UnfoundError
-from .core import object_pattern, shorttarget_pattern, \
-                                   get_from_rooms
+from .core import object_pattern, shorttarget_pattern
 from .system import permissionDenied, badSyntax, unfoundObject
 
 @definein(MUDObject._instance_variable_factories)
