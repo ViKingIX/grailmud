@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 import logging
 from functional import compose
-from hashlib import sha
+from hashlib import sha512 as sha
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
 from grailmud.objects import Player, BadPassword, TargettableObject
