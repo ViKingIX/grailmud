@@ -56,6 +56,9 @@ def get_from_rooms(blob, rooms, info):
     """
     #circular import breaking.
     from grailmud.rooms import UnfoundError
+
+    #XXX: some way of preserving state, so we can look at objects in more
+    #detail but go on through them if the found one is not acceptable.
     if len(blob) == 2:
         adjs, num = adjs_num_parse(blob)
         for room in rooms:
