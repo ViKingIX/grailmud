@@ -100,8 +100,9 @@ class InstanceTrackingMetaclass(type):
     def prefab_instances(cls, instances):
         """Insert a prefabricated list of instances into our instances list.
         """
-        #XXX: some way to push down to subclasses?
-        cls._instances = instances
+        #upon consideration, this must be a no-op, because all the instances
+        #will already be in the instances list thanks to the unpickling.
+        pass
 
     def __call__(cls, *args, **kwargs):
         obj = super(InstanceTrackingMetaclass, cls).__call__(*args, **kwargs)
