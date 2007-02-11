@@ -50,6 +50,8 @@ def capitalise(s):
 _hwspattern = (Word(punctuation) + Optional(Word(alnumspace))) ^ \
               (Optional(Word(nwprintable)) + Optional(Word(printable)))
 
+#XXX: tabs. watch it blow up!
+
 def head_word_split(string):
     """Split off the first word or group of non-whitespace punctuation."""
     res = _hwspattern.parseString(string)
@@ -58,8 +60,8 @@ def head_word_split(string):
     elif len(res) == 1:
         return (res[0], '')
     else:
-        return res
+        return tuple(res)
 
 def wsnormalise(string):
     """Normalise the whitespace to just one space per blob of it."""
-    return ' '.join(s for s in string.split(' ') if s)
+    return ' '.join(s for s in string.split() if s)
