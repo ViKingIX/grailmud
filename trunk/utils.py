@@ -161,9 +161,9 @@ class InstanceTracker(object):
     def __getstate__(self):
         return TrueDict(self.__dict__)
 
-    #the number faffing around ensures that we survive pickles.
-    #we need to not die when we've not been properly initialised, too: that's
-    #hopefully now not a problem thanks to __new__.
+    #note that these will not survive pickling and comparisons against their
+    #old values. However, there is a mechanism above to make sure that all
+    #loading of pickles is done before new instance creation.
     def __hash__(self):
         return id(self)
 
