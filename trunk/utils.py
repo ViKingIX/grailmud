@@ -118,6 +118,10 @@ class InstanceTrackingMetaclass(type):
 
 class InstanceTracker(object):
     '''A type that keeps track of its instances.'''
+    #XXX: a lot of this number tracking stuff is wrong; it's a convoluted
+    #effort to preserve comparing by identity over pickles. What possibly
+    #should be done is, instead of having a dodgy system like this, is to just
+    #say the entire system should be pickled and unpickled at once.
 
     __metaclass__ = InstanceTrackingMetaclass
 
