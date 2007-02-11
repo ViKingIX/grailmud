@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # pylint: disable-msg= E1101
 #pylint doesn't know about our metaclass hackery
 
@@ -23,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 import logging
 
 def promptcolour(colourname = 'normal', chunk = False):
+    """Eliminate some boilerplace for event text collapsers."""
     def fngrabber(func):
         def doer_of_stuff(self, state, obj):
             state.forcePrompt()
@@ -34,6 +36,9 @@ def promptcolour(colourname = 'normal', chunk = False):
     return fngrabber
 
 def distributeEvent(room, nodis, event):
+    """Send an event to every object in the room unless they are on the 'nodis'
+    list.
+    """
     logging.debug('Distributing event %s' % event)
     for obj in room.contents:
         if obj not in nodis:
@@ -45,11 +50,17 @@ def adjs_num_parse((adjs, number), info):
     return adjs, number
 
 def get_from_rooms(blob, rooms, info):
+    """Given the result of parsing an object_pattern (see actiondefs/core.py),
+    this function can extract the object from a list of rooms, or raise an
+    UnfoundError.
+    """
+    #circular import breaking.
+    from grailmud.rooms import UnfoundError
     if len(blob) == 2:
         adjs, num = adjs_num_parse(blob)
         for room in rooms:
             return room.matchContent(adjs, num)
-        raise UnfoundError
+        raise UnfoundError()
     elif len(blob) == 1:
         try:
             obj = info.instigator.targetting_shorts[blob[0]]
@@ -58,10 +69,16 @@ def get_from_rooms(blob, rooms, info):
         for room in rooms:
             if obj in room:
                 return obj
-        raise UnfoundError
+        raise UnfoundError()
     raise RuntimeError("Shouldn't get here.")
 
 class smartdict(dict):
+    """A dictionary that provides a mechanism for embedding expressions in
+    format strings. Example:
+
+    >>> "%(foo.upper())s % smartdict(foo = "foo")
+    "FOO"
+    """
     def __getitem__(self, item):
         #convert to dict to prevent infinite recursion
         return eval(item, globals(), dict(self))
@@ -78,6 +95,10 @@ class InstanceTrackingMetaclass(type):
               cls).__init__(name, bases, dictionary)
 
     def prefab_instances(cls, instances):
+        """Insert a prefabricated list of instances into our instances list.
+
+        This should only be called before instances are created the normal way.
+        """
         #XXX: some way to push down to subclasses?
         #OK, we need to make this check here, otherwise there'll be corruption
         #as new instances are assigned old numbers.
@@ -106,6 +127,9 @@ class InstanceTracker(object):
         return obj
 
     def add_to_instances(self):
+        """Register the object with its base types' instance trackers, and
+        assign it the appropriate number.
+        """
         num = 0
         classes = list(self.get_suitable_classes())
         for cls in classes:
@@ -119,11 +143,17 @@ class InstanceTracker(object):
             cls._curnum = num
 
     def remove_from_instances(self):
+        """Remove the object from the instance trackers it has been registered
+        to.
+        """
         for cls in self.get_suitable_classes():
             if self._number in cls._instances:
                 del cls._instances[self._number]
 
     def get_suitable_classes(self):
+        """Return a generator that yields classes which keep track of
+        instances.
+        """
         for cls in type(self).__mro__:
             if '_instances' in cls.__dict__ and '_curnum' in cls.__dict__:
                 yield cls
