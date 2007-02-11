@@ -29,12 +29,12 @@ def _helper(constructor, cls = None):
     assert isinstance(constructor(), InstanceTracker)
     
     i = constructor()
-    assert i._number in cls._instances
+    assert i in cls._instances
     i2 = constructor()
-    assert i2._number in cls._instances
+    assert i2 in cls._instances
 
     i.remove_from_instances()
-    assert i._number not in cls._instances
+    assert i not in cls._instances
 
 def test_basics_no_subclassing():
     _helper(FooClass)
@@ -91,15 +91,6 @@ def test_inherited():
     print FooFactorySubclass().qux
     assert FooFactorySubclass().qux == 'right'
 
-def test_has_curnum_attribute():
-    assert '_curnum' in FooClass.__dict__
-
-def test_number_incrementing():
-    num = FooClass._curnum
-    FooClass()
-    print num + 1, FooClass._curnum
-    assert num + 1 == FooClass._curnum
-
 def test_non_equality():
     assert FooClass() != FooClass()
 
@@ -107,8 +98,14 @@ def test_equality():
     obj = FooClass()
     assert obj == obj
 
-def test_surviving_pickling():
+def test_pickling_throwing_error():
     obj = FooClass()
     objdump = pickle.dumps(obj)
     FooClass()
-    assert pickle.loads(objdump) == obj
+    print FooClass.__setstate__
+    try:
+        newobj = pickle.loads(objdump)
+    except RuntimeError:
+        pass
+    else:
+        assert newobj is obj

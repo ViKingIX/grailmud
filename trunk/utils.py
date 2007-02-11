@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 import logging
+from grailmud.orderedset import OSet
 
 def promptcolour(colourname = 'normal', chunk = False):
     """Eliminate some boilerplace for event text collapsers."""
@@ -92,40 +93,33 @@ class InstanceTrackingMetaclass(type):
     '''
 
     def __init__(cls, name, bases, dictionary):
-        cls._instances = {}
-        cls._curnum = 0
+        cls._instances = OSet()
         super(InstanceTrackingMetaclass,
               cls).__init__(name, bases, dictionary)
 
     def prefab_instances(cls, instances):
         """Insert a prefabricated list of instances into our instances list.
-
-        This should only be called before instances are created the normal way.
         """
         #XXX: some way to push down to subclasses?
-        #OK, we need to make this check here, otherwise there'll be corruption
-        #as new instances are assigned old numbers.
-        if InstanceTracker._producing_instances:
-            raise ValueError("Don't do this while classes are producing "
-                             "instances.")
-        cls._curnum = max(instances) + 1
         cls._instances = instances
 
     def __call__(cls, *args, **kwargs):
         obj = super(InstanceTrackingMetaclass, cls).__call__(*args, **kwargs)
-        InstanceTracker._producing_instances = True
+        InstanceTracker._creating_instances = True
         return obj
+
+class TrueDict(dict):
+
+    def __nonzero__(self):
+        #hack to make sure __setstate__ is always called.
+        return True
 
 class InstanceTracker(object):
     '''A type that keeps track of its instances.'''
-    #XXX: a lot of this number tracking stuff is wrong; it's a convoluted
-    #effort to preserve comparing by identity over pickles. What possibly
-    #should be done is, instead of having a dodgy system like this, is to just
-    #say the entire system should be pickled and unpickled at once.
 
     __metaclass__ = InstanceTrackingMetaclass
 
-    _producing_instances = False
+    _creating_instances = False
 
     @classmethod
     def __new__(cls, *args, **kwargs):
@@ -137,48 +131,44 @@ class InstanceTracker(object):
         """Register the object with its base types' instance trackers, and
         assign it the appropriate number.
         """
-        num = 0
         classes = list(self.get_suitable_classes())
         for cls in classes:
-            #first, get our number: we can't poach numbers from subclasses or
-            #sibling classes, though.
-            num = max(num, cls._curnum)
-        self._number = num
-        num = num + 1
-        for cls in classes:
-            cls._instances[num] = self
-            cls._curnum = num
+            cls._instances.append(self)
 
     def remove_from_instances(self):
         """Remove the object from the instance trackers it has been registered
         to.
         """
         for cls in self.get_suitable_classes():
-            if self._number in cls._instances:
-                del cls._instances[self._number]
+            if self in cls._instances:
+                cls._instances.remove(self)
 
     def get_suitable_classes(self):
         """Return a generator that yields classes which keep track of
         instances.
         """
         for cls in type(self).__mro__:
-            if '_instances' in cls.__dict__ and '_curnum' in cls.__dict__:
+            if '_instances' in cls.__dict__:
                 yield cls
 
     def __setstate__(self, state):
-        if not hasattr(self, "_number") or \
-           self._number not in self._instances:
-            self.add_to_instances()
+        if InstanceTracker._creating_instances:
+            self.remove_from_instances()
+            raise RuntimeError("Don't unpickle stuff after the class has begun"
+                               " normal construction.")
         self.__dict__.update(state)
+
+    def __getstate__(self):
+        return TrueDict(self.__dict__)
 
     #the number faffing around ensures that we survive pickles.
     #we need to not die when we've not been properly initialised, too: that's
     #hopefully now not a problem thanks to __new__.
     def __hash__(self):
-        return self._number
+        return id(self)
 
     def __eq__(self, other):
-        return self._number == other._number
+        return self is other
 
 class InstanceVariableFactoryMetaclass(type):
 

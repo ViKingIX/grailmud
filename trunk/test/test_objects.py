@@ -91,12 +91,3 @@ class TesterForListening(object):
             pass
         else:
             assert False
-
-class PicklingTestHelper(object):
-    def test_pickling(self):
-        assert pickle.loads(pickle.dumps(self.obj)) == self.obj
-
-class TestMUDObjectPickling(PicklingTestHelper):
-
-    def setUp(self):
-        self.obj = MUDObject(None)

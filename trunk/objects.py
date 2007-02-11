@@ -86,13 +86,7 @@ class MUDObject(BothAtOnce):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        #ugh. bloody super.
-        try:
-            call = super(MUDObject, self).__getstate__
-        except AttributeError:
-            state = self.__dict__.copy()
-        else:
-            state = call(self)
+        state = super(MUDObject, self).__getstate__()
         state['listeners'] = listeners
         return state
 
