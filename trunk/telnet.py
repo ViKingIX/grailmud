@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 import logging
 from functional import compose
-from sha import sha
+from hashlib import sha
 from twisted.conch.telnet import Telnet
 from twisted.protocols.basic import LineOnlyReceiver
 from grailmud.objects import Player, BadPassword, TargettableObject
@@ -40,9 +40,6 @@ import grailmud
 #-this module could be split into two parts: the telnet protocol part, and the
 #handlers part.
 
-#XXX: there is a race condition here. Consider two different connections trying
-#to create a character with the same name at the same time. Ickiness.
-
 class LoggerIn(Telnet, LineOnlyReceiver):
     """A class that calls a specific method, depending on what the last method
     called returned.
@@ -57,6 +54,7 @@ class LoggerIn(Telnet, LineOnlyReceiver):
                                                    line)
         self.connection_state = None
         self.avatar = None
+        self.connection_lost_callback = lambda: None
 
     applicationDataReceived = LineOnlyReceiver.dataReceived
 
@@ -90,6 +88,7 @@ class LoggerIn(Telnet, LineOnlyReceiver):
         """Clean up and let the superclass handle it."""
         if self.avatar:
             logoffFinal(self.avatar)
+        self.connection_lost_callback()
         Telnet.connectionLost(self, reason)
         LineOnlyReceiver.connectionLost(self, reason)
 
@@ -177,6 +176,9 @@ class ChoiceHandler(ConnectionHandler):
 
 class CreationHandler(ConnectionHandler):
 
+    #stop race conditions
+    creating_right_now = set()
+
     def __init__(self, *args, **kwargs):
         self.name = None
         self.sdesc = None
@@ -192,12 +194,15 @@ class CreationHandler(ConnectionHandler):
         so we ask for the password.
         """
         name = name.lower()
-        if name in TargettableObject._name_registry:
+        if name in TargettableObject._name_registry or \
+           name in CreationHandler.creating_right_now:
             self.write("That name is taken. Please use another.")
         else:
             self.name = name
+            CreationHandler.creating_right_now.add(name)
             self.write("Please enter a password for this character.")
             self.setcallback(self.get_password)
+            self.telnet.connection_lost_callback = self.unlock_name
 
     def get_password(self, line):
         """We've been given the password. Hash it, then store the hash.
@@ -241,11 +246,20 @@ class CreationHandler(ConnectionHandler):
         self.adjs = set(word.lower() for word in line.split())
         avatar = Player(self.name, self.sdesc, self.adjs, get_actions(),
                         grailmud.instance.startroom, self.passhash)
+        self.unlock_name()
         AvatarHandler(self.telnet, avatar)
+
+    def unlock_name(self):
+        """Remove our lock on the name, either because it's been created or
+        because we lost the connection.
+        """
+        CreationHandler.creating_right_now.remove(self.name)
+        self.telnet.connection_lost_callback = lambda: None
 
 class LoginHandler(ConnectionHandler):
 
     def __init__(self, telnet):
+        #XXX: what happens if a character is logged in twice?
         self.name = None
         ConnectionHandler.__init__(self, telnet)
         self.write("What is your name?")
