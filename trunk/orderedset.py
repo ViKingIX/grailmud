@@ -1,5 +1,3 @@
-from sets import BaseSet
-
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -18,6 +16,9 @@ You should have received a copy of the GNU General Public License along with
 grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
+
+from sets import BaseSet
+from functional import flip
 
 _set_types = (set, frozenset, BaseSet)
 
@@ -41,6 +42,10 @@ class OrderedSet(list):
         self.extend(seq)
 
     _overwrite = list.__init__
+
+    def __contains__(self, item):
+        hash(item)
+        return list.__contains__(self, item)
 
     def __repr__(self):
         return '%s(%s)' % (type(self).__name__, list.__repr__(self))
@@ -73,6 +78,7 @@ class OrderedSet(list):
 
         Quietly returns if it is already a member.
         '''
+        hash(item)
         if item in self:
             #raise ValueError("Item is already a member.")
             return #silently ignore.
@@ -92,7 +98,12 @@ class OrderedSet(list):
         This preserves the order of the elements. Duplicates are silently
         ignored.
         '''
+        appending = []
         for value in values:
+            hash(value)
+            appending.append(value)
+
+        for value in appending:
             self.add(value)
 
     def insert(self, key, value):
@@ -101,6 +112,7 @@ class OrderedSet(list):
         Raises a ValueError if the element is already a member.
         '''
         #why not just self[key] = value?
+        hash(value)
         self[key:key] = value
 
     #methods for frozenset compatability.
@@ -108,6 +120,8 @@ class OrderedSet(list):
     #These two could be done using itertools.imap and the boolean operations.
     def issubset(self, other):
         '''Returns True if a given set is a subset of the ordered set.'''
+        #don't blow up with generators
+        other = list(other)
         if len(self) > len(other):
             return False
         for elem in self:
@@ -117,6 +131,8 @@ class OrderedSet(list):
 
     def issuperset(self, other):
         '''Returns True if a given set is a superset of the ordered set.'''
+        #don't blow up with generators
+        other = list(other)
         if len(self) < len(other):
             return False
         for elem in other:
@@ -126,13 +142,14 @@ class OrderedSet(list):
 
     def union(self, other):
         '''Return an OrderedSet of elements in both operands.'''
-        res = self.copy()
+        res = OrderedSet(self)
         res.extend(other)
         return res
 
     def intersection(self, other):
         '''Return an OrderedSet of elements common to both operands.'''
         res = OrderedSet()
+        other = list(other)
         if len(self) > len(other):
             #speed: this check is not needed other than to minimise the number
             #of iterations.
@@ -147,6 +164,7 @@ class OrderedSet(list):
         appear in this one.
         '''
         res = OrderedSet()
+        other = list(other)
         for elem in self:
             if elem not in other:
                 res.add(elem)
@@ -189,27 +207,31 @@ class OrderedSet(list):
         
     def add(self, elem):
         '''Add an element to the OrderedSet, at the end.'''
+        hash(elem)
         if elem not in self:
             list.append(self, elem)
 
     #remove is already implemented in the list inheritance: it'll raise the
-    #wrong error, though (IndexError instead of KeyError). So we must wrap it,
-    #making sure the error raised can be caught by IndexError and KeyError.
+    #wrong error, though (ValueError instead of KeyError). So we must wrap it,
+    #making sure the error raised can be caught by ValueError and KeyError.
     def remove(self, elem):
         '''Remove an element from the OrderedSet, raising an error if the
         element is not present.
         '''
+        hash(elem)
         try:
             list.remove(self, elem)
-        except IndexError:
-            raise DualError
+        except ValueError:
+            raise DualValueError()
 
     def discard(self, elem):
         '''Remove an element from the OrderedSet quietly.'''
         if elem in self:
             self.remove(elem)
 
-    #ditto as for remove, but we can do some dispatching.
+    #ditto as for remove, but we can do some dispatching. Thanks to Python's
+    #amazing consistency, we have to raise a different error here: lists
+    #throw a ValueError in remove but an IndexError in pop.
     def pop(self, index = None):
         '''Remove an object at a given index from the OrderedSet, or at the end
         if not specified.
@@ -218,18 +240,22 @@ class OrderedSet(list):
             #if index is None, it might be a set method, so the error raised
             #must be caught by "except IndexError" and "except KeyError".
             try:
-                list.pop(self, -1)
+                return list.pop(self, -1)
             except IndexError:
-                raise DualError
+                raise DualError()
         else:
             #if not, it's a list thing: IndexError is expected, and list.pop
             #will raise that anyway.
-            list.pop(self, index)
+            return list.pop(self, index)
 
     __or__ = _operand_set_checking(union)
+    __ror__ = _operand_set_checking(flip(union))
     __and__ = _operand_set_checking(intersection)
+    __rand__ = _operand_set_checking(flip(intersection))
     __sub__ = _operand_set_checking(difference)
+    __rsub__ = _operand_set_checking(flip(difference))
     __xor__ = _operand_set_checking(symmetric_difference)
+    __rxor__ = _operand_set_checking(flip(symmetric_difference))
     __ior__ = _operand_set_checking(update)
     __iand__ = _operand_set_checking(intersection_update)
     __isub__ = _operand_set_checking(difference_update)
@@ -278,8 +304,7 @@ class OrderedSet(list):
     #obviously, we can't have non-unique elements, but they might.
     def setcompare(self, other):
         '''Compare the OrderedSet to another set type as a set.'''
-        #XXX per the above comment, this can't be correct
-        return set(self) == other 
+        return not self.symmetric_difference(other)
 
     def __ne__(self, other):
         return not (self == other)
@@ -300,6 +325,9 @@ class DualError(KeyError, IndexError):
     """An error that can be caught by both 'KeyError' and 'IndexError'"""
     pass
 
+class DualValueError(KeyError, ValueError):
+    """An error that can be caught by both 'KeyError' and 'ValueError'"""
+    pass
 
 OSet = OrderedSet
 
