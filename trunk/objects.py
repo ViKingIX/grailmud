@@ -86,7 +86,7 @@ class MUDObject(BothAtOnce):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        state = super(MUDObject, self).__getstate__()
+        state = InstanceTracker.__getstate__(self)
         state['listeners'] = listeners
         return state
 
@@ -135,7 +135,7 @@ class NamedObject(TargettableObject):
         """Check to see if a set of attributes is applicable for this object.
         """
         return attrs == set([self.name]) or \
-               super(NamedObject, self).match(self, attrs)
+               TargettableObject.match(self, attrs)
 
     @classmethod
     def exists(cls, name):
@@ -176,12 +176,12 @@ class Player(NamedObject):
 
     def __getstate__(self):
         #is using super correct here?
-        state = super(Player, self).__getstate__()
+        state = NamedObject.__getstate__(self)
         state['connstate'] = 'offline'
         return self
 
     def __setstate__(self, state):
-        super(Player, self).__setstate__(state)
+        NamedObject.__setstate__(self, state)
         self.room.remove(self)
 
     @staticmethod
