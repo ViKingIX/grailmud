@@ -53,14 +53,27 @@ class Room(InstanceTracker):
         attrs is a set of attributes the object must have. count is the number
         of the object in the room. test is an optional function to check the
         object up against.
+
+        This function may or may not be deprecated.
         """
-        for obj in self.contents:
-            if obj.match(attrs) and test(obj):
+        for obj in self.matchContentAll(attrs):
+            if test(obj):
                 if count == 0:
                     return obj
                 else:
                     count -= 1
         raise UnfoundError()
 
+    def matchContentAll(self, attrs):
+        """Return an iterator that yields all the objects that match a certain
+        set of attributes.
+        """
+        for obj in self:
+            if hasattr(obj, 'match') and obj.match(attrs):
+                yield obj
+
     def __contains__(self, obj):
         return obj in self.contents
+
+    def __iter__(self):
+        return iter(self.contents)
