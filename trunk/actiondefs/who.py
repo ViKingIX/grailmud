@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -17,7 +19,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from pyparsing import *
+from grailmud.cleanimporter import CleanImporter
 from grailmud.events import BaseEvent
 from grailmud.utils import promptcolour
 
@@ -38,7 +40,8 @@ class WhoEvent(BaseEvent):
     def collapseToText(self, state, obj):
         state.sendEventLine("No 'who' functionality yet.")
 
-whoHerePattern = Suppress("here")
+with CleanImporter('pyparsing'):
+    whoHerePattern = Suppress("here")
 
 def whoDistributor(actor, text, info):
     try:

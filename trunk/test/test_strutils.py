@@ -88,6 +88,12 @@ def test_head_word_split_multi_punct_together():
     print res
     assert res == ('?', 'foo')
 
+def test_head_word_split_all_space():
+    text = '    \n\t   '
+    res = head_word_split(text)
+    print res
+    assert res == ('', '')
+
 def test_wsnormalise_no_space():
     text = 'foobarbaz'
     res = wsnormalise(text)

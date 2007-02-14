@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
@@ -19,7 +19,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from pyparsing import *
+from grailmud.cleanimporter import CleanImporter
 from .core import object_pattern
 from grailmud.events import AudibleEvent
 from .system import unfoundObject, badSyntax
@@ -115,8 +115,9 @@ class SpeakToThirdEvent(AudibleEvent):
         else:
             state.sendEventLine('%s says to %s, "%s"' % (da, dt, self.text))
 
-speakToPattern = Group(object_pattern) + \
-                 Suppress(',') + Group(ZeroOrMore(Word(printables)))
+with CleanImporter("pyparsing"):
+    speakToPattern = Group(object_pattern) + \
+                     Suppress(',') + Group(ZeroOrMore(Word(printables)))
 
 def speakToWrapper(actor, text, info):
     try:

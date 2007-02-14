@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
@@ -19,13 +19,15 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from pyparsing import *
+from grailmud.cleanimporter import CleanImporter
 from grailmud.events import BaseEvent
 from grailmud.objects import MUDObject, definein
 from grailmud.utils import promptcolour, get_from_rooms
 from grailmud.rooms import UnfoundError
 from .core import object_pattern, shorttarget_pattern
 from .system import permissionDenied, badSyntax, unfoundObject
+
+#XXX: this module should be pretty easily testable.
 
 @definein(MUDObject._instance_variable_factories)
 def targetting_shorts():
@@ -71,12 +73,13 @@ class TargetListEvent(BaseEvent):
         for name, obj in self.actor.targetting_shorts.itervalues():
             state.sendEventLine("%s: %s" % (name, obj.sdesc))
 
-target_set_pattern = Suppress('set') + shorttarget_pattern + Suppress('to') + \
-                     object_pattern
+with CleanImporter('pyparsing'):
+    target_set_pattern = Suppress('set') + shorttarget_pattern + \
+                         Suppress('to') + object_pattern
 
-target_clear_pattern = Suppress('clear') + shorttarget_pattern
+    target_clear_pattern = Suppress('clear') + shorttarget_pattern
 
-target_list_pattern = Suppress('list')
+    target_list_pattern = Suppress('list')
 
 def targetDistributor(actor, text, info):
     if info.instigator is not actor:

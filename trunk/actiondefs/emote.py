@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 """Emotes/ At present, only user-customised, but eventually I'll get round to
 writing some prefab ones.
@@ -23,7 +23,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from pyparsing import *
+from grailmud.cleanimporter import CleanImporter
 from string import printable
 from grailmud.events import GameEvent
 from grailmud.rooms import UnfoundError
@@ -93,7 +93,8 @@ def emoteWrapper(actor, text, info):
     text = text.replace('%', '%%')
     emote(actor, 'You have emoted: ' + text, text)
 
-emote_to_pattern = object_pattern + Suppress(',') + Word(printable)
+with CleanImporter('pyparsing'):
+    emote_to_pattern = object_pattern + Suppress(',') + Word(printable)
 
 def emoteToWrapper(actor, text, info):
     try:
