@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 __copyright__ = """Copyright 2007 Sam Pointon"""
 
 __licence__ = """
@@ -19,16 +21,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from string import ascii_letters, digits
 from grailmud.multimethod import Multimethod
-from pyparsing import *
 from grailmud.rooms import UnfoundError
 from grailmud.events import SystemEvent
 import logging
+from grailmud.cleanimporter import CleanImporter
 
 #Some utilities.
-shorttarget_pattern = Suppress('$') + Group(Word(ascii_letters + digits))
-adjs_pattern = Group(OneOrMore(Word(ascii_letters))) + Optional(Word(digits))
+with CleanImporter('pyparsing'):
+    shorttarget_pattern = Suppress('$') + Group(Word(ascii_letters +
+                                                     digits))
+    adjs_pattern = Group(OneOrMore(Word(ascii_letters))) + Optional(Word(digits))
 
-object_pattern = Or(adjs_pattern, shorttarget_pattern)
+    object_pattern = Or(adjs_pattern, shorttarget_pattern)
 
 class UnfoundActionEvent(SystemEvent):
 
