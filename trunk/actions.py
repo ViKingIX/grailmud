@@ -37,9 +37,8 @@ for filename in os.listdir(actiondefpath):
     if module or package:
         modulenames.append(filename)
 
-modules = [getattr(__import__('grailmud.actiondefs', fromlist = modulenames),
-                   name)
-           for name in modulenames]
+m = __import__('grailmud.actiondefs', fromlist = modulenames)
+modules = [getattr(m, name) for name in modulenames]
 
 def get_actions():
     '''Goes over all the actiondef modules and registers the cdict.'''
