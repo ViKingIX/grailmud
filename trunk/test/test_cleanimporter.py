@@ -12,7 +12,8 @@ def test_imported_names():
 def test_cleanup():
     before = len(globals())
     with CleanImporter("string"):
-        pass
+        #this test is important: it makes sure this isn't a no-op
+        assert len(globals()) != before
     assert len(globals()) == before
 
 def test_no_clobbering():
