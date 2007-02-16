@@ -1,24 +1,32 @@
 import sys
 
+def fetch_module_and_names(modname):
+    mod = __import__(modname)
+    components = modname.split('.')[1:]
+    try:
+        for comp in components:
+            mod = getattr(mod, comp)
+    except AttributeError:
+        raise ImportError()
+    if hasattr(mod, '__all__'):
+        names = mod.__all__
+    else:
+        names = [name for name in dir(mod) if name[0] != '_']
+    return mod, names
+    
+
 class CleanImporter(object):
+    #this does NOT clobber local names if used inside a function
 
     def __init__(self, modname):
         self.modname = modname
-        self.oldglobals = None
+        self.oldglobals = {}
         self.names = None
 
     def __enter__(self):
-        mod = __import__(self.modname)
-        components = self.modname.split('.')[1:]
-        for comp in components:
-            mod = getattr(mod, comp)
-        if hasattr(mod, '__all__'):
-            self.names = mod.__all__
-        else:
-            self.names = [name for name in dir(mod) if name[0] != '_']
+        mod, self.names = fetch_module_and_names(self.modname)
         
         self.frame = sys._getframe(1)
-        self.oldglobals = {}
 
         for name in self.names:
             if name in self.frame.f_globals:
