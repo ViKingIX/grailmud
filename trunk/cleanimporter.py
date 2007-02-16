@@ -16,7 +16,11 @@ def fetch_module_and_names(modname):
     
 
 class CleanImporter(object):
-    #this does NOT clobber local names if used inside a function
+    #this does NOT clobber local names if used inside a function, and in fact
+    #leaves locals well alone. This may be a problem when coupled with the
+    #compiler's sneaky optimisation of local versus global lookup: names not
+    #assigned to in a local are assumed to be global, which directly influences
+    #this module's operation.
 
     def __init__(self, modname):
         self.modname = modname
