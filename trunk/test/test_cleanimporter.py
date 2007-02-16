@@ -40,9 +40,9 @@ def test_no_clobbering():
     s = '''
 punctuation = 'foo'
 with CleanImporter("string"):
-    pass
-assert punctuation == 'foo'
+    assert string.punctuation == punctuation, punctuation
+assert punctuation == 'foo', punctuation
 '''
-    exec s in globals(), locals()
+    exec s in globals()
 
 #XXX: some tests for the import reimplementation.
