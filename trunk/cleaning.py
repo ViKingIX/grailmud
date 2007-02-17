@@ -20,3 +20,5 @@ def remove_trash(directory):
         print 'Removing %s' % trashname
         os.remove(trashname)
 
+if __name__ == "__main__":
+    remove_trash(os.curdir)
