@@ -30,6 +30,7 @@ from grailmud.utils import BothAtOnce
 
 #TODO: some sort of way to tell the classes not to pickle certain attributes.
 #XXX: need some sort of implementation for stateless, groupable objects.
+#XXX: the metaclass/class hierarchy is a bit fragile.
 
 def definein(dictionary):
     def functiongetter(func):
@@ -86,7 +87,7 @@ class MUDObject(BothAtOnce):
     def __getstate__(self):
         listeners = set(listener for listener in self.listeners
                         if listener._pickleme)
-        state = InstanceTracker.__getstate__(self)
+        state = BothAtOnce.__getstate__(self)
         state['listeners'] = listeners
         return state
 

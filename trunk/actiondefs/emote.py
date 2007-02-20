@@ -1,4 +1,5 @@
-from __future__ import absolute_import, with_statement
+from __future__ import absolute_import
+from __future__ import with_statement
 
 """Emotes/ At present, only user-customised, but eventually I'll get round to
 writing some prefab ones.
