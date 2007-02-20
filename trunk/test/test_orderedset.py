@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with
 grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
-
+#NOTE: if you change these imports, don't forget to delete them at the end!
 from test.test_set import TestSet as BuiltinSet, \
                           TestBinaryOps as BuiltinBinaryOps, \
                           TestUpdateOps as BuiltinUpdateOps, \
@@ -321,5 +321,10 @@ class TestMutate(BuiltinMutate):
 
 #XXX: I've got as far as TestSubset.
 
-print '\n'.join(repr(t) for t in locals().items() if t[0].startswith('Test'))
-
+#we need to delete these names else nose will pick them up as subclasses of
+#unittest.UnitTest (or whatever they are) and run them, which is rather less
+#than pointful.
+del BuiltinSet
+del BuiltinBinaryOps
+del BuiltinUpdateOps
+del BuiltinMutate
