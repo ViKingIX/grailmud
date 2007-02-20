@@ -21,7 +21,7 @@ from grailmud.actiondefs.system import UnfoundObjectEvent, PermissionDeniedEvent
                                      BadSyntaxEvent, BlankLineEvent, blankLine,\
                                      permissionDenied, badSyntax, \
                                      unfoundObject, register
-from grailmud.test.helper import SetupHelper
+from grailmud.utils_for_testing import SetupHelper
 
 def test_registration():
     d = {}

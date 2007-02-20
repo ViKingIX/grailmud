@@ -17,7 +17,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grailmud.test.helper import SetupHelper
+from grailmud.utils_for_testing import SetupHelper
 from grailmud.actiondefs.setting import LDescSetEvent, setDistribute, setLDesc, \
                                       register, syntax_message
 from grailmud.objects import TargettableObject

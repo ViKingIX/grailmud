@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from grailmud.objects import MUDObject
-from grailmud.test.helper import SetupHelper
+from grailmud.utils_for_testing import SetupHelper
 from grailmud.actiondefs.more import displayMore, MoreEvent, NoMoreEvent, register
 from grailmud.morelimiter import MoreLimiter
 from grailmud.events import BaseEvent

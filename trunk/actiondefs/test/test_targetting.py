@@ -68,4 +68,13 @@ class Testtarget_clear_pattern(object):
     def test_one_name_captured(self):
         assert len(target_clear_pattern.parseString("clear $foo")) == 1
 
+class Testtarget_list_pattern(object):
+
+    def test_doesnt_blow_up_on_good_input(self):
+        target_list_pattern.parseString("list")
+
+    def test_no_capture(self):
+        assert not len(target_list_pattern.parseString("list"))
+
+
 

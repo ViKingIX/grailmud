@@ -24,7 +24,7 @@ from grailmud.actiondefs.deaf import DeafnessOnEvent, DeafnessOnAlreadyEvent, \
 from grailmud.actiondefs.system import BadSyntaxEvent
 from grailmud.objects import MUDObject
 from grailmud.events import AudibleEvent
-from grailmud.test.helper import SetupHelper
+from grailmud.utils_for_testing import SetupHelper
 
 def test_registration():
     d = {}

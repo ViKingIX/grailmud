@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from grailmud.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
                                    lookAt, lookRoom, register
-from grailmud.test.helper import SetupHelper
+from grailmud.utils_for_testing import SetupHelper
 from grailmud.objects import TargettableObject, ExitObject, NamedObject, \
                            MUDObject
 from grailmud.rooms import Room
