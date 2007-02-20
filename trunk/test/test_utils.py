@@ -109,3 +109,15 @@ def test_pickling_throwing_error():
         pass
     else:
         assert newobj is obj
+
+from grailmud.utils import smartdict
+
+def test_smartdict_expr_evaluation():
+    res = ("%('foo'.upper())s" % smartdict())
+    print res
+    assert res == "FOO"
+
+def test_smartdict_variable_namespace():
+    res = ("%(foo.lower())s" % smartdict(foo = 'FOO'))
+    print res
+    assert res == "foo"

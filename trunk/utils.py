@@ -80,8 +80,8 @@ class smartdict(dict):
     """A dictionary that provides a mechanism for embedding expressions in
     format strings. Example:
 
-    >>> "%(foo.upper())s % smartdict(foo = "foo")
-    "FOO"
+    >>> "%(foo.upper())s" % smartdict(foo = "foo")
+    'FOO'
     """
     def __getitem__(self, item):
         #convert to dict to prevent infinite recursion
