@@ -22,6 +22,20 @@ from grailmud.events import BaseEvent
 import pickle
 from grailmud.utils_for_testing import MockListener as ListenerHelper
 
+#XXX: I would -love- to have some proper tests for pickling here, but 
+#unfortunately, due to the design of the system, it's not really an option. And
+#the design of the system wasn't really an option either. Ho-hum...
+
+def test_at_least_calls_the_base___Xstate__():
+    obj = MUDObject(None)
+    s = pickle.dumps(obj)
+    try:
+        o = pickle.loads(s)
+    except RuntimeError:
+        #well, we called it...
+        pass
+    else:
+        assert False, "got %r instead" % o
 
 def test_register():
     obj = MUDObject(None)
