@@ -43,6 +43,7 @@ def run_mud(mud, port):
     reactor.listenTCP(port, mud)
     mud.ticker.start()
     logging.info("OK, setup done, handing you over to the reactor's loop!")
+    sys.stdout.write("Server is up and running.")
     reactor.run()
 
 if __name__ == '__main__':
