@@ -24,6 +24,7 @@ from grailmud.events import BaseEvent
 from pyparsing import ParseException
 from grailmud.utils_for_testing import SetupHelper
 from grailmud.rooms import AnonyRoom
+from nose.tools import raises
 
 def test_registering():
     d = {}
@@ -34,24 +35,12 @@ def test_events_are_subclasses_of_BaseEvent():
     for cls in [TargetSetEvent, TargetClearedEvent, TargetAlreadyClearedEvent, TargetListEvent]:
         assert issubclass(cls, BaseEvent)
 
-def shouldraise(exc):
-    def funcgetter(func):
-        def doerfunc(*args, **kwargs):
-            try:
-                res = func(*args, **kwargs)
-            except exc:
-                pass
-            else:
-                assert False, "got %r returned instead" % res
-        return doerfunc
-    return funcgetter
-
 class Testtarget_set_pattern(object):
 
     def test_doesnt_blow_up_on_good_input(self):
         target_set_pattern.parseString("set $foo to bar baz")
 
-    @shouldraise(ParseException)
+    @raises(ParseException)
     def test_blows_up_on_missing_dollar(self):
         target_set_pattern.parseString("set foo to bar")
 
@@ -63,7 +52,7 @@ class Testtarget_clear_pattern(object):
     def test_doesnt_blow_up_on_good_input(self):
         target_clear_pattern.parseString("clear $foo")
 
-    @shouldraise(ParseException)
+    @raises(ParseException)
     def test_blows_up_on_missing_dollar(self):
         target_clear_pattern.parseString("clear foo")
 
