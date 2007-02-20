@@ -21,15 +21,20 @@ from grailmud.objects import MUDObject
 
 class MockListener(object):
 
-    def __init__(self, obj):
+    def __init__(self, obj = None):
         self.received = []
         self.flushed = False
-        self.obj = obj
-        self.obj.listener = self
+        if obj is not None:
+            self.obj = obj
+            self.obj.listener = self
 
     def register(self, obj):
-        assert obj is self.obj
-        assert self in obj.listeners
+        if hasattr(self, 'obj'):
+            assert obj is self.obj
+            assert self in obj.listeners
+        else:
+            self.obj = obj
+            obj.listener = self
 
     def unregister(self, obj):
         assert obj is self.obj
