@@ -67,7 +67,7 @@ def get_from_rooms(blob, rooms, info):
         raise UnfoundError()
     elif len(blob) == 1:
         try:
-            obj = info.instigator.targetting_shorts[blob[0]]
+            obj = info.instigator.targetting_shorts[blob[0].lower()]
         except KeyError:
             raise UnfoundError
         for room in rooms:

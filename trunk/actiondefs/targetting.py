@@ -31,7 +31,7 @@ from .system import permissionDenied, badSyntax, unfoundObject
 #XXX: this module should be pretty easily testable.
 
 @definein(MUDObject._instance_variable_factories)
-def targetting_shorts():
+def targetting_shorts(self):
     return {}
 
 class TargetSetEvent(BaseEvent):
@@ -96,14 +96,14 @@ def targetDistributor(actor, text, info):
         except UnfoundError:
             unfoundObject(actor)
         else:
-            actor.targetting_shorts[name] = target
+            targetSet(actor, name.lower(), target)
         return
     try:
         name = target_clear_pattern.parseString(text)
     except ParseException:
         pass
     else:
-        targetClear(actor, name)
+        targetClear(actor, name.lower())
         return
     try:
         target_list_pattern.parseString(text)

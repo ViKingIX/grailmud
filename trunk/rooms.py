@@ -26,13 +26,12 @@ class UnfoundError(Exception):
     """The object wasn't found."""
     pass
 
-class Room(InstanceTracker):
-    """A single container or 'room'."""
 
-    def __init__(self, title, desc):
+class AnonyRoom(InstanceTracker):
+    """A room without a title or description."""
+
+    def __init__(self):
         self.contents = OrderedSet()
-        self.title = title
-        self.desc = desc
         InstanceTracker.__init__(self)
 
     def add(self, obj):
@@ -77,3 +76,13 @@ class Room(InstanceTracker):
 
     def __iter__(self):
         return iter(self.contents)
+        
+class Room(AnonyRoom):
+    """A single container or 'room'."""
+
+    def __init__(self, title, desc):
+        self.title = title
+        self.desc = desc
+        AnonyRoom.__init__(self)
+
+

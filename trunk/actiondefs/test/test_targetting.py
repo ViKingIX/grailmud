@@ -18,10 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
 from grailmud.actiondefs.targetting import register, TargetSetEvent, TargetClearedEvent, TargetAlreadyClearedEvent, TargetListEvent, target_set_pattern, target_clear_pattern, target_list_pattern, targetDistributor, targetSet, targetList, targetClear
-from grailmud.objects import MUDObject
+from grailmud.objects import MUDObject, TargettableObject
 from grailmud.actiondefs.system import BadSyntaxEvent
 from grailmud.events import BaseEvent
 from pyparsing import ParseException
+from grailmud.utils_for_testing import SetupHelper
+from grailmud.rooms import AnonyRoom
 
 def test_registering():
     d = {}
@@ -76,5 +78,51 @@ class Testtarget_list_pattern(object):
     def test_no_capture(self):
         assert not len(target_list_pattern.parseString("list"))
 
+def test_default_targetting_shorts():
+    assert MUDObject(None).targetting_shorts == {}
 
+class TestActualEvents(SetupHelper):
 
+    def setUp(self):
+        self.room = AnonyRoom()
+        self.actor = MUDObject(self.room)
+        self.target = TargettableObject("a killer rabbit", set(['bunny',
+                                                                'killer',
+                                                                'rabbit']),
+                                        self.room)
+        self.setup_for_object(self.actor)
+        self.setup_for_object(self.target)
+
+    def test_targetSet(self):
+        targetSet(self.actor, 'robert', self.target)
+        assert self.actor.targetting_shorts['robert'] is self.target
+
+    def test_targetSet_messages(self):
+        targetSet(self.actor, "robert", self.target)
+        assert self.actor.listener.received == [TargetSetEvent("robert",
+                                                               self.target)]
+
+    def test_targetClear_success(self):
+        self.actor.targetting_shorts['bob'] = self.target
+        targetClear(self.actor, 'bob')
+        assert 'bob' not in self.actor.targetting_shorts
+
+    def test_targetClear_success_messages(self):
+        self.actor.targetting_shorts['bob'] = self.target
+        targetClear(self.actor, 'bob')
+        assert self.actor.listener.received == [TargetClearedEvent("bob")]
+
+    def test_targetClear_fail(self):
+        targetClear(self.actor, "mike")
+        assert 'mike' not in self.actor.targetting_shorts
+
+    def test_targetClear_messages(self):
+        targetClear(self.actor, "mike")
+        assert self.actor.listener.received == \
+                                          [TargetAlreadyClearedEvent('mike')]
+
+    def test_targetList_messages(self):
+        targetList(self.actor)
+        assert self.actor.listener.received == [TargetListEvent(self.actor)]
+
+    #XXX: not tested too good from the command line.
