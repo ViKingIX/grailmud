@@ -21,14 +21,27 @@ from grailmud.objects import MUDObject
 
 class MockListener(object):
 
-    def __init__(self):
+    def __init__(self, obj):
         self.received = []
-
-    def listenToEvent(self, obj, event):
-        self.received.append(event)
+        self.flushed = False
+        self.obj = obj
+        self.obj.listener = self
 
     def register(self, obj):
-        pass
+        assert obj is self.obj
+        assert self in obj.listeners
+
+    def unregister(self, obj):
+        assert obj is self.obj
+        assert self not in obj.listeners
+
+    def listenToEvent(self, obj, event):
+        assert obj is self.obj
+        self.received.append(event)
+
+    def eventListenFlush(self, obj):
+        assert obj is self.obj
+        self.flushed = True
 
 class SetupHelper(object):
 

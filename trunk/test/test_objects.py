@@ -20,30 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 from grailmud.objects import MUDObject, TargettableObject, NamedObject, Player
 from grailmud.events import BaseEvent
 import pickle
+from grailmud.utils_for_testing import MockListener as ListenerHelper
 
-class ListenerHelper(object):
-
-    def __init__(self, obj):
-        self.received = []
-        self.flushed = False
-        self.obj = obj
-        self.obj.listener = self
-
-    def register(self, obj):
-        assert obj is self.obj
-        assert self in obj.listeners
-
-    def unregister(self, obj):
-        assert obj is self.obj
-        assert self not in obj.listeners
-
-    def listenToEvent(self, obj, event):
-        assert obj is self.obj
-        self.received.append(event)
-
-    def eventListenFlush(self, obj):
-        assert obj is self.obj
-        self.flushed = True
 
 def test_register():
     obj = MUDObject(None)
