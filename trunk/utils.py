@@ -102,6 +102,7 @@ class InstanceTrackingMetaclass(type):
         """
         #upon consideration, this must be a no-op, because all the instances
         #will already be in the instances list thanks to the unpickling.
+        #XXX: to be removed?
         pass
 
     def __call__(cls, *args, **kwargs):
