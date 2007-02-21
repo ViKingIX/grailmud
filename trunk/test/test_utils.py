@@ -51,6 +51,7 @@ def test_superclass_tracking():
 
 class FooFactoryClass(InstanceVariableFactoryObject):
     qux = "class"
+    quux = 'class'
     pass
 
 def test_instance_variable_factory():
@@ -82,6 +83,11 @@ def test_returns_from___dict___():
     f = FooFactoryClass()
     f.foo = "baz"
     assert f.foo == "baz"
+
+def test_default_shadows_class_variable():
+    sentinel = object()
+    FooFactoryClass._instance_variable_factories['quux'] = lambda s: sentinel
+    assert FooFactoryClass().quux is sentinel
 
 class FooFactorySubclass(FooFactoryClass):
     pass

@@ -86,9 +86,9 @@ class TesterForListening(object):
             assert False
 
 def test_TargettableObject_naming():
-    t = KillerBunny(None, "Mike")
+    t = TargettableObject(None, "Mike")
     assert t.name == "Mike"
 
 def test_TargettableObject_non_naming():
-    t = KillerBunny(None)
+    t = TargettableObject(None)
     assert not hasattr(t, "name")
