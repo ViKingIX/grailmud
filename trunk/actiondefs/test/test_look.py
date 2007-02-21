@@ -45,7 +45,7 @@ class TestEventSending(SetupHelper):
         self.room = Room("Just outside a dark cave.", "")
         self.actor = KnightBody(self.room)
         self.roomtarget = ObjectForTargetting(self.room)
-        self.invtarget = KnightHead("Boris", self.actor.inventory)
+        self.invtarget = KnightHead(self.actor.inventory, "Boris")
         self.otherroom = Room("Just inside a dark cave.", "")
         self.exit = ExitObject(self.room, self.otherroom)
 

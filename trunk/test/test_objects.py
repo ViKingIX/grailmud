@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 from grailmud.objects import MUDObject, TargettableObject, NamedObject, Player
 from grailmud.events import BaseEvent
 import pickle
-from grailmud.utils_for_testing import MockListener as ListenerHelper
+from grailmud.utils_for_testing import MockListener as ListenerHelper, \
+                                       ObjectForTargetting as KillerBunny
 
 #XXX: I would -love- to have some proper tests for pickling here, but 
 #unfortunately, due to the design of the system, it's not really an option. And
@@ -83,3 +84,11 @@ class TesterForListening(object):
             pass
         else:
             assert False
+
+def test_TargettableObject_naming():
+    t = KillerBunny(None, "Mike")
+    assert t.name == "Mike"
+
+def test_TargettableObject_non_naming():
+    t = KillerBunny(None)
+    assert not hasattr(t, "name")

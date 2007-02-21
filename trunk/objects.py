@@ -44,9 +44,10 @@ class MUDObject(BothAtOnce):
     def __init__(self, room):
         self.room = room
         self.listeners = set()
-        self.inventory = Room("A dummy inventory.", "This is a dummy "
-                              "inventory, to make the checking code a little "
-                              "bit simpler.")
+        if not hasattr(self, 'inventory'):
+            self.inventory = Room("A dummy inventory.", "This is a dummy "
+                                  "inventory, to make the checking code a "
+                                  "little bit simpler.")
     
     def eventFlush(self):
         """Tell the listeners that the current lot of events are done."""
@@ -111,34 +112,18 @@ class TargettableObject(MUDObject):
 
     adjs = frozenset(['gray', 'grey', 'blob'])
     sdesc = 'a grey blob'
+
+    _name_registry = {}
+
+    def __init__(self, room, name = None):
+        if name is not None:
+            self._named_init(name)
+        super(TargettableObject, self).__init__(room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
         """
         return self.adjs.issuperset(attrs)
-
-class NamealreadyUsedError(BaseException):
-    pass
-
-class NamedObject(TargettableObject):
-
-    _name_registry = {}
-    
-    def __init__(self, name, room):
-        if NamedObject.exists(name):
-            raise NamealreadyUsedError()
-        super(NamedObject, self).__init__(room)
-        self.inventory = Room("%s's inventory" % name,
-                              "You should not be here.")
-        NamedObject._name_registry[name] = self
-        self.name = name
-        self.adjs = self.adjs | set([name])
-    
-    def match(self, attrs):
-        """Check to see if a set of attributes is applicable for this object.
-        """
-        return attrs == set([self.name]) or \
-               TargettableObject.match(self, attrs)
 
     @classmethod
     def exists(cls, name):
@@ -151,7 +136,33 @@ class NamedObject(TargettableObject):
             return isinstance(avatar, cls)
 
     def __repr__(self):
-        return "<%s named %s>" % (type(self).__name__, self.name)
+        if hasattr(self, 'name'):
+            return "<%s named %s>" % (type(self).__name__, self.name)
+        return object.__repr__(self)
+
+    def _named_init(self, name):
+        if NamedObject.exists(name):
+            raise NamealreadyUsedError()
+        self.inventory = Room("%s's inventory" % name,
+                              "You should not be here.")
+        NamedObject._name_registry[name] = self
+        self.name = name
+        self.adjs = self.adjs | set([name])
+    
+    @classmethod
+    def exists(cls, name):
+        '''Returns True if an object referred to by a given name exists.'''
+        try:
+            avatar = NamedObject._name_registry[name]
+        except KeyError:
+            return False
+        else:
+            return isinstance(avatar, cls)
+
+NamedObject = TargettableObject
+
+class NameAlreadyUsedError(Exception):
+    pass
 
 class Player(NamedObject):
     """A player avatar."""
