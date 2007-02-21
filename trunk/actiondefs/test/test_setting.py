@@ -17,7 +17,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grailmud.utils_for_testing import SetupHelper
+from grailmud.utils_for_testing import SetupHelper, ObjectForTargetting
 from grailmud.actiondefs.setting import LDescSetEvent, setDistribute, setLDesc, \
                                       register, syntax_message
 from grailmud.objects import TargettableObject
@@ -29,11 +29,11 @@ def test_registration():
     assert cdict['set'] is setDistribute
 
 def test_default_ldesc():
-    assert TargettableObject("a fat elf", set(), None).ldesc == \
-           "a fat elf. Nothing more, nothing less."
+    assert ObjectForTargetting(None).ldesc == \
+           "a killer rabbit. Nothing more, nothing less."
 
 def test_ldesc_setting():
-    obj = TargettableObject("a fat elf", set(), None)
+    obj = ObjectForTargetting(None)
     desc = "A really really fat elf."
     setLDesc(obj, desc)
     assert obj.ldesc == desc
@@ -41,7 +41,7 @@ def test_ldesc_setting():
 class TestEvents(SetupHelper):
 
     def setUp(self):
-        self.obj = TargettableObject("a fat elf", set(), None)
+        self.obj = ObjectForTargetting(None)
         self.setup_for_object(self.obj)
 
     def test_ldesc_event(self):

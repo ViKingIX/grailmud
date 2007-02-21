@@ -17,7 +17,7 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grailmud.objects import MUDObject
+from grailmud.objects import MUDObject, TargettableObject
 
 class MockListener(object):
 
@@ -59,3 +59,7 @@ class SetupHelper(object):
     def setUp(self):
         self.obj = MUDObject(None)
         self.setup_for_object(self.obj)
+
+class ObjectForTargetting(TargettableObject):
+    sdesc = 'a killer rabbit'
+    adjs = set(['bunny', 'killer', 'rabbit'])

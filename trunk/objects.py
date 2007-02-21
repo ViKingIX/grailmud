@@ -104,11 +104,13 @@ def receiveEvent(self, event):
 
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
-    
-    def __init__(self, sdesc, adjs, room):
-        self.sdesc = sdesc
-        self.adjs = adjs
-        super(TargettableObject, self).__init__(room)
+   
+    #these objects must have an adjs class attribute, a set of adjectives
+    #that can be used to describe it, and sdesc, a phrase to describe the
+    #object
+
+    adjs = frozenset(['gray', 'grey', 'blob'])
+    sdesc = 'a grey blob'
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
@@ -122,15 +124,15 @@ class NamedObject(TargettableObject):
 
     _name_registry = {}
     
-    def __init__(self, sdesc, name, adjs, room):
+    def __init__(self, name, room):
         if NamedObject.exists(name):
             raise NamealreadyUsedError()
-        super(NamedObject, self).__init__(sdesc, adjs, room)
+        super(NamedObject, self).__init__(room)
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
         NamedObject._name_registry[name] = self
         self.name = name
-        self.adjs = adjs | set([name])
+        self.adjs = self.adjs | set([name])
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
@@ -158,7 +160,9 @@ class Player(NamedObject):
         self.connstate = 'online'
         self.cmdict = cmdict
         self.passhash = passhash
-        super(Player, self).__init__(sdesc, name, adjs, room)
+        self.sdesc = sdesc
+        self.adjs = adjs
+        super(Player, self).__init__(name, room)
 
     def receivedLine(self, line, info):
         """Receive a single line of input to process and act upon."""
