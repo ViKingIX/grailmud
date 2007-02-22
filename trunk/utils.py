@@ -62,7 +62,6 @@ def get_from_rooms(blob, rooms, info):
     #detail but go on through them if the found one is not acceptable.
     if len(blob) == 2:
         adjs, num = adjs_num_parse(blob)
-        print adjs, num
         for room in rooms:
             try:
                 return room.matchContent(adjs, num)
