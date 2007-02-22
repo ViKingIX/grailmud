@@ -27,13 +27,9 @@ from grailmud.events import BaseEvent
 from ..actiondefs.system import UnfoundObjectEvent
 from ..actiondefs.emote import yanked_emotes, emote
 from ..actiondefs.says import SpeakToSecondEvent, speakTo
-from grailmud.objects import MUDObject, TargettableObject
+from grailmud.objects import MUDObject
 from grailmud.listeners import Listener
 from .elizaimpl import Therapist
-
-class Eliza(TargettableObject):
-    sdesc = "a bespectacled old lady"
-    adjs = set(["old", "lady", "woman"])
 
 class ChattyListener(Listener):
     """An NPC that psychoanalyses you.

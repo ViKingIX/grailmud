@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 from grailmud.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
                                    lookAt, lookRoom, register
-from grailmud.utils_for_testing import SetupHelper, ObjectForTargetting
+from grailmud.utils_for_testing import SetupHelper
 from grailmud.objects import TargettableObject, ExitObject, NamedObject, \
                            MUDObject
 from grailmud.rooms import Room
@@ -31,21 +31,20 @@ def test_registration():
     assert d['l'] is lookDistributor
     assert d['look'] is lookDistributor
 
-class KnightHead(NamedObject):
-    sdesc = "a surprised-looking decapitated head"
-    adjs = set(['head', 'dead'])
-
-class KnightBody(TargettableObject):
-    sdesc = "a decapitated knight"
-    adjs = set(['shiny', 'dead'])
-
 class TestEventSending(SetupHelper):
 
     def setUp(self):
         self.room = Room("Just outside a dark cave.", "")
-        self.actor = KnightBody(self.room)
-        self.roomtarget = ObjectForTargetting(self.room)
-        self.invtarget = KnightHead(self.actor.inventory, "Boris")
+        self.actor = TargettableObject("a decapitated knight",
+                                       set(['shiny', 'dead']),
+                                       self.room)
+        self.roomtarget = TargettableObject("a killer rabbit",
+                                            set(['bunny', 'fluffy',
+                                                 'murderous']),
+                                            self.room)
+        self.invtarget = NamedObject("a surprised-looking decapitated head",
+                                     "Boris", set(["head", "dead"]),
+                                     self.actor.inventory)
         self.otherroom = Room("Just inside a dark cave.", "")
         self.exit = ExitObject(self.room, self.otherroom)
 

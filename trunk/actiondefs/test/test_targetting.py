@@ -22,7 +22,7 @@ from grailmud.objects import MUDObject, TargettableObject
 from grailmud.actiondefs.system import BadSyntaxEvent
 from grailmud.events import BaseEvent
 from pyparsing import ParseException
-from grailmud.utils_for_testing import SetupHelper, ObjectForTargetting
+from grailmud.utils_for_testing import SetupHelper
 from grailmud.rooms import AnonyRoom
 from nose.tools import raises
 
@@ -75,7 +75,10 @@ class TestActualEvents(SetupHelper):
     def setUp(self):
         self.room = AnonyRoom()
         self.actor = MUDObject(self.room)
-        self.target = ObjectForTargetting(self.room)
+        self.target = TargettableObject("a killer rabbit", set(['bunny',
+                                                                'killer',
+                                                                'rabbit']),
+                                        self.room)
         self.setup_for_object(self.actor)
         self.setup_for_object(self.target)
 

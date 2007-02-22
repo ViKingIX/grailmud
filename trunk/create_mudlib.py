@@ -27,7 +27,7 @@ from durus.file_storage import FileStorage
 from durus.connection import Connection
 from grailmud.rooms import Room
 from grailmud.objects import MUDObject, NamedObject
-from grailmud.npcs.chatty import ChattyListener, Eliza
+from grailmud.npcs.chatty import ChattyListener
 from grailmud.ticks import Ticker
 
 startroom = Room('An unremarkable moor.',
@@ -39,7 +39,8 @@ startroom = Room('An unremarkable moor.',
                  ' mediocrity - a lukewarm temperature, with no discernable'
                  ' exciting scents.')
 
-eliza = Eliza(startroom, "Eliza")
+eliza = NamedObject('a bespectacled old lady', 'Eliza',
+                    set(['old', 'lady', 'woman']), startroom)
 eliza.addListener(ChattyListener(eliza))
 startroom.add(eliza)
 

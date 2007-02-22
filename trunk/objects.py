@@ -44,10 +44,9 @@ class MUDObject(BothAtOnce):
     def __init__(self, room):
         self.room = room
         self.listeners = set()
-        if not hasattr(self, 'inventory'):
-            self.inventory = Room("A dummy inventory.", "This is a dummy "
-                                  "inventory, to make the checking code a "
-                                  "little bit simpler.")
+        self.inventory = Room("A dummy inventory.", "This is a dummy "
+                              "inventory, to make the checking code a little "
+                              "bit simpler.")
     
     def eventFlush(self):
         """Tell the listeners that the current lot of events are done."""
@@ -105,25 +104,39 @@ def receiveEvent(self, event):
 
 class TargettableObject(MUDObject):
     """A tangible object, that can be generically targetted."""
-   
-    #these objects must have an adjs class attribute, a set of adjectives
-    #that can be used to describe it, and sdesc, a phrase to describe the
-    #object
-
-    adjs = frozenset(['gray', 'grey', 'blob'])
-    sdesc = 'a grey blob'
-
-    _name_registry = {}
-
-    def __init__(self, room, name = None):
-        if name is not None:
-            self._named_init(name)
+    
+    def __init__(self, sdesc, adjs, room):
+        self.sdesc = sdesc
+        self.adjs = adjs
         super(TargettableObject, self).__init__(room)
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
         """
         return self.adjs.issuperset(attrs)
+
+class NamealreadyUsedError(BaseException):
+    pass
+
+class NamedObject(TargettableObject):
+
+    _name_registry = {}
+    
+    def __init__(self, sdesc, name, adjs, room):
+        if NamedObject.exists(name):
+            raise NamealreadyUsedError()
+        super(NamedObject, self).__init__(sdesc, adjs, room)
+        self.inventory = Room("%s's inventory" % name,
+                              "You should not be here.")
+        NamedObject._name_registry[name] = self
+        self.name = name
+        self.adjs = adjs | set([name])
+    
+    def match(self, attrs):
+        """Check to see if a set of attributes is applicable for this object.
+        """
+        return attrs == set([self.name]) or \
+               TargettableObject.match(self, attrs)
 
     @classmethod
     def exists(cls, name):
@@ -136,33 +149,7 @@ class TargettableObject(MUDObject):
             return isinstance(avatar, cls)
 
     def __repr__(self):
-        if hasattr(self, 'name'):
-            return "<%s named %s>" % (type(self).__name__, self.name)
-        return object.__repr__(self)
-
-    def _named_init(self, name):
-        if NamedObject.exists(name):
-            raise NamealreadyUsedError()
-        self.inventory = Room("%s's inventory" % name,
-                              "You should not be here.")
-        NamedObject._name_registry[name] = self
-        self.name = name
-        self.adjs = self.adjs | set([name])
-    
-    @classmethod
-    def exists(cls, name):
-        '''Returns True if an object referred to by a given name exists.'''
-        try:
-            avatar = NamedObject._name_registry[name]
-        except KeyError:
-            return False
-        else:
-            return isinstance(avatar, cls)
-
-NamedObject = TargettableObject
-
-class NameAlreadyUsedError(Exception):
-    pass
+        return "<%s named %s>" % (type(self).__name__, self.name)
 
 class Player(NamedObject):
     """A player avatar."""
@@ -171,9 +158,7 @@ class Player(NamedObject):
         self.connstate = 'online'
         self.cmdict = cmdict
         self.passhash = passhash
-        self.sdesc = sdesc
-        self.adjs = adjs
-        super(Player, self).__init__(name, room)
+        super(Player, self).__init__(sdesc, name, adjs, room)
 
     def receivedLine(self, line, info):
         """Receive a single line of input to process and act upon."""
