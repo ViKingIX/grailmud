@@ -208,6 +208,16 @@ class ExitObject(MUDObject):
         self.target_room = target_room
         super(ExitObject, self).__init__(room)
 
+class TargettableExitObject(ExitObject):
+
+    def __init__(self, room, target_room, sdesc, adjs):
+        self.sdesc = sdesc
+        self.adjs = adjs
+        super(TargettableExitObject, self).__init__(room, target_room)
+
+    def match(self, adjs):
+        return self.adjs.issuperset(adjs)
+
 class BadPassword(Exception):
     pass
 

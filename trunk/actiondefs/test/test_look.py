@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 from grailmud.actiondefs.look import LookAtEvent, LookRoomEvent, lookDistributor,\
                                    lookAt, lookRoom, register
 from grailmud.utils_for_testing import SetupHelper
-from grailmud.objects import TargettableObject, ExitObject, NamedObject, \
+from grailmud.objects import TargettableObject, TargettableExitObject, NamedObject, \
                            MUDObject
 from grailmud.rooms import Room
 from grailmud.actiondefs.system import UnfoundObjectEvent
@@ -51,7 +51,9 @@ class TestEventSending(SetupHelper):
                                      "Boris", set(["head", "dead"]),
                                      self.actor.inventory)
         self.otherroom = Room("Just inside a dark cave.", "")
-        self.exit = ExitObject(self.room, self.otherroom)
+        self.exit = TargettableExitObject(self.room, self.otherroom,
+                                          "the mouth of a cave", 
+                                          set(["cave", "mouth"]))
 
         self.room.add(self.actor)
         self.room.add(self.roomtarget)

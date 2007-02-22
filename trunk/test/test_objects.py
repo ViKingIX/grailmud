@@ -17,7 +17,8 @@ grailmud (in the file named LICENSE); if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 """
 
-from grailmud.objects import MUDObject, TargettableObject, NamedObject, Player
+from grailmud.objects import MUDObject, TargettableObject, NamedObject, \
+                             Player, TargettableExitObject
 from grailmud.events import BaseEvent
 import pickle
 from grailmud.utils_for_testing import MockListener as ListenerHelper
@@ -94,3 +95,9 @@ def test_caseless_addition_to_name_registry():
     assert 'FOO' not in NamedObject._name_registry
     assert NamedObject._name_registry['foo'] is obj
     NamedObject._name_registry.clear()
+
+def test_TargettableExitObject_matching():
+    obj = TargettableExitObject(None, None, '', set(['foo']))
+    assert obj.match(set(['foo']))
+
+
