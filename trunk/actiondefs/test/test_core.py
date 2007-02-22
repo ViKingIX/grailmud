@@ -29,7 +29,7 @@ from pyparsing import ParseException, StringEnd
 def test_registered_default_factory():
     d = defaultdict()
     register(d)
-    assert d.default_factory
+    assert d.default_factory() is unfoundAction
 
 class TestunfoundAction(SetupHelper):
 
