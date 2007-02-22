@@ -55,7 +55,6 @@ def get_from_rooms(blob, rooms, info):
     this function can extract the object from a list of rooms, or raise an
     UnfoundError.
     """
-    print blob
     #circular import breaking.
     from grailmud.rooms import UnfoundError
 
@@ -63,8 +62,12 @@ def get_from_rooms(blob, rooms, info):
     #detail but go on through them if the found one is not acceptable.
     if len(blob) == 2:
         adjs, num = adjs_num_parse(blob)
+        print adjs, num
         for room in rooms:
-            return room.matchContent(adjs, num)
+            try:
+                return room.matchContent(adjs, num)
+            except UnfoundError:
+                pass
         raise UnfoundError()
     elif len(blob) == 1:
         try:

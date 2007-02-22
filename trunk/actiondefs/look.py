@@ -29,6 +29,7 @@ from grailmud.objects import Player, TargettableObject, ExitObject, MUDObject
 from grailmud.strutils import capitalise
 from grailmud.utils import promptcolour, get_from_rooms, distributeEvent
 from grailmud.multimethod import Multimethod
+from pyparsing import ParseException
 
 class LookAtEvent(VisibleEvent):
 
@@ -60,17 +61,16 @@ with CleanImporter('pyparsing'):
 
 def lookDistributor(actor, text, info):
     try:
-        blob = lookAtPattern.parseString(text)
+        blob, = lookAtPattern.parseString(text)
     except ParseException:
         lookRoom(actor)
         return
     try:
         target = get_from_rooms(blob, [actor.inventory, actor.room], info)
     except UnfoundError:
-        pass
+        unfoundObject(actor)
     else:
         lookAt(actor, target)
-    unfoundObject(actor)
 
 lookAt = Multimethod()
 

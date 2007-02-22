@@ -44,8 +44,8 @@ class TestunfoundAction(SetupHelper):
 class Testshorttarget_pattern(object):
 
     def test_good(self):
-        res = list(shorttarget_pattern.parseString("$foo"))
-        print res
+        res = list(shorttarget_pattern.parseString("$foo")[0])
+        print locals()
         assert res == ["foo"]
 
     @raises(ParseException)

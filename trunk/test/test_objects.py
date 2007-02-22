@@ -83,3 +83,14 @@ class TesterForListening(object):
             pass
         else:
             assert False
+
+def test_caseless_naming_in_adjs():
+    obj = NamedObject('', 'FOO', set(), None)
+    assert obj.adjs == set(['foo'])
+    NamedObject._name_registry.clear()
+
+def test_caseless_addition_to_name_registry():
+    obj = NamedObject('', 'FOO', set(), None)
+    assert 'FOO' not in NamedObject._name_registry
+    assert NamedObject._name_registry['foo'] is obj
+    NamedObject._name_registry.clear()

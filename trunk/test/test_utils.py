@@ -155,14 +155,15 @@ class TestGetterFromRooms(SetupHelper):
         self.setup_for_object(self.actor)
         targetSet(self.actor, "bob", self.target)
         self.info = LineInfoMockup(self.actor)
+        self.bogusroom = AnonyRoom()
 
     def test_shorttarget_success(self):
-        parseres = shorttarget_pattern.parseString("$bob")
+        parseres = shorttarget_pattern.parseString("$bob")[0]
         res = get_from_rooms(parseres, [self.room], self.info)
         assert res is self.target
 
     def test_shorttarget_failure(self):
-        parseres = shorttarget_pattern.parseString("$mike")
+        parseres = shorttarget_pattern.parseString("$mike")[0]
         try:
             print get_from_rooms(parseres, [self.room], self.info)
         except UnfoundError:
@@ -171,7 +172,7 @@ class TestGetterFromRooms(SetupHelper):
             assert False
 
     def test_shorttarget_caseless(self):
-        parseres = shorttarget_pattern.parseString("$BOB")
+        parseres = shorttarget_pattern.parseString("$BOB")[0]
         res = get_from_rooms(parseres, [self.room], self.info)
         assert res is self.target
 
@@ -206,4 +207,9 @@ class TestGetterFromRooms(SetupHelper):
     def test_adjs_caseless(self):
         parseres = adjs_pattern.parseString("KILLER RABBIT")[0]
         res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target
+
+    def test_not_in_very_first_room(self):
+        parseres = adjs_pattern.parseString("KILLER RABBIT")[0]
+        res = get_from_rooms(parseres, [self.bogusroom, self.room], self.info)
         assert res is self.target

@@ -120,6 +120,7 @@ class NamealreadyUsedError(BaseException):
 
 class NamedObject(TargettableObject):
 
+    #XXX: make me a proper caseless dict?
     _name_registry = {}
     
     def __init__(self, sdesc, name, adjs, room):
@@ -128,9 +129,9 @@ class NamedObject(TargettableObject):
         super(NamedObject, self).__init__(sdesc, adjs, room)
         self.inventory = Room("%s's inventory" % name,
                               "You should not be here.")
-        NamedObject._name_registry[name] = self
+        NamedObject._name_registry[name.lower()] = self
         self.name = name
-        self.adjs = adjs | set([name])
+        self.adjs = adjs | set([name.lower()])
     
     def match(self, attrs):
         """Check to see if a set of attributes is applicable for this object.
@@ -142,7 +143,7 @@ class NamedObject(TargettableObject):
     def exists(cls, name):
         '''Returns True if an object referred to by a given name exists.'''
         try:
-            avatar = NamedObject._name_registry[name]
+            avatar = NamedObject._name_registry[name.lower()]
         except KeyError:
             return False
         else:

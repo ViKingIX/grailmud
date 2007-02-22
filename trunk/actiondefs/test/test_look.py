@@ -31,6 +31,11 @@ def test_registration():
     assert d['l'] is lookDistributor
     assert d['look'] is lookDistributor
 
+class MockInfo(object):
+
+    def __init__(self, instigator):
+        self.instigator = instigator
+
 class TestEventSending(SetupHelper):
 
     def setUp(self):
@@ -39,8 +44,8 @@ class TestEventSending(SetupHelper):
                                        set(['shiny', 'dead']),
                                        self.room)
         self.roomtarget = TargettableObject("a killer rabbit",
-                                            set(['bunny', 'fluffy',
-                                                 'murderous']),
+                                            set(['bunny', 'fluffy', "rabbit",
+                                                 'murderous', "killer"]),
                                             self.room)
         self.invtarget = NamedObject("a surprised-looking decapitated head",
                                      "Boris", set(["head", "dead"]),
@@ -55,12 +60,14 @@ class TestEventSending(SetupHelper):
 
         self.setup_for_object(self.actor)
 
+        self.info = MockInfo(self.actor)
+
     def tearDown(self):
         self.room.remove_from_instances()
         self.actor.remove_from_instances()
         self.roomtarget.remove_from_instances()
         self.invtarget.remove_from_instances()
-        del NamedObject._name_registry[self.invtarget.name]
+        NamedObject._name_registry.clear()
         self.exit.remove_from_instances()
 
     def test_look_at_room_TargettableObject(self):
@@ -88,5 +95,26 @@ class TestEventSending(SetupHelper):
 
         assert self.actor.listener.received == [LookRoomEvent(self.otherroom)]
 
-    #XXX: still needs to be tested: parsing and tossing-to-places.
+    def test_look_at_parsing_no_at(self):
+        lookDistributor(self.actor, 'boris', self.info)
+
+        print self.actor.listener.received
+        assert self.actor.listener.received == [LookAtEvent(self.invtarget)]
+
+    def test_look_at_parsing(self):
+        lookDistributor(self.actor, "at killer rabbit", self.info)
+
+        print self.actor.listener.received
+        assert self.actor.listener.received == [LookAtEvent(self.roomtarget)]
+
+    def test_look_at_parsing_failure(self):
+        lookDistributor(self.actor, "at foobar", self.info)
+
+        assert self.actor.listener.received == [UnfoundObjectEvent()]
+
+    def test_look_parsing(self):
+        lookDistributor(self.actor, "", self.info)
+
+        print self.actor.listener.received
+        assert self.actor.listener.received == [LookRoomEvent(self.room)]
     
