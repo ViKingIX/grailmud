@@ -44,4 +44,5 @@ def unfoundAction(actor, text, info):
     actor.receiveEvent(UnfoundActionEvent())
 
 def register(cdict):
+    #wrapped in a lambda because default_factory calls it to produce the value
     cdict.default_factory = lambda: unfoundAction
