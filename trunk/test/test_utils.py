@@ -127,3 +127,83 @@ def test_smartdict_variable_namespace():
     res = ("%(foo.lower())s" % smartdict(foo = 'FOO'))
     print res
     assert res == "foo"
+
+
+from grailmud.utils import get_from_rooms
+from grailmud.rooms import UnfoundError, AnonyRoom
+from grailmud.actiondefs.core import shorttarget_pattern, object_pattern, \
+                                     adjs_pattern
+from grailmud.objects import TargettableObject, MUDObject
+from grailmud.utils_for_testing import SetupHelper
+from grailmud.actiondefs.targetting import targetSet
+
+class LineInfoMockup(object):
+
+    def __init__(self, instigator):
+        self.instigator = instigator
+
+class TestGetterFromRooms(SetupHelper):
+
+    def setUp(self):
+        self.room = AnonyRoom()
+        self.target = TargettableObject("a killer rabbit", 
+                                        set(['killer', 'rabbit', 'bunny', 
+                                             'fluffy']), 
+                                        self.room)
+        self.setup_for_object(self.target)
+        self.actor = MUDObject(self.room)
+        self.setup_for_object(self.actor)
+        targetSet(self.actor, "bob", self.target)
+        self.info = LineInfoMockup(self.actor)
+
+    def test_shorttarget_success(self):
+        parseres = shorttarget_pattern.parseString("$bob")
+        res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target
+
+    def test_shorttarget_failure(self):
+        parseres = shorttarget_pattern.parseString("$mike")
+        try:
+            print get_from_rooms(parseres, [self.room], self.info)
+        except UnfoundError:
+            pass
+        else:
+            assert False
+
+    def test_shorttarget_caseless(self):
+        parseres = shorttarget_pattern.parseString("$BOB")
+        res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target
+
+    def test_adjs_no_number_success(self):
+        parseres = adjs_pattern.parseString("killer rabbit")[0]
+        res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target
+
+    def test_adjs_numbered_success(self):
+        parseres = adjs_pattern.parseString("killer rabbit 0")[0]
+        res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target
+
+    def test_adjs_no_number_failure(self):
+        parseres = adjs_pattern.parseString("harmless gopher")[0]
+        try:
+            print get_from_rooms(parseres, [self.room], self.info)
+        except UnfoundError:
+            pass
+        else:
+            assert False
+
+    def test_adjs_number_failure(self):
+        parseres = adjs_pattern.parseString("killer rabbit 42")[0]
+        try:
+            print get_from_rooms(parseres, [self.room], self.info)
+        except UnfoundError:
+            pass
+        else:
+            assert False
+
+    def test_adjs_caseless(self):
+        parseres = adjs_pattern.parseString("KILLER RABBIT")[0]
+        res = get_from_rooms(parseres, [self.room], self.info)
+        assert res is self.target

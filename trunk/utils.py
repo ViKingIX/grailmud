@@ -45,7 +45,7 @@ def distributeEvent(room, nodis, event):
         if obj not in nodis:
             obj.receiveEvent(event)
 
-def adjs_num_parse((adjs, number), info):
+def adjs_num_parse((adjs, number)):
     adjs = frozenset(x.lower() for x in adjs)
     number = int(number) if number else 0
     return adjs, number
@@ -55,6 +55,7 @@ def get_from_rooms(blob, rooms, info):
     this function can extract the object from a list of rooms, or raise an
     UnfoundError.
     """
+    print blob
     #circular import breaking.
     from grailmud.rooms import UnfoundError
 
@@ -67,7 +68,8 @@ def get_from_rooms(blob, rooms, info):
         raise UnfoundError()
     elif len(blob) == 1:
         try:
-            obj = info.instigator.targetting_shorts[blob[0].lower()]
+            lowerkey = blob[0].lower()
+            obj = info.instigator.targetting_shorts[lowerkey]
         except KeyError:
             raise UnfoundError
         for room in rooms:
