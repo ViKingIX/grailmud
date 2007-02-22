@@ -88,10 +88,8 @@ def lookAt(actor, target):
 @lookAt.register(MUDObject, ExitObject)
 def lookAt(actor, target):
     if target.room is not actor.room: #stricter deliberately.
-        print 'Not in room'
         unfoundObject(actor)
     else:
-        print 'Sending event...'
         actor.receiveEvent(LookRoomEvent(target.target_room))
 
 def lookRoom(actor):
