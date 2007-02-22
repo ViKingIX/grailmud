@@ -28,8 +28,7 @@ from grailmud.cleanimporter import CleanImporter
 
 #Some utilities.
 with CleanImporter('pyparsing'):
-    shorttarget_pattern = Suppress('$') + Group(Word(ascii_letters +
-                                                     digits))
+    shorttarget_pattern = Suppress('$') + Word(ascii_letters + digits)
     adjs_pattern = Group(OneOrMore(Word(ascii_letters))) + Optional(Word(digits))
 
     object_pattern = Or(adjs_pattern, shorttarget_pattern)

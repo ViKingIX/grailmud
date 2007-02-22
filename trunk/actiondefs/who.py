@@ -30,6 +30,8 @@ class WhoHereEvent(BaseEvent):
 
     @promptcolour("speech")
     def collapseToText(self, state, obj):
+        #XXX: make this call a function to get the list of objects, to make
+        #sure hidden people and stuff are filtered out.
         state.sendEventLine("You see the following things present:")
         state.setColourName("people list")
         state.sendEventLine(', '.join(obj.sdesc for obj in self.objects))
