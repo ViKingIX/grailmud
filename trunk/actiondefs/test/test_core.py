@@ -71,14 +71,14 @@ class Testshorttarget_pattern(object):
 class Testadjs_pattern(object):
 
     def test_good_no_number(self):
-        res = list(adjs_pattern.parseString("foo bar"))
-        assert len(res) == 1
-        res = [list(res[0])]
+        res = adjs_pattern.parseString("foo bar")[0]
+        assert len(res) == 2
+        res = [list(res[0]), res[1]]
         print res
-        assert res == [["foo", "bar"]]
+        assert res == [["foo", "bar"], "0"]
 
     def test_good_with_number(self):
-        res = adjs_pattern.parseString("foo bar 42")
+        res = adjs_pattern.parseString("foo bar 42")[0]
         assert len(res) == 2
         res = [list(res[0]), res[1]]
         print res

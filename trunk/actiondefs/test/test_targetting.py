@@ -38,14 +38,16 @@ def test_events_are_subclasses_of_BaseEvent():
 class Testtarget_set_pattern(object):
 
     def test_doesnt_blow_up_on_good_input(self):
-        target_set_pattern.parseString("set $foo to bar baz")
+        print target_set_pattern.parseString("set $foo to bar baz")
 
     @raises(ParseException)
     def test_blows_up_on_missing_dollar(self):
-        target_set_pattern.parseString("set foo to bar")
+        print target_set_pattern.parseString("set foo to bar")
 
     def test_two_names_captured(self):
-        assert len(target_set_pattern.parseString("set $foo to bar baz")) == 2
+        res = target_set_pattern.parseString("set $foo to bar baz")
+        print res
+        assert len(res)== 2
 
 class Testtarget_clear_pattern(object):
 
