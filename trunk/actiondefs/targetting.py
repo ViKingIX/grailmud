@@ -27,6 +27,7 @@ from grailmud.utils import promptcolour, get_from_rooms
 from grailmud.rooms import UnfoundError
 from .core import object_pattern, shorttarget_pattern
 from .system import permissionDenied, badSyntax, unfoundObject
+from pyparsing import ParseException
 
 #XXX: this module should be pretty easily testable.
 
@@ -87,7 +88,7 @@ def targetDistributor(actor, text, info):
         permissionDenied(info.instigator)
         return
     try:
-        name, blob = target_set_pattern.parseString(text)
+        (name,), blob = target_set_pattern.parseString(text)
     except ParseException:
         pass
     else:
@@ -99,7 +100,7 @@ def targetDistributor(actor, text, info):
             targetSet(actor, name.lower(), target)
         return
     try:
-        name = target_clear_pattern.parseString(text)
+        (name,), = target_clear_pattern.parseString(text)
     except ParseException:
         pass
     else:

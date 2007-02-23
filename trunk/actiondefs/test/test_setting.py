@@ -63,3 +63,8 @@ class TestEvents(SetupHelper):
                                      [BadSyntaxEvent(syntax_message % evilbad)]
             self.obj.listener.received = []
             
+    def test_parsing_ldesc_ignores_leading_spaces(self):
+        desc = '    foo bar'
+        setDistribute(self.obj, 'ldesc %s' % desc, None)
+        assert self.obj.listener.received == [LDescSetEvent('foo bar')]
+        assert self.obj.ldesc == 'foo bar'

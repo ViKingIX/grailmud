@@ -25,6 +25,7 @@ from pyparsing import ParseException
 from grailmud.utils_for_testing import SetupHelper
 from grailmud.rooms import AnonyRoom
 from nose.tools import raises
+from grailmud.actiondefs.system import UnfoundObjectEvent
 
 def test_registering():
     d = {}
@@ -72,6 +73,11 @@ class Testtarget_list_pattern(object):
 def test_default_targetting_shorts():
     assert MUDObject(None).targetting_shorts == {}
 
+class MockInfo(object):
+
+    def __init__(self, instigator):
+        self.instigator = instigator
+
 class TestActualEvents(SetupHelper):
 
     def setUp(self):
@@ -83,10 +89,12 @@ class TestActualEvents(SetupHelper):
                                         self.room)
         self.setup_for_object(self.actor)
         self.setup_for_object(self.target)
+        self.info = MockInfo(self.actor)
 
     def test_targetSet(self):
         targetSet(self.actor, 'robert', self.target)
         assert self.actor.targetting_shorts['robert'] is self.target
+
 
     def test_targetSet_messages(self):
         targetSet(self.actor, "robert", self.target)
@@ -116,4 +124,31 @@ class TestActualEvents(SetupHelper):
         targetList(self.actor)
         assert self.actor.listener.received == [TargetListEvent(self.actor)]
 
-    #XXX: not tested too good from the command line.
+    def test_targetSet_parsing(self):
+        targetDistributor(self.actor, "set $mike to killer rabbit", self.info)
+        assert self.actor.listener.received == [TargetSetEvent("mike",
+                                                               self.target)]
+
+    def test_targetSet_parsing_failure(self):
+        targetDistributor(self.actor, "set $mike to bogus object", self.info)
+        assert self.actor.listener.received == [UnfoundObjectEvent()]
+
+    def test_targetSet_caseless(self):
+        targetDistributor(self.actor, "set $ROBERT to rabbit", self.info)
+        assert self.actor.targetting_shorts['robert'] is self.target
+
+    def test_targetClear_parsing(self):
+        self.actor.targetting_shorts['bob'] = self.target
+        targetDistributor(self.actor, "clear $bob", self.info)
+        print self.actor.listener.received
+        assert self.actor.listener.received == [TargetClearedEvent("bob")]
+
+    def test_targetClear_parsing_caseless(self):
+        self.actor.targetting_shorts['bob'] = self.target
+        targetDistributor(self.actor, "clear $BOB", self.info)
+        print self.actor.listener.received
+        assert self.actor.listener.received == [TargetClearedEvent("bob")]
+
+    def test_bogus_syntax(self):
+        targetDistributor(self.actor, "bogus syntax", self.info)
+        assert self.actor.listener.received == [BadSyntaxEvent(None)]
