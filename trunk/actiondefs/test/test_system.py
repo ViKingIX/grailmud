@@ -46,3 +46,8 @@ class TestEvents(SetupHelper):
     def test_permission_denied(self):
         permissionDenied(self.obj)
         assert self.obj.listener.received == [PermissionDeniedEvent()]
+
+def test_BadSyntaxEvent_equality():
+    a = BadSyntaxEvent("foo")
+    b = BadSyntaxEvent("bar")
+    assert a == b

@@ -54,6 +54,12 @@ class BadSyntaxEvent(SystemEvent):
             expl = " ".join([expl, self.expl])
         state.sendEventLine(expl)
 
+    def __eq__(self, other):
+        #testing utility to save us having to extract the syntax hint message
+        #from the callsites. 
+        return isinstance(self, BadSyntaxEvent) and \
+               isinstance(other, BadSyntaxEvent)
+
 def blankLine(actor, text, info):
     actor.receiveEvent(BlankLineEvent())
 
