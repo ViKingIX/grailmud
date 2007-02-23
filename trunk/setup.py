@@ -30,6 +30,7 @@ setup(name = "grailmud",
 
       install_requires = ['durus>=3.6', 'pyparsing', 'twisted>=2.5',
                           'functional', 'setuptools'],
+      extras_require = {'rest': ['docutils']}
 
       author = "Sam Pointon",
       author_email = "free.condiments@gmail.com",
