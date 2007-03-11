@@ -1,0 +1,62 @@
+``grailmud`` is a Python MUD server. A more full advocacy and description is 
+in ``doc/whatis.rst``.
+
+Installation
+============
+
+To install the package with all the defaults, execute::
+
+    python setup.py install
+
+in the current directory.
+
+``grailmud`` depends on several external packages: setuptools_,  Twisted_, 
+durus_, pyparsing_, and functional_. The latter four must be present for 
+normal operations; setuptools is only needed for installation.
+
+In addition, docutils_ is used to produce a HTML-ified version of the docs. 
+This is not strictly needed; the docs are written in reST which is quite 
+readable in plain text, but it may be nice to have. ImageMagick_ and graphviz_
+are needed to construct the images in the docs.
+
+.. _docutils: http://docutils.sourceforge.net/
+.. _Twisted: http://twistedmatrix.com
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _durus: http://www.mems-exchange.org/software/durus/
+.. _pyparsing: http://pyparsing.wikispaces.com/
+.. _ImageMagick: http://www.imagemagick.org
+.. _graphviz: http://www.graphviz.org
+.. _functional: http://oakwinter.com/code/functional/
+
+Running ``grailmud``
+====================
+
+Presumably you'll want to customise the game a little, because there is very 
+little in the way of actual game content. However, a very silly, very small
+sample MUD is included: first::
+    
+    create_mudlib.py
+
+to create and initialise the mudlib, and then::
+
+    rungrail.py
+
+to launch the server. It listens on port 6666.
+
+Running the tests
+=================
+
+To run ``grailmud``'s unit testing suite, you need the nose_ testing tool. 
+With that installed, run::
+
+    nosetests
+
+at the shell in ``grailmud``'s directory.
+
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+
+Author
+======
+
+The author of grailmud is Sam Pointon ``<free.condiments@gmail.com>``.
+

@@ -1,0 +1,45 @@
+====================================
+The stuff what does need doing
+====================================
+
+For 0.1
+=======
+
+* Test ``telnet.py``, ``objects.py``, ``delegatess.py`` and ``rooms.py`` as
+completely as possible.
+
+* Test ``actiondefs/login.py`` and ``actiondefs/logoff.py`` a bit.
+
+* ``telnet.py`` doesn't close the connection correctly.
+
+* Logging in fails. Try it for yourself.
+
+For 0.2
+=======
+
+* Go through the ``XXX``es and ``TODO``s in the code and organise them a bit, 
+and list them here if they're major.
+
+* Turn some methods of ``Delegate``s which really ought to be events into 
+(gasp!) events.
+
+* A proper object relational integrity system, possibly with querying. There is
+prior art here; SQLAlchemy, SQLObject, ZCatalog, et al.
+
+* An OLC system.
+
+* A timeout mechanism, to drop idle connections.
+
+* A way of stopping double-logins.
+
+* Case auditing in user commands, and possibly the use of a LoweredKeyDict.
+
+* Make rooms work.
+
+Just nice to have
+=================
+
+* More documentation. Particularly, tutorials and high-level descriptions might
+be nice.
+
+* Sort out the hodge-podge of camelCase method and function names.
